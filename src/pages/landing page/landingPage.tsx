@@ -105,7 +105,7 @@ function LandingPage({ setScrappedData, updateStep }: Props) {
 							onClick={getData}
 						>
 							{loading ? <CountdownTimer /> : 'GO >>'} &nbsp;&nbsp;{' '}
-							{loading && <CircularProgress size={24} color='inherit' />}
+							{loading && <CircularProgress size={20} color='inherit' />}
 						</Button>
 					</StyledContainer>
 				) : (

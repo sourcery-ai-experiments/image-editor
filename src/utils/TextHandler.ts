@@ -7,7 +7,6 @@ import { getExistingObject } from '.';
 interface FabricTextBox extends ITextboxOptions {
 	customType: string;
 }
-
 export function createTextBox(
 	canvas: fabric.Canvas | null,
 	options: FabricTextBox
@@ -25,6 +24,8 @@ export function createTextBox(
 		lineHeight: 1.16,
 		strokeWidth: 1,
 		text: 'Your text here',
+		selection: true, // Enable text selection
+		cursorWidth: 1, // Set cursor width to enable selecting individual words
 	};
 	const textOptions = { ...defaultOptions, ...options };
 	const newText = new fabric.Textbox(options.text || 'Your text here', {
@@ -36,6 +37,35 @@ export function createTextBox(
 	canvas.renderAll();
 	return newText;
 }
+
+// export function createTextBox(
+// 	canvas: fabric.Canvas | null,
+// 	options: FabricTextBox
+// ): fabric.Textbox | undefined {
+// 	if (!canvas) return;
+// 	const defaultOptions: ITextboxOptions = {
+// 		left: 50,
+// 		top: 50,
+// 		fontSize: 16,
+// 		fontWeight: 'bold',
+// 		fontFamily: 'Fira Sans',
+// 		textAlign: 'center',
+// 		fontStyle: 'normal',
+// 		fill: '#000000',
+// 		lineHeight: 1.16,
+// 		strokeWidth: 1,
+// 		text: 'Your text here',
+// 	};
+// 	const textOptions = { ...defaultOptions, ...options };
+// 	const newText = new fabric.Textbox(options.text || 'Your text here', {
+// 		...textOptions,
+// 	});
+// 	if (options.customType) newText.customType = options.customType;
+// 	canvas.add(newText);
+// 	canvas.setActiveObject(newText);
+// 	canvas.renderAll();
+// 	return newText;
+// }
 
 /**
  * Creates a new text object on the canvas with the specified options.
