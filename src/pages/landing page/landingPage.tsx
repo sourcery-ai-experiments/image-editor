@@ -69,7 +69,7 @@ function LandingPage({ setScrappedData, updateStep }: Props) {
 	const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		setInputValue(event.target.value); // Update inputValue state
 	};
-	// console.log('handleInputChange', handleInputChange);
+	console.log('handleInputChange', handleInputChange);
 	function updateScrapURL(_value: string): void {
 		throw new Error('Function not implemented.');
 	}
