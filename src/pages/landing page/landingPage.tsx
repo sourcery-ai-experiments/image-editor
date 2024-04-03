@@ -6,15 +6,13 @@ import {
 	Button,
 } from '@mui/material';
 import { styled } from '@mui/system';
-// import Input from '../../components/input/input';
-import CountdownTimer from '../../components/counter/counter';
 import { Dispatch, SetStateAction, useState } from 'react';
 import { BaseURL } from '../../constants';
-
 import { APIResponse } from '../../types';
 import toast from 'react-hot-toast';
 import { useAuth0 } from '@auth0/auth0-react';
 import { useCanvasContext } from '../../context/CanvasContext';
+import CountdownTimer from '../../components/counter/counter';
 
 const StyledContainer = styled(Box)(({}) => ({
 	display: 'flex',
@@ -38,37 +36,40 @@ function LandingPage({ setScrappedData, updateStep }: Props) {
 	const { scrapURL } = useCanvasContext();
 
 	const [loading, setLoading] = useState(false);
+	const [inputValue, setInputValue] = useState(scrapURL);
 
 	const getData = async () => {
 		if (loading) return;
-		if (!loading) {
-			try {
-				setLoading(true);
-				const response = await fetch(`${BaseURL}/scrapping_data`, {
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-					},
 
-					body: JSON.stringify({ url: scrapURL }),
-				});
-				const data = await response.json();
+		try {
+			setLoading(true);
+			const response = await fetch(`${BaseURL}/scrapping_data`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({ url: inputValue }), // Use inputValue here
+			});
+			const data = await response.json();
 
-				if (!response.ok) {
-					setLoading(false);
-					return toast.error(data?.error);
-				}
-
-				await setScrappedData(data);
-				updateStep(2);
+			if (!response.ok) {
 				setLoading(false);
-			} catch (error) {
-				if (error instanceof Error) toast.error(error.message);
-				setLoading(false);
+				return toast.error(data?.error);
 			}
-		} else updateStep(2);
+
+			await setScrappedData(data);
+			updateStep(2);
+			setLoading(false);
+		} catch (error) {
+			if (error instanceof Error) toast.error(error.message);
+			setLoading(false);
+		}
 	};
 
+	const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+		setInputValue(event.target.value); // Update inputValue state
+	};
+	// console.log('handleInputChange', handleInputChange);
 	function updateScrapURL(_value: string): void {
 		throw new Error('Function not implemented.');
 	}
