@@ -87,6 +87,10 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			brightness: 0,
 			contrast: 0,
 		});
+
+		const { userMetaData, updateIsUserMetaExist, updateUserMetaData } =
+			useCanvasContext();
+		console.log('🚀 ~ userMetaData:', userMetaData?.company?.name);
 		const [canvasToolbox, setCanvasToolbox] = useState({
 			activeObject: null,
 			isDeselectDisabled: true,
@@ -108,6 +112,14 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				charSpacing: 1,
 			});
 
+		const [overlayTextFiltersState1, setOverlayTextFiltersState1] =
+			useState<FilterState>({
+				color: 'red',
+			});
+		console.log(
+			'overlayTextFiltersState1.color',
+			overlayTextFiltersState1.color
+		);
 		const [filterValues, setFilterValues] = useState({
 			overlayText: {
 				overlay: 0.6,
@@ -159,17 +171,104 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				height: canvasDimension.height,
 				renderOnAddRemove: false,
 				preserveObjectStacking: true,
+				selection: true, // Enable text selection
 			};
 			const canvas = new fabric.Canvas(canvasEl.current, options);
 			canvasInstanceRef.current = canvas;
 			// make the fabric.Canvas instance available to your app
 			updateCanvasContext(canvas);
 
+			// Event listener for mouse click
+			canvas.on('mouse:down', handleMouseDown);
+
+			function handleMouseDown(event) {
+				const selectedObject = event.target;
+
+				if (selectedObject && selectedObject.type === 'textbox') {
+					const selectionStart = selectedObject.selectionStart;
+					const selectionEnd = selectedObject.selectionEnd;
+
+					if (selectionStart !== selectionEnd) {
+						const fill = overlayTextFiltersState1.color;
+						console.log('🚀  fill:', fill);
+						selectedObject.setSelectionStyles(
+							{ fill },
+							selectionStart,
+							selectionEnd
+						);
+						canvas.renderAll();
+					}
+				}
+			}
+
 			return () => {
 				updateCanvasContext(null);
 				canvas.dispose();
 			};
 		}, []);
+
+		// useEffect(() => {
+		// 	const options = {
+		// 		width: canvasDimension.width,
+		// 		height: canvasDimension.height,
+		// 		renderOnAddRemove: false,
+		// 		preserveObjectStacking: true,
+		// 		selection: true, // Enable text selection
+		// 	};
+		// 	const canvas = new fabric.Canvas(canvasEl.current, options);
+		// 	canvasInstanceRef.current = canvas;
+		// 	// make the fabric.Canvas instance available to your app
+		// 	updateCanvasContext(canvas);
+
+		// 	// Event listener for mouse click
+		// 	canvas.on('mouse:down', handleMouseDown);
+
+		// 	function handleMouseDown(event) {
+		// 		const selectedObject = canvas.getActiveObject();
+
+		// 		console.log('🚀  selectedObject:', selectedObject);
+		// 		console.log('🚀  selectedObject Type:', selectedObject.type);
+		// 		console.log('selectedObject.text:', selectedObject.text);
+
+		// 		if (selectedObject && selectedObject.type === 'textbox') {
+		// 			selectedObject.set('fill', '#ff0000');
+		// 			canvas.renderAll();
+		// 		}
+		// 	}
+
+		// 	return () => {
+		// 		updateCanvasContext(null);
+		// 		canvas.dispose();
+		// 	};
+		// }, []);
+
+		// useEffect(() => {
+		// 	const options = {
+		// 		width: canvasDimension.width,
+		// 		height: canvasDimension.height,
+		// 		renderOnAddRemove: false,
+		// 		preserveObjectStacking: true,
+		// 	};
+		// 	const canvas = new fabric.Canvas(canvasEl.current, options);
+		// 	canvasInstanceRef.current = canvas;
+		// 	// make the fabric.Canvas instance available to your app
+		// 	updateCanvasContext(canvas);
+
+		// 	canvas.on('selection:created', function (e) {
+		// 		console.log('----run----', e);
+		// 		if (e.target.type === 'textbox') {
+		// 			e.target.set('fill', 'red');
+		// 			console.log('----run program----');
+
+		// 			canvas.renderAll();
+		// 		}
+		// 	});
+
+		// 	return () => {
+		// 		updateCanvasContext(null);
+		// 		canvas.dispose();
+		// 	};
+		// }, []);
 
 		const handleButtonClick = (buttonType: string) =>
 			setActiveButton(buttonType);
@@ -319,9 +418,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				canvas?.off('selection:cleared', handleCanvasUpdate);
 			};
 		}, [loadCanvas]);
-
-		const { userMetaData, updateIsUserMetaExist, updateUserMetaData } =
-			useCanvasContext();
 
 		const updateBubbleImage = (
 			imgUrl: string | undefined,
@@ -870,6 +966,44 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 		//---------------------Sharpen --------------------------
 		const [sharpenApplied, setSharpenApplied] = useState(false);
 
+		//----------------------------------------------------------
+		// const [canvas, setCanvas] = useState<fabric.Canvas | null>(null);
+		// const [selectedText, setSelectedText] = useState<fabric.Object | null>(
+		// 	null
+		// );
+
+		// // Function to change text color
+		// const changeTextColor = (color: string) => {
+		// 	if (selectedText instanceof fabric.Textbox) {
+		// 		selectedText.set('fill', color);
+		// 		canvas?.renderAll();
+		// 	}
+		// };
+
+		// const [selectedWord, setSelectedWord] = useState<string>('');
+
+		// // Function to handle word selection
+		// const handleWordSelect = () => {
+		// 	const selection = window.getSelection();
+		// 	if (selection) {
+		// 		const selectedText = selection.toString().trim();
+		// 		setSelectedWord(selectedText);
+		// 	}
+		// };
+
+		// // Function to change the color of the selected word
+		// const changeColor = (color: string) => {
+		// 	const paragraph = document.getElementById('paragraph');
+		// 	if (!paragraph) return;
+
+		// 	const updatedHTML = paragraph.innerHTML.replace(
+		// 		new RegExp(`\\b${selectedWord}\\b`, 'g'),
+		// 		`<span style="color: ${color};">${selectedWord}</span>`
+		// 	);
+
+		// 	paragraph.innerHTML = updatedHTML;
+		// };
+
 		return (
 			<div
 				style={{
@@ -948,16 +1082,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 						)} */}
 					</div>
 
-					<canvas
-						// style={{
-						// 	border: '2px solid red',
-						// 	position: 'relative',
-						// 	zIndex: 1000,
-						// }}
-						width='1080'
-						height='1350'
-						ref={canvasEl}
-					/>
+					<canvas width='1080' height='1350' ref={canvasEl} />
 					{/* <div style={{ position: 'relative' }}>
 						<canvas
 							style={{
@@ -1260,6 +1385,13 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 									>
 										Size
 									</Typography>
+
+									<Typography
+										className={classes.heading}
+										onClick={() => setShow('colors1')}
+									>
+										CostumeColor
+									</Typography>
 								</Box>
 
 								{show === 'colors' && (
@@ -1269,6 +1401,20 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 											changeHandler={(color: string) => {
 												updateTextBox(canvas, { fill: color });
 												setOverlayTextFiltersState((prev) => ({
+													...prev,
+													color,
+												}));
+											}}
+										/>
+									</Box>
+								)}
+
+								{show === 'colors1' && (
+									<Box className={classes.optionsContainer}>
+										<CustomColorPicker
+											value={overlayTextFiltersState1.color}
+											changeHandler={(color) => {
+												setOverlayTextFiltersState1((prev) => ({
 													...prev,
 													color,
 												}));
@@ -1568,9 +1714,9 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 									) : null}
 								</ImageViewer>
 
-								<h4 style={{ margin: '0px', padding: '0px' }}>AI Images</h4>
+								{/* <h4 style={{ margin: '0px', padding: '0px' }}>AI Images</h4>  */}
 
-								<ImageViewer
+								{/* <ImageViewer
 									clickHandler={(img: string) => updateBackgroundImage(img)}
 									images={initialData.backgroundImages}
 								>
@@ -1599,7 +1745,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 											</Box>
 										</>
 									) : null}
-								</ImageViewer>
+								</ImageViewer> */}
 
 								<Box {...styles.uploadBox}>
 									<label style={styles.uploadLabel}>
@@ -1915,10 +2061,10 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 										</Box>
 
 										<Box>
-											<Typography>User Details</Typography>
+											{/* <Typography>User Details</Typography> */}
 											{/* <Typography>{`Name: ${userMetaData?.company?.name}`}</Typography> */}
-											<Typography>{`Color :${userMetaData?.company?.color}`}</Typography>
-											<Typography>{`Font :${userMetaData?.company?.font}`}</Typography>
+											{/* <Typography>{`Color :${userMetaData?.company?.color}`}</Typography>
+											<Typography>{`Font :${userMetaData?.company?.font}`}</Typography> */}
 											{/* <Typography>{`Website Link${userMetaData?.company?.website}`}</Typography>
 											<Typography>{`Plan :${userMetaData?.company?.plan}`}</Typography> */}
 											<Box
