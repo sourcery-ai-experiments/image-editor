@@ -1390,7 +1390,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 										className={classes.heading}
 										onClick={() => setShow('colors1')}
 									>
-										CostumeColor
+										Text Highlights
 									</Typography>
 								</Box>
 
