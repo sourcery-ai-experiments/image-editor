@@ -47,7 +47,7 @@ import { debounce } from 'lodash';
 
 import GridOnIcon from '@mui/icons-material/GridOn';
 import GridOffIcon from '@mui/icons-material/GridOff';
-
+import { ChromePicker } from 'react-color';
 interface CanvasProps {
 	template: Template;
 	updatedSeedData: Record<string, any>;
@@ -90,7 +90,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
 		const { userMetaData, updateIsUserMetaExist, updateUserMetaData } =
 			useCanvasContext();
-		console.log('🚀 ~ userMetaData:', userMetaData?.company?.name);
+		// console.log('🚀 ~ userMetaData:', userMetaData?.company?.name);
 		const [canvasToolbox, setCanvasToolbox] = useState({
 			activeObject: null,
 			isDeselectDisabled: true,
@@ -116,10 +116,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			useState<FilterState>({
 				color: 'red',
 			});
-		console.log(
-			'overlayTextFiltersState1.color',
-			overlayTextFiltersState1.color
-		);
+
 		const [filterValues, setFilterValues] = useState({
 			overlayText: {
 				overlay: 0.6,
@@ -165,47 +162,319 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
 		const classes = useStyles();
 		const canvasInstanceRef = useRef(null);
+		const [color, setColor] = useState('#FD3232');
+		const [colorApplied, setColorApplied] = useState(false);
+		const [bgColorApplied, setBgColorApplied] = useState(false);
+		const [backgroundColor, setBackgroundColor] = useState('#909BEB');
+
+		const [fontSize, setFontSize] = useState(24);
+		const [fontFamily, setFontFamily] = useState('Arial');
+		const [fontWeightApplied, setFontWeightApplied] = useState(false);
+
 		useEffect(() => {
 			const options = {
 				width: canvasDimension.width,
 				height: canvasDimension.height,
 				renderOnAddRemove: false,
 				preserveObjectStacking: true,
-				selection: true, // Enable text selection
+				selection: true,
 			};
+
 			const canvas = new fabric.Canvas(canvasEl.current, options);
 			canvasInstanceRef.current = canvas;
-			// make the fabric.Canvas instance available to your app
+
 			updateCanvasContext(canvas);
 
-			// Event listener for mouse click
+			// Attach the event listener with the separated function
+			canvas.on('selection:created', handleSelectionUpdated);
+			canvas.on('selection:updated', handleSelectionUpdated);
+
+			// Register event listener
 			canvas.on('mouse:down', handleMouseDown);
 
-			function handleMouseDown(event) {
-				const selectedObject = event.target;
-
-				if (selectedObject && selectedObject.type === 'textbox') {
-					const selectionStart = selectedObject.selectionStart;
-					const selectionEnd = selectedObject.selectionEnd;
-
-					if (selectionStart !== selectionEnd) {
-						const fill = overlayTextFiltersState1.color;
-						console.log('🚀  fill:', fill);
-						selectedObject.setSelectionStyles(
-							{ fill },
-							selectionStart,
-							selectionEnd
-						);
-						canvas.renderAll();
-					}
-				}
-			}
-
 			return () => {
+				// Cleanup
 				updateCanvasContext(null);
 				canvas.dispose();
 			};
-		}, []);
+		}, [canvasDimension]);
+		const handleSelectionUpdated = () => {
+			const activeObject = canvasInstanceRef.current.getActiveObject();
+			if (activeObject && activeObject.type === 'textbox') {
+				const selectedText = window.getSelection().toString();
+				if (activeObject.text.includes(selectedText)) {
+					const startPos = activeObject.text.indexOf(selectedText);
+					const endPos = startPos + selectedText.length;
+					activeObject.setSelectionStyles(
+						{ textBackgroundColor: backgroundColor },
+						startPos,
+						endPos
+					);
+					setBgColorApplied(true);
+					canvasInstanceRef.current.renderAll(); // Render only the canvas instance
+				}
+			}
+		};
+
+		const removeBackgroundColor = () => {
+			const activeObject = canvasInstanceRef.current.getActiveObject();
+			if (activeObject && activeObject.type === 'textbox') {
+				const selectedText = window.getSelection().toString();
+				if (activeObject.text.includes(selectedText)) {
+					const startPos = activeObject.text.indexOf(selectedText);
+					const endPos = startPos + selectedText.length;
+					activeObject.setSelectionStyles(
+						{ textBackgroundColor: 'transparent' },
+						startPos,
+						endPos
+					);
+					setBgColorApplied(true);
+					canvasInstanceRef.current.renderAll(); // Render only the canvas instance
+				}
+			}
+		};
+
+		// Define handleMouseDown function
+		const handleMouseDown = (event) => {
+			const selectedObject = event.target;
+
+			if (selectedObject && selectedObject.type === 'textbox') {
+				const selectionStart = selectedObject.selectionStart;
+				const selectionEnd = selectedObject.selectionEnd;
+
+				if (selectionStart !== selectionEnd) {
+					selectedObject.setSelectionStyles(
+						{ fill: color },
+
+						selectionStart,
+						selectionEnd
+					);
+					canvasInstanceRef.current.renderAll(); // Render only the selected object
+				}
+			}
+		};
+
+		const applyBackgroundColor = () => {
+			const activeObject = canvasInstanceRef.current.getActiveObject();
+			if (activeObject && activeObject.type === 'textbox') {
+				activeObject.setSelectionStyles({ backgroundColor: backgroundColor });
+				canvasInstanceRef.current.renderAll(); // Render only the canvas instance
+				setColorApplied(true);
+			}
+		};
+
+		const applyColor = () => {
+			const activeObject = canvasInstanceRef.current.getActiveObject();
+			console.log('🚀 ~ applyColor ~ activeObject:', activeObject);
+			if (activeObject && activeObject.type === 'textbox') {
+				activeObject.setSelectionStyles({
+					fill: color,
+				});
+
+				canvasInstanceRef.current.renderAll();
+				setColorApplied(true);
+			}
+		};
+
+		const removeColor = () => {
+			const activeObject = canvasInstanceRef.current.getActiveObject();
+			if (activeObject && activeObject.type === 'textbox') {
+				activeObject.setSelectionStyles({ fill: '#ffffff' });
+				canvasInstanceRef.current.renderAll(); // Render only the selected object
+				setColorApplied(false);
+			}
+		};
+
+		const applyFontWeight = () => {
+			const activeObject = canvasInstanceRef.current.getActiveObject();
+			if (activeObject && activeObject.type === 'textbox') {
+				activeObject.setSelectionStyles({
+					fontWeight: fontWeightApplied ? '' : 'bold',
+				});
+				canvasInstanceRef.current.renderAll(); // Render only the selected object
+				setFontWeightApplied(!fontWeightApplied);
+			}
+		};
+
+		const applyFontSize = (size) => {
+			const activeObject = canvasInstanceRef.current.getActiveObject();
+			if (activeObject && activeObject.type === 'textbox') {
+				activeObject.setSelectionStyles({ fontSize: size });
+				canvasInstanceRef.current.renderAll(); // Render only the selected object
+				setFontSize(size);
+			}
+		};
+
+		const applyFontFamily = (family) => {
+			const activeObject = canvasInstanceRef.current.getActiveObject();
+			if (activeObject && activeObject.type === 'textbox') {
+				activeObject.setSelectionStyles({ fontFamily: family });
+				canvasInstanceRef.current.renderAll(); // Render only the selected object
+				setFontFamily(family);
+			}
+		};
+
+		//   useEffect(() => {
+		//       const options = {
+		//           width: canvasDimension.width,
+		//           height: canvasDimension.height,
+		//           renderOnAddRemove: false,
+		//           preserveObjectStacking: true,
+		//           selection: true,
+		//       };
+		//       const canvas = new fabric.Canvas(canvasEl.current, options);
+		//       canvasInstanceRef.current = canvas;
+		//       // make the fabric.Canvas instance available to your app
+		//       updateCanvasContext(canvas);
+
+		//       // Event listener for mouse click
+		//       canvas.on('mouse:down', handleMouseDown);
+
+		//       function handleMouseDown(event) {
+		//           const selectedObject = event.target;
+
+		//           if (selectedObject && selectedObject.type === 'textbox') {
+		//               const selectionStart = selectedObject.selectionStart;
+		//               const selectionEnd = selectedObject.selectionEnd;
+
+		//               if (selectionStart !== selectionEnd) {
+		//                   const fill = overlayTextFiltersState1.color;
+		//                   selectedObject.setSelectionStyles({ fill }, selectionStart, selectionEnd);
+		//                   canvas.renderAll();
+		//               }
+		//           }
+		//       }
+
+		//       return () => {
+		//           updateCanvasContext(null);
+		//           canvas.dispose();
+		//       };
+		//   }, [canvasDimension, overlayTextFiltersState1]);
+
+		//   const changeColor = (color) => {
+		//       const activeObject = canvasInstanceRef.current.getActiveObject();
+		//       if (activeObject && activeObject.type === 'textbox') {
+		//           activeObject.setSelectionStyles({ fill: color });
+		//           canvasInstanceRef.current.renderAll();
+		//       }
+		//   };
+		// 	const removeColor = () => {
+		// 		const activeObject = canvasInstanceRef.current.getActiveObject();
+		// 		if (activeObject && activeObject.type === 'textbox') {
+		// 				activeObject.setSelectionStyles({ fill: 'white' }); // Revert to default color
+		// 				canvasInstanceRef.current.renderAll();
+		// 		}
+		// };
+
+		//   const changeFont = (fontFamily) => {
+		//       const activeObject = canvasInstanceRef.current.getActiveObject();
+		//       if (activeObject && activeObject.type === 'textbox') {
+		//           activeObject.setSelectionStyles({ fontFamily });
+		//           canvasInstanceRef.current.renderAll();
+		//       }
+		//   };
+
+		//   const changeFontSize = (fontSize) => {
+		//       const activeObject = canvasInstanceRef.current.getActiveObject();
+		//       if (activeObject && activeObject.type === 'textbox') {
+		//           activeObject.setSelectionStyles({ fontSize });
+		//           canvasInstanceRef.current.renderAll();
+		//       }
+		//   };
+
+		//   const changeFontWeight = (fontWeight) => {
+		//       const activeObject = canvasInstanceRef.current.getActiveObject();
+		//       if (activeObject && activeObject.type === 'textbox') {
+		//           activeObject.setSelectionStyles({ fontWeight });
+		//           canvasInstanceRef.current.renderAll();
+		//       }
+		//   };
+
+		// 	useEffect(() => {
+		// 		const options = {
+		// 				width: canvasDimension.width,
+		// 				height: canvasDimension.height,
+		// 				renderOnAddRemove: false,
+		// 				preserveObjectStacking: true,
+		// 				selection: true,
+
+		// 		};
+		// 		const canvas = new fabric.Canvas(canvasEl.current, options);
+		// 		canvasInstanceRef.current = canvas;
+		// 		// make the fabric.Canvas instance available to your app
+		// 		updateCanvasContext(canvas);
+
+		// 		// Event listener for mouse click
+		// 		canvas.on('mouse:down', handleMouseDown);
+
+		// 		function handleMouseDown(event) {
+		// 				const selectedObject = event.target;
+
+		// 				if (selectedObject && selectedObject.type === 'textbox') {
+		// 						const selectionStart = selectedObject.selectionStart;
+		// 						const selectionEnd = selectedObject.selectionEnd;
+
+		// 						if (selectionStart !== selectionEnd) {
+		// 								const fill = overlayTextFiltersState1.color;
+		// 								console.log('🚀  fill:', fill);
+		// 								selectedObject.setSelectionStyles({ fill }, selectionStart, selectionEnd);
+
+		// 								// Change font size and fontWeight
+		// 								selectedObject.setSelectionStyles({ fontSize: 30, fontWeight: 'bold', 				fontFamily: 'Fira Sans',
+		// 							}, selectionStart, selectionEnd);
+
+		// 								canvas.renderAll();
+		// 						}
+		// 				}
+		// 		}
+
+		// 		return () => {
+		// 				updateCanvasContext(null);
+		// 				canvas.dispose();
+		// 		};
+		// }, []);
+
+		// useEffect(() => {
+		// 	const options = {
+		// 		width: canvasDimension.width,
+		// 		height: canvasDimension.height,
+		// 		renderOnAddRemove: false,
+		// 		preserveObjectStacking: true,
+		// 		selection: true, // Enable text selection
+		// 	};
+		// 	const canvas = new fabric.Canvas(canvasEl.current, options);
+		// 	canvasInstanceRef.current = canvas;
+		// 	// make the fabric.Canvas instance available to your app
+		// 	updateCanvasContext(canvas);
+
+		// 	// Event listener for mouse click
+		// 	canvas.on('mouse:down', handleMouseDown);
+
+		// 	function handleMouseDown(event) {
+		// 		const selectedObject = event.target;
+
+		// 		if (selectedObject && selectedObject.type === 'textbox') {
+		// 			const selectionStart = selectedObject.selectionStart;
+		// 			const selectionEnd = selectedObject.selectionEnd;
+
+		// 			if (selectionStart !== selectionEnd) {
+		// 				const fill = overlayTextFiltersState1.color;
+		// 				console.log('🚀  fill:', fill);
+		// 				selectedObject.setSelectionStyles(
+		// 					{ fill },
+		// 					selectionStart,
+		// 					selectionEnd
+		// 				);
+		// 				canvas.renderAll();
+		// 			}
+		// 		}
+		// 	}
+
+		// 	return () => {
+		// 		updateCanvasContext(null);
+		// 		canvas.dispose();
+		// 	};
+		// }, []);
 
 		// useEffect(() => {
 		// 	const options = {
@@ -1083,17 +1352,15 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 					</div>
 
 					<canvas width='1080' height='1350' ref={canvasEl} />
-					{/* <div style={{ position: 'relative' }}>
-						<canvas
-							style={{
-								border: '2px solid red',
-								position: 'absolute',
-								top: 0,
-								left: 0,
-							}}
-							ref={canvasEl}
-						/>
-					</div> */}
+					{/* <>
+          
+            <button onClick={() => changeColor('red')}>Change Color</button>
+						<button onClick={() => removeColor()}>Remove Color</button>
+            <button onClick={() => changeFont('Arial')}>Change Font</button>
+            <button onClick={() => changeFontSize(24)}>Change Font Size</button>
+            <button onClick={() => changeFontWeight('bold')}>Change Font Weight</button>
+        </> */}
+
 					{/* Footer Panel  Start*/}
 					{activeTab == 'background' && dropDown && (
 						<div>
@@ -1248,62 +1515,8 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 												{filter.name}
 											</Button>
 										))}
-										{/* {availableFilters.map((filter) => (
-											<Button
-												key={filter.name}
-												className={`${classes.button} ${
-													selectedFilter === 'greyscale' && classes.buttonActive
-												}`}
-												variant='text'
-												color='primary'
-												onClick={() =>
-													updateBackgroundFilters(filter.filter, filter.name)
-												}
-											>
-												{filter.name}
-											</Button>
-										))} */}
-										{/* {availableFilters.map((filter) => (
-											<Button
-												key={filter.name}
-												className={`${classes.button} ${
-													selectedFilter === 'greyscale' && classes.buttonActive
-												}`}
-												variant='text'
-												color='primary'
-												onClick={() =>
-													updateBackgroundFilters(filter.filter, filter.name)
-												}
-											>
-												{filter.name}
-											</Button>
-										))} */}
 									</div>
 								)}
-
-								{/* {activeButton === 'Sharpen' && (
-									<div className={classes.sliderContainer}>
-										<Slider
-											className={classes.slider}
-											aria-label='Overlay, Brightness, Contrast'
-											color='secondary'
-											defaultValue={0}
-											min={-1}
-											value={filtersRange.sharpen}
-											max={1}
-											step={0.01}
-											valueLabelDisplay='auto'
-											onChange={(e: any) => {
-												let value = +e.target.value;
-												setFiltersRange({ ...filtersRange, sharpen: value });
-												var filter = new fabric.Image.filters.Convolute({
-													matrix: [0, -1, 0, -1, 5, -1, 0, -1, 0],
-												});
-												updateBackgroundFilters(filter, 'sharpen');
-											}}
-										/>
-									</div>
-								)} */}
 
 								{activeButton === 'border' && (
 									<Stack
@@ -1386,16 +1599,23 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 										Size
 									</Typography>
 
-									<Typography
+									{/* <Typography
 										className={classes.heading}
 										onClick={() => setShow('colors1')}
 									>
-										Text Highlights
-									</Typography>
+										Text
+									</Typography> */}
 								</Box>
 
 								{show === 'colors' && (
-									<Box className={classes.optionsContainer}>
+									<Box
+										className={classes.optionsContainer}
+										sx={{
+											display: 'flex',
+											alignItems: 'center',
+											justifyContent: 'center',
+										}}
+									>
 										<CustomColorPicker
 											value={overlayTextFiltersState.color}
 											changeHandler={(color: string) => {
@@ -1406,20 +1626,191 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 												}));
 											}}
 										/>
+										<Typography
+											sx={{
+												color: 'white',
+												px: 1,
+											}}
+										>
+											Text Color
+										</Typography>
+
+										<Box
+											sx={{
+												display: 'flex',
+												justifyContent: 'center',
+												alignItems: 'center',
+											}}
+										>
+											<CustomColorPicker
+												type='color'
+												value={color}
+												changeHandler={(color: string) => {
+													setColor(color);
+													applyColor();
+												}}
+											/>
+
+											<Button
+												onClick={applyColor}
+												// onClick={colorApplied ? removeColor : applyColor}
+												sx={{
+													color: 'white',
+													textTransform: 'none',
+													backgroundColor: colorApplied ? 'gray' : '',
+													mx: 1,
+												}}
+											>
+												<Typography
+													sx={{
+														color: 'white',
+													}}
+												>
+													Text Highlight
+												</Typography>
+												{/* {colorApplied ? 'Remove Color' : 'Apply Color'} */}
+											</Button>
+											<Button
+												onClick={removeColor}
+												sx={{
+													// color: 'white',
+													textTransform: 'none',
+													minWidth: '10px',
+												}}
+											>
+												<DeleteIcon />
+											</Button>
+										</Box>
+										<CustomColorPicker
+											type='color'
+											value={backgroundColor}
+											changeHandler={(color: string) => {
+												setBackgroundColor(color);
+												handleSelectionUpdated();
+											}}
+										/>
+										{/* Apply Background Color Button */}
+										{/* <button onClick={applyBackgroundColor}>Apply Bg</button> */}
+										<Button
+											onClick={handleSelectionUpdated}
+											sx={{
+												color: 'white',
+												textTransform: 'none',
+												backgroundColor: bgColorApplied ? 'gray' : '',
+												mx: 1,
+											}}
+										>
+											Bg Color
+										</Button>
+										<Button
+											onClick={removeBackgroundColor}
+											sx={{
+												// color: 'white',
+												textTransform: 'none',
+												minWidth: '10px',
+											}}
+										>
+											<DeleteIcon />
+										</Button>
 									</Box>
 								)}
 
-								{show === 'colors1' && (
+								{/* {show === 'colors1' && (
 									<Box className={classes.optionsContainer}>
-										<CustomColorPicker
-											value={overlayTextFiltersState1.color}
-											changeHandler={(color) => {
-												setOverlayTextFiltersState1((prev) => ({
+										<>
+											<input
+												type='color'
+												value={color}
+												onChange={(e) => setColor(e.target.value)}
+											/>
+											<Button
+												onClick={colorApplied ? removeColor : applyColor}
+												sx={{
+													color: 'white',
+													textTransform: 'none',
+												}}
+											>
+												{colorApplied ? 'Color' : 'Color'}
+												{colorApplied ? 'Remove Color' : 'Apply Color'}
+											</Button> 
+											<select
+												value={fontSize}
+												onChange={(e) =>
+													applyFontSize(parseInt(e.target.value))
+												}
+											>
+												<option value={12}>12</option>
+												<option value={14}>14</option>
+												<option value={16}>16</option>
+												<option value={18}>18</option>
+												<option value={20}>20</option>
+												<option value={22}>22</option>
+												<option value={24}>24</option>
+												<option value={26}>26</option>
+												<option value={28}>28</option>
+												<option value={30}>30</option>
+												<option value={32}>32</option>
+												<option value={34}>34</option>
+												<option value={36}>36</option>
+
+												
+											</select>
+											<Button
+												sx={{
+													color: 'white',
+													textTransform: 'none',
+												}}
+											>
+												Font Size
+											</Button>
+											<select
+												value={fontFamily}
+												onChange={(e) => applyFontFamily(e.target.value)}
+											>
+												<option value='Arial'>Arial</option>
+												<option value='Helvetica'>Helvetica</option>
+											
+												<option value='Fira Sans'>Fira Sans</option>
+												<option value='Pacifico'>Pacifico</option>
+												<option value='VT323'>VT323</option>
+												<option value='Quicksand'>Quicksand</option>
+												<option value='Inconsolata'>Inconsolata</option>
+												<option value='Roboto'>Roboto</option>
+											</select>
+											<Button
+												sx={{
+													color: 'white',
+													textTransform: 'none',
+												}}
+											>
+												Font Family
+											</Button>
+											<Button
+												onClick={applyFontWeight}
+												sx={{
+													color: 'white',
+													textTransform: 'none',
+												}}
+											>
+												{fontWeightApplied ? 'Bold' : 'Bold'}
+										
+											</Button>
+										</>
+										
+									</Box>
+								)} */}
+								{show === 'bgColors' && (
+									<Box className={classes.optionsContainer}>
+										{/* <CustomColorPicker
+											value={overlayTextFiltersState.color}
+											changeHandler={(color: string) => {
+												updateTextBox(canvas, { fill: color });
+												setOverlayTextFiltersState((prev) => ({
 													...prev,
 													color,
 												}));
 											}}
-										/>
+										/> */}
 									</Box>
 								)}
 
