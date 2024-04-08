@@ -1039,6 +1039,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 					return;
 				}
 			}
+
 			if (!activeObject) return console.log('Still Object not found');
 
 			if (template.backgroundImage || !template.diptych)
@@ -2389,14 +2390,19 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 												alignItems: 'center',
 											}}
 										>
+											{console.log(
+												'userMetaData ',
+												userMetaData?.company?.logo
+											)}
 											{logos?.map((logo: string) => {
 												const logoFillColor =
 													userMetaData?.company?.color || 'black';
+
 												return (
 													<img
 														key={logo}
 														src={logo}
-														alt=''
+														alt='logo'
 														onClick={() => {
 															const existingTextObject = getExistingObject(
 																'hashtag'
