@@ -48,6 +48,62 @@ import { debounce } from 'lodash';
 import GridOnIcon from '@mui/icons-material/GridOn';
 import GridOffIcon from '@mui/icons-material/GridOff';
 import { ChromePicker } from 'react-color';
+import socialTag1 from '../../assets/socialTags/Verification-Tick-1.svg';
+import socialTag2 from '../../assets/socialTags/Verification-Tick-2.svg';
+import socialTag3 from '../../assets/socialTags/Verification-Tick-3.svg';
+
+import shape1 from '../../assets/shapes/1-Shapes-Circle.svg';
+import shape2 from '../../assets/shapes/2-Shapes-Rectangle.svg';
+import shape3 from '../../assets/shapes/3-Shapes-Star-A.svg';
+import shape4 from '../../assets/shapes/4-Shapes-Star-B.svg';
+import shape5 from '../../assets/shapes/5-Shapes-Triangle.svg';
+import shape6 from '../../assets/shapes/6-Shapes-Square.svg';
+import shape7 from '../../assets/shapes/7-Shapes-Diamond.svg';
+import shape8 from '../../assets/shapes/8-Shapes-Plus.svg';
+import shape9 from '../../assets/shapes/9-Shapes-Heart.svg';
+import shape10 from '../../assets/shapes/10-Shapes-Trapezium.svg';
+
+import swipe1 from '../../assets/swipe/Swipe-1.svg';
+import swipe2 from '../../assets/swipe/Swipe-2.svg';
+import swipe3 from '../../assets/swipe/Swipe-3.svg';
+
+import socialPlatformsImg1 from '../../assets/socialPlatforms/1-Round-Color-FB.svg';
+import socialPlatformsImg2 from '../../assets/socialPlatforms/2-Round-Color-IG.svg';
+import socialPlatformsImg3 from '../../assets/socialPlatforms/3-Round-Color-X.svg';
+import socialPlatformsImg4 from '../../assets/socialPlatforms/4-Round-Color-YT.svg';
+import socialPlatformsImg5 from '../../assets/socialPlatforms/5-Round-Color-TT.svg';
+import socialPlatformsImg6 from '../../assets/socialPlatforms/6-Round-Color-LI.svg';
+import socialPlatformsImg7 from '../../assets/socialPlatforms/7-Round-BW-FB.svg';
+import socialPlatformsImg8 from '../../assets/socialPlatforms/8-Round-BW-IG.svg';
+import socialPlatformsImg9 from '../../assets/socialPlatforms/9-Round-BW-X.svg';
+import socialPlatformsImg10 from '../../assets/socialPlatforms/10-Round-BW-YT.svg';
+import socialPlatformsImg11 from '../../assets/socialPlatforms/11-Round-BW-TT.svg';
+import socialPlatformsImg12 from '../../assets/socialPlatforms/12-Round-BW-LI.svg';
+import socialPlatformsImg13 from '../../assets/socialPlatforms/13-Square-Color-FB.svg';
+import socialPlatformsImg14 from '../../assets/socialPlatforms/14-Square-Color-IG.svg';
+import socialPlatformsImg15 from '../../assets/socialPlatforms/15-Square-Color-X.svg';
+import socialPlatformsImg16 from '../../assets/socialPlatforms/16-Square-Color-TT.svg';
+import socialPlatformsImg17 from '../../assets/socialPlatforms/17-Square-Color-YT.svg';
+import socialPlatformsImg18 from '../../assets/socialPlatforms/18-Square-Color-LI.svg';
+import socialPlatformsImg19 from '../../assets/socialPlatforms/19-Square-BW-FB.svg';
+import socialPlatformsImg20 from '../../assets/socialPlatforms/20-Square-BW-IG.svg';
+import socialPlatformsImg21 from '../../assets/socialPlatforms/21-Square-BW-X.svg';
+import socialPlatformsImg22 from '../../assets/socialPlatforms/22-Square-BW-YT.svg';
+import socialPlatformsImg23 from '../../assets/socialPlatforms/23-Square-BW-TT.svg';
+import socialPlatformsImg24 from '../../assets/socialPlatforms/24-Square-BW-LI.svg';
+
+import arrowImg1 from '../../assets/arrows/Arrow-1.svg';
+import arrowImg2 from '../../assets/arrows/Arrow-2.svg';
+import arrowImg3 from '../../assets/arrows/Arrow-3.svg';
+import arrowImg4 from '../../assets/arrows/Arrow-4.svg';
+
+import dividers1 from '../../assets/dividers/Divider-1.svg';
+import dividers2 from '../../assets/dividers/Divider-2.svg';
+import dividers3 from '../../assets/dividers/Divider-3.svg';
+import dividers4 from '../../assets/dividers/Divider-4.svg';
+import dividers5 from '../../assets/dividers/Divider-5.svg';
+import dividers6 from '../../assets/dividers/Divider-6.svg';
+
 interface CanvasProps {
 	template: Template;
 	updatedSeedData: Record<string, any>;
@@ -1236,7 +1292,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 		//---------------------Sharpen --------------------------
 		const [sharpenApplied, setSharpenApplied] = useState(false);
 
-		//----------------------------------------------------------
+		//--------------------shapes data--------------------------------------
 		// const [canvas, setCanvas] = useState<fabric.Canvas | null>(null);
 		// const [selectedText, setSelectedText] = useState<fabric.Object | null>(
 		// 	null
@@ -1273,7 +1329,72 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
 		// 	paragraph.innerHTML = updatedHTML;
 		// };
+		const shapeData = [
+			{ imgShape: shape1 },
+			{ imgShape: shape2 },
+			{ imgShape: shape3 },
+			{ imgShape: shape4 },
+			{ imgShape: shape5 },
+			{ imgShape: shape6 },
+			{ imgShape: shape7 },
+			{ imgShape: shape8 },
+			{ imgShape: shape9 },
+			{ imgShape: shape10 },
+		];
 
+		const swipeData = [
+			{ swipeImg: swipe1 },
+			{ swipeImg: swipe2 },
+			{ swipeImg: swipe3 },
+			{ swipeImg: arrowImg1 },
+			{ swipeImg: arrowImg2 },
+			{ swipeImg: arrowImg3 },
+			{ swipeImg: arrowImg4 },
+		];
+
+		const socialPlatformsData1 = [
+			{ spImg: socialPlatformsImg1 },
+			{ spImg: socialPlatformsImg2 },
+			{ spImg: socialPlatformsImg3 },
+			{ spImg: socialPlatformsImg4 },
+			{ spImg: socialPlatformsImg5 },
+			{ spImg: socialPlatformsImg6 },
+			{ spImg: socialPlatformsImg7 },
+			{ spImg: socialPlatformsImg8 },
+			{ spImg: socialPlatformsImg9 },
+			{ spImg: socialPlatformsImg10 },
+		];
+		const socialPlatformsData2 = [
+			{ spImg: socialPlatformsImg11 },
+			{ spImg: socialPlatformsImg12 },
+			{ spImg: socialPlatformsImg13 },
+			{ spImg: socialPlatformsImg14 },
+			{ spImg: socialPlatformsImg15 },
+			{ spImg: socialPlatformsImg16 },
+			{ spImg: socialPlatformsImg17 },
+			{ spImg: socialPlatformsImg18 },
+			{ spImg: socialPlatformsImg19 },
+			{ spImg: socialPlatformsImg20 },
+		];
+
+		const socialPlatformsData3 = [
+			{ spImg: socialPlatformsImg21 },
+			{ spImg: socialPlatformsImg22 },
+			{ spImg: socialPlatformsImg23 },
+			{ spImg: socialPlatformsImg24 },
+			{ spImg: socialTag1 },
+			{ spImg: socialTag2 },
+			{ spImg: socialTag3 },
+		];
+
+		const dividersData = [
+			{ dividerImg: dividers1 },
+			{ dividerImg: dividers2 },
+			{ dividerImg: dividers3 },
+			{ dividerImg: dividers4 },
+			{ dividerImg: dividers5 },
+			{ dividerImg: dividers6 },
+		];
 		return (
 			<div
 				style={{
@@ -2244,11 +2365,75 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 							<div>
 								<>
 									<Box>
-										<h4>Choose Element</h4>
+										<Typography
+											sx={{
+												fontWeight: 'bold',
+												pb: 1.5,
+											}}
+										>
+											Choose Element
+										</Typography>
 										<Box
 											sx={{
 												display: 'flex',
-												justifyContent: 'center',
+											}}
+										>
+											{swipeData?.map(({ swipeImg }, i) => {
+												return (
+													<Box
+														key={i}
+														sx={{
+															display: 'flex',
+															justifyContent: 'center',
+															alignItems: 'center',
+															width: '100%',
+														}}
+													>
+														<img
+															src={swipeImg}
+															onClick={() => {
+																const color =
+																	userMetaData?.company?.color || '#ffffff';
+																var filter =
+																	new fabric.Image.filters.BlendColor({
+																		color,
+																		mode: 'tint',
+																		alpha: 1,
+																	});
+
+																fabric.Image.fromURL(
+																	swipeImg,
+																	function (img) {
+																		img.set({ left: 230, top: 250 }).scale(0.2);
+																		img.filters.push(filter);
+																		img.applyFilters();
+																		canvas.add(img);
+																		requestAnimationFrame(() => {
+																			canvas.renderAll();
+																		});
+																	},
+																	{
+																		crossOrigin: 'anonymous',
+																	}
+																);
+															}}
+															alt=''
+															// width='90px'
+															style={{
+																cursor: 'pointer',
+																paddingBottom: '0.5rem',
+																width: '30px',
+																height: '30px',
+															}}
+														/>
+													</Box>
+												);
+											})}
+										</Box>
+										<Box
+											sx={{
+												display: 'flex',
+												justifyContent: 'space-between',
 												alignItems: 'center',
 												position: 'relative',
 											}}
@@ -2284,11 +2469,115 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 										</Box>
 									</Box>
 									<Box>
-										<h4>Borders</h4>
+										<Typography
+											sx={{
+												fontWeight: 'bold',
+												pt: 1,
+											}}
+										>
+											Borders
+										</Typography>
 										<Box
 											sx={{
 												display: 'flex',
-												justifyContent: 'center',
+												pt: 1.5,
+											}}
+										>
+											{shapeData?.map(({ imgShape }, i) => {
+												return (
+													<Box
+														key={i}
+														sx={{
+															display: 'flex',
+															justifyContent: 'center',
+															alignItems: 'center',
+															width: '100%',
+														}}
+													>
+														<img
+															src={imgShape}
+															onClick={() => {
+																fabric.Image.fromURL(
+																	imgShape,
+																	function (img) {
+																		img.set({ left: 230, top: 250 }).scale(0.2);
+																		canvas.add(img);
+																		requestAnimationFrame(() => {
+																			canvas.renderAll();
+																		});
+																	},
+																	{
+																		crossOrigin: 'anonymous',
+																	}
+																);
+															}}
+															alt=''
+															// width='90px'
+															style={{
+																cursor: 'pointer',
+																paddingBottom: '0.5rem',
+																width: '30px',
+																height: '30px',
+															}}
+														/>
+													</Box>
+												);
+											})}
+										</Box>
+
+										<Box
+											sx={{
+												display: 'flex',
+												pt: 1.5,
+											}}
+										>
+											{dividersData?.map(({ dividerImg }, i) => {
+												return (
+													<Box
+														key={i}
+														sx={{
+															display: 'flex',
+															justifyContent: 'center',
+															alignItems: 'center',
+															width: '100%',
+														}}
+													>
+														<img
+															src={dividerImg}
+															onClick={() => {
+																fabric.Image.fromURL(
+																	dividerImg,
+																	function (img) {
+																		img.set({ left: 200, top: 250 }).scale(0.2);
+																		canvas.add(img);
+																		requestAnimationFrame(() => {
+																			canvas.renderAll();
+																		});
+																	},
+																	{
+																		crossOrigin: 'anonymous',
+																	}
+																);
+															}}
+															alt=''
+															// width='90px'
+															style={{
+																cursor: 'pointer',
+																paddingBottom: '0.5rem',
+																width: '40px',
+																height: '20px',
+																// border: '1px solid red',
+															}}
+														/>
+													</Box>
+												);
+											})}
+										</Box>
+
+										<Box
+											sx={{
+												display: 'flex',
+												justifyContent: 'space-between',
 												alignItems: 'center',
 											}}
 										>
@@ -2368,7 +2657,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 									</Box>
 
 									<Box>
-										<input
+										{/* <input
 											type='text'
 											style={{
 												lineHeight: 1.5,
@@ -2379,21 +2668,158 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 												color: '#fff',
 												border: 'none',
 											}}
-											placeholder='Social Tags'
+											placeholder='Social Tags '
 											defaultValue='Social Tags'
-										/>
-										{/* <h4>Social Tags</h4> */}
+										/> */}
+
+										<h4>Social Tags</h4>
 										<Box
 											sx={{
 												display: 'flex',
-												justifyContent: 'center',
-												alignItems: 'center',
 											}}
 										>
-											{console.log(
-												'userMetaData ',
-												userMetaData?.company?.logo
-											)}
+											{socialPlatformsData1?.map(({ spImg }, i) => {
+												return (
+													<Box
+														key={i}
+														sx={{
+															display: 'flex',
+															justifyContent: 'center',
+															alignItems: 'center',
+															width: '100%',
+														}}
+													>
+														<img
+															src={spImg}
+															onClick={() => {
+																fabric.Image.fromURL(
+																	spImg,
+																	function (img) {
+																		img.set({ left: 230, top: 250 }).scale(0.2);
+																		canvas.add(img);
+																		requestAnimationFrame(() => {
+																			canvas.renderAll();
+																		});
+																	},
+																	{
+																		crossOrigin: 'anonymous',
+																	}
+																);
+															}}
+															alt=''
+															// width='90px'
+															style={{
+																cursor: 'pointer',
+																paddingBottom: '0.5rem',
+																width: '30px',
+																height: '30px',
+															}}
+														/>
+													</Box>
+												);
+											})}
+										</Box>
+										<Box
+											sx={{
+												display: 'flex',
+											}}
+										>
+											{socialPlatformsData2?.map(({ spImg }, i) => {
+												return (
+													<Box
+														key={i}
+														sx={{
+															display: 'flex',
+															justifyContent: 'center',
+															alignItems: 'center',
+															width: '100%',
+														}}
+													>
+														<img
+															src={spImg}
+															onClick={() => {
+																fabric.Image.fromURL(
+																	spImg,
+																	function (img) {
+																		img.set({ left: 230, top: 250 }).scale(0.2);
+																		canvas.add(img);
+																		requestAnimationFrame(() => {
+																			canvas.renderAll();
+																		});
+																	},
+																	{
+																		crossOrigin: 'anonymous',
+																	}
+																);
+															}}
+															alt=''
+															// width='90px'
+															style={{
+																cursor: 'pointer',
+																paddingBottom: '0.5rem',
+																width: '30px',
+																height: '30px',
+															}}
+														/>
+													</Box>
+												);
+											})}
+										</Box>
+
+										<Box
+											sx={{
+												display: 'flex',
+											}}
+										>
+											{socialPlatformsData3?.map(({ spImg }, i) => {
+												return (
+													<Box
+														key={i}
+														sx={{
+															display: 'flex',
+															justifyContent: 'center',
+															alignItems: 'center',
+															width: '100%',
+														}}
+													>
+														<img
+															src={spImg}
+															onClick={() => {
+																fabric.Image.fromURL(
+																	spImg,
+																	function (img) {
+																		img.set({ left: 230, top: 250 }).scale(0.2);
+																		canvas.add(img);
+																		requestAnimationFrame(() => {
+																			canvas.renderAll();
+																		});
+																	},
+																	{
+																		crossOrigin: 'anonymous',
+																	}
+																);
+															}}
+															alt=''
+															// width='90px'
+															style={{
+																cursor: 'pointer',
+																paddingBottom: '0.5rem',
+																width: '30px',
+																height: '30px',
+															}}
+														/>
+													</Box>
+												);
+											})}
+										</Box>
+										<Box
+											sx={{
+												display: 'flex',
+												justifyContent: 'space-between',
+												alignItems: 'center',
+												mt: 1,
+											}}
+										>
 											{logos?.map((logo: string) => {
 												const logoFillColor =
 													userMetaData?.company?.color || 'black';
@@ -2456,14 +2882,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 												}}
 											/>
 										</Box>
-
 										<Box>
-											{/* <Typography>User Details</Typography> */}
-											{/* <Typography>{`Name: ${userMetaData?.company?.name}`}</Typography> */}
-											{/* <Typography>{`Color :${userMetaData?.company?.color}`}</Typography>
-											<Typography>{`Font :${userMetaData?.company?.font}`}</Typography> */}
-											{/* <Typography>{`Website Link${userMetaData?.company?.website}`}</Typography>
-											<Typography>{`Plan :${userMetaData?.company?.plan}`}</Typography> */}
 											<Box
 												sx={{
 													display: 'flex',
