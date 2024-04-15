@@ -13,8 +13,8 @@ const CustomColorPicker = ({ value, changeHandler }: Props) => {
 
 	// State to manage the color value
 	const [currentColor, setCurrentColor] = useState(value || '#ffffff');
-	console.log('🚀 currentColor:', currentColor);
-	console.log('🚀  value:', value);
+	// console.log('🚀 currentColor:', currentColor);
+	// console.log('🚀  value:', value);
 
 	useEffect(() => {
 		setCurrentColor(value);
@@ -31,8 +31,9 @@ const CustomColorPicker = ({ value, changeHandler }: Props) => {
 		<Box
 			sx={{
 				position: 'relative',
+				height: '20px',
 				paddingLeft: '0.2rem',
-				paddingBottom: '0.5rem',
+				// paddingBottom: '0.5rem',
 			}}
 		>
 			<Popover
