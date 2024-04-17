@@ -1,7 +1,15 @@
 // @ts-nocheck
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { fabric } from 'fabric';
-import { Typography, Box, IconButton, Stack, Alert } from '@mui/material';
+import {
+	Typography,
+	Box,
+	IconButton,
+	Stack,
+	Alert,
+	FormControlLabel,
+	Checkbox,
+} from '@mui/material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import Paper from '@mui/material/Paper';
 import Button from '@mui/material/Button';
@@ -41,6 +49,7 @@ import { activeTabs } from '../../types/context';
 import FlipIcon from '@mui/icons-material/Flip';
 import {
 	createBubbleElement,
+	createBubbleElement1,
 	updateBubbleElement,
 } from '../../utils/BubbleHandler';
 import { debounce } from 'lodash';
@@ -103,6 +112,7 @@ import dividers3 from '../../assets/dividers/Divider-3.svg';
 import dividers4 from '../../assets/dividers/Divider-4.svg';
 import dividers5 from '../../assets/dividers/Divider-5.svg';
 import dividers6 from '../../assets/dividers/Divider-6.svg';
+import toast from 'react-hot-toast';
 
 interface CanvasProps {
 	template: Template;
@@ -227,6 +237,17 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 		const [fontFamily, setFontFamily] = useState('Arial');
 		const [fontWeightApplied, setFontWeightApplied] = useState(false);
 
+		//add another bubble
+		const [isChecked, setIsChecked] = useState(false);
+
+		const handleCheckboxChange = (
+			event: React.ChangeEvent<HTMLInputElement>
+		) => {
+			setIsChecked(event.target.checked);
+		};
+
+		//--------------------
+
 		useEffect(() => {
 			const options = {
 				width: canvasDimension.width,
@@ -246,7 +267,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			canvas.on('selection:updated', handleSelectionUpdated);
 
 			// Register event listener
-			canvas.on('mouse:down', handleMouseDown);
+			// canvas.on('mouse:down', handleMouseDown);
 
 			return () => {
 				// Cleanup
@@ -254,6 +275,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				canvas.dispose();
 			};
 		}, [canvasDimension]);
+
 		const handleSelectionUpdated = () => {
 			const activeObject = canvasInstanceRef.current.getActiveObject();
 			if (activeObject && activeObject.type === 'textbox') {
@@ -321,8 +343,8 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
 		const applyColor = () => {
 			const activeObject = canvasInstanceRef.current.getActiveObject();
-			console.log('🚀 ~ applyColor ~ activeObject:', activeObject);
-			if (activeObject && activeObject.type === 'textbox') {
+
+			if (color.length > 0 && activeObject && activeObject.type === 'textbox') {
 				activeObject.setSelectionStyles({
 					fill: color,
 				});
@@ -336,7 +358,9 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			const activeObject = canvasInstanceRef.current.getActiveObject();
 			if (activeObject && activeObject.type === 'textbox') {
 				activeObject.setSelectionStyles({ fill: '#ffffff' });
-				canvasInstanceRef.current.renderAll(); // Render only the selected object
+				canvasInstanceRef.current.renderAll();
+				setColor(color);
+				// setColor('#FD3232');
 				setColorApplied(false);
 			}
 		};
@@ -744,38 +768,99 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			};
 		}, [loadCanvas]);
 
+		// Define an array to store references to created bubbles
+		const createdBubbles: fabric.Object[] = [];
+
 		const updateBubbleImage = (
 			imgUrl: string | undefined,
 			filter?: { strokeWidth: number; stroke: string }
 		) => {
 			const existingBubbleStroke = getExistingObject('bubbleStroke');
+			console.log('🚀 ~ existingBubbleStroke:', existingBubbleStroke);
 
 			if (!canvas) {
 				console.error('Canvas Not initialized');
 				return;
 			}
-
-			if (filter && !imgUrl && existingBubbleStroke) {
-				const newOptions: fabric.ICircleOptions = {
-					stroke: filter?.stroke || 'blue',
-					strokeWidth: filter?.strokeWidth || 15,
-					// Add any other options you want to update
-				};
-				updateBubbleElement(canvas, existingBubbleStroke, newOptions);
-				canvas.renderAll();
-			} else {
+			if (!isChecked) {
 				let options: fabric.ICircleOptions = {
 					...existingBubbleStroke,
 					...(!existingBubbleStroke &&
 						template.diptych === 'horizontal' && { top: 150 }),
 					...(!existingBubbleStroke &&
-						template.diptych === 'horizontal' && { left: 150, radius: 80 }),
+						template.diptych === 'horizontal' && { left: 100, radius: 80 }),
 				};
 				requestAnimationFrame(() => {
-					createBubbleElement(canvas!, imgUrl!, options);
+					createBubbleElement1(canvas!, imgUrl!, options);
+					canvas.renderAll();
+				});
+				return;
+			}
+
+			const activeBubble = canvas.getActiveObject();
+
+			if (activeBubble) {
+				if (activeBubble instanceof fabric.Circle) {
+					// If the active object is a Circle
+					const newOptions: fabric.ICircleOptions = {
+						stroke: filter?.stroke || 'blue',
+						strokeWidth: filter?.strokeWidth || 15,
+						// Add any other options you want to update
+					};
+					updateBubbleElement(canvas, activeObject, newOptions);
+					canvas.renderAll();
+				} else {
+					toast.error('No active Circle selected.');
+					console.log();
+				}
+				// const newOptions: fabric.ICircleOptions = {
+				// 	stroke: filter?.stroke || 'red',
+				// 	strokeWidth: filter?.strokeWidth || 15,
+				// 	// Add any other options you want to update
+				// };
+				// console.log('newOptions', newOptions);
+				// updateBubbleElement(canvas, existingBubbleStroke, newOptions);
+				// canvas.renderAll();
+			}
+			if (!activeBubble && isChecked) {
+				// let options: fabric.ICircleOptions = {
+				// 	...existingBubbleStroke,
+				// 	...(!existingBubbleStroke &&
+				// 		template.diptych === 'horizontal' && { top: 150 }),
+				// 	...(!existingBubbleStroke &&
+				// 		template.diptych === 'horizontal' && { left: 150, radius: 80 }),
+				// };
+				requestAnimationFrame(() => {
+					createBubbleElement(canvas!, imgUrl!);
 					canvas.renderAll();
 				});
 			}
+
+			// if (filter && !imgUrl && existingBubbleStroke) {
+			// 	if (!isChecked && existingBubbleStroke) {
+			// 		// Create new bubble on each click
+			// 		const newOptions: fabric.ICircleOptions = {
+			// 			stroke: filter?.stroke || 'blue',
+			// 			strokeWidth: filter?.strokeWidth || 15,
+			// 			// Add any other options you want to update
+			// 		};
+			// 		updateBubbleElement(canvas, existingBubbleStroke, newOptions);
+			// 		canvas.renderAll();
+			// 	} else {
+			// 		// Keep the existing logic
+			// 		let options: fabric.ICircleOptions = {
+			// 			...existingBubbleStroke,
+			// 			...(!existingBubbleStroke &&
+			// 				template.diptych === 'horizontal' && { top: 150 }),
+			// 			...(!existingBubbleStroke &&
+			// 				template.diptych === 'horizontal' && { left: 150, radius: 80 }),
+			// 		};
+			// 		requestAnimationFrame(() => {
+			// 			createBubbleElement(canvas!, imgUrl!, options);
+			// 			canvas.renderAll();
+			// 		});
+			// 	}
+			// }
 		};
 
 		/**
@@ -1040,6 +1125,11 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				hideGrid(canvasEl, 15);
 			}
 		};
+
+		//-------------chose element color change
+		const [selectedColor, setSelectedColor] = useState(
+			userMetaData?.company?.color || '#ffffff'
+		);
 
 		//------------------------------------------------------------------------------------
 		// const toggleSelection = () => {
@@ -1342,15 +1432,72 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			{ imgShape: shape10 },
 		];
 
+		const borderColorChangeHandler = (imgShape) => {
+			const color = userMetaData?.company?.color;
+
+			var filter = new fabric.Image.filters.BlendColor({
+				color,
+				mode: 'tint',
+				alpha: 1,
+			});
+
+			fabric.Image.fromURL(
+				imgShape,
+				function (img) {
+					img.set({ left: 230, top: 250 }).scale(0.2);
+					img.filters.push(filter);
+					img.applyFilters();
+					canvas.add(img);
+					requestAnimationFrame(() => {
+						canvas.renderAll();
+					});
+				},
+				{
+					crossOrigin: 'anonymous',
+				}
+			);
+		};
+
 		const swipeData = [
-			{ swipeImg: swipe1 },
-			{ swipeImg: swipe2 },
-			{ swipeImg: swipe3 },
-			{ swipeImg: arrowImg1 },
-			{ swipeImg: arrowImg2 },
-			{ swipeImg: arrowImg3 },
-			{ swipeImg: arrowImg4 },
+			{ swipeImg: swipe1, id: 1 },
+			{ swipeImg: swipe2, id: 2 },
+			{ swipeImg: swipe3, id: 3 },
+			{ swipeImg: arrowImg1, id: 4 },
+			{ swipeImg: arrowImg2, id: 5 },
+			{ swipeImg: arrowImg3, id: 6 },
+			{ swipeImg: arrowImg4, id: 7 },
 		];
+
+		const swipeColorChangeHandler = (id, swipeImg) => {
+			const color = userMetaData?.company?.color || selectedColor;
+
+			var filter = new fabric.Image.filters.BlendColor({
+				color,
+				mode: 'tint',
+				alpha: 1,
+			});
+
+			fabric.Image.fromURL(
+				swipeImg,
+				function (img) {
+					img.set({ left: 230, top: 250 }).scale(0.2);
+					img.filters.push(filter);
+					img.applyFilters();
+					canvas.add(img);
+					requestAnimationFrame(() => {
+						canvas.renderAll();
+					});
+				},
+				{
+					crossOrigin: 'anonymous',
+				}
+			);
+			// alert(id);
+
+			// onClick={() => {
+
+			// }}
+		};
 
 		const socialPlatformsData1 = [
 			{ spImg: socialPlatformsImg1 },
@@ -1395,6 +1542,31 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			{ dividerImg: dividers5 },
 			{ dividerImg: dividers6 },
 		];
+		const dividerColorChangeHandler = (imgShape) => {
+			const color = userMetaData?.company?.color;
+
+			var filter = new fabric.Image.filters.BlendColor({
+				color,
+				mode: 'tint',
+				alpha: 1,
+			});
+
+			fabric.Image.fromURL(
+				imgShape,
+				function (img) {
+					img.set({ left: 230, top: 250 }).scale(0.2);
+					img.filters.push(filter);
+					img.applyFilters();
+					canvas.add(img);
+					requestAnimationFrame(() => {
+						canvas.renderAll();
+					});
+				},
+				{
+					crossOrigin: 'anonymous',
+				}
+			);
+		};
 		return (
 			<div
 				style={{
@@ -2331,16 +2503,45 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 						{activeTab == 'bubble' && (
 							<div>
 								<h4 style={{ margin: '0px', padding: '0px' }}>From Article</h4>
+
 								<ImageViewer
 									clickHandler={(img: string) => updateBubbleImage(img)}
 									images={initialData.bubbles}
 								/>
 
-								<h4 style={{ margin: '0px', padding: '0px' }}>AI Images</h4>
+								{/* <h4 style={{ margin: '0px', padding: '0px' }}>AI Images</h4>
 								<ImageViewer
 									clickHandler={(img: string) => updateBubbleImage(img)}
 									images={initialData.bubbles}
-								/>
+								/> */}
+								<Box
+									sx={{
+										width: '100%',
+									}}
+								>
+									<FormControlLabel
+										control={
+											<Checkbox
+												checked={isChecked}
+												onChange={handleCheckboxChange}
+												sx={{
+													'& .MuiIconButton-root': {
+														color: '#fff',
+														border: '1px solid #fff',
+													},
+													'&.Mui-checked': {
+														color: '#fff',
+													},
+													'& .MuiSvgIcon-root ': {
+														fill: '#fff',
+													},
+												}}
+											/>
+										}
+										label='Click for adding another bubble'
+										// label='Click checkbox to add another bubble.'
+									/>
+								</Box>
 
 								<Box {...styles.uploadBox}>
 									<label style={styles.uploadLabel}>
@@ -2378,10 +2579,10 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 												display: 'flex',
 											}}
 										>
-											{swipeData?.map(({ swipeImg }, i) => {
+											{swipeData?.map(({ swipeImg, id }, i) => {
 												return (
 													<Box
-														key={i}
+														key={`swipe_${id}_${i}`}
 														sx={{
 															display: 'flex',
 															justifyContent: 'center',
@@ -2391,34 +2592,10 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 													>
 														<img
 															src={swipeImg}
-															onClick={() => {
-																const color =
-																	userMetaData?.company?.color || '#ffffff';
-																var filter =
-																	new fabric.Image.filters.BlendColor({
-																		color,
-																		mode: 'tint',
-																		alpha: 1,
-																	});
-
-																fabric.Image.fromURL(
-																	swipeImg,
-																	function (img) {
-																		img.set({ left: 230, top: 250 }).scale(0.2);
-																		img.filters.push(filter);
-																		img.applyFilters();
-																		canvas.add(img);
-																		requestAnimationFrame(() => {
-																			canvas.renderAll();
-																		});
-																	},
-																	{
-																		crossOrigin: 'anonymous',
-																	}
-																);
-															}}
+															onClick={() =>
+																swipeColorChangeHandler(id, swipeImg)
+															}
 															alt=''
-															// width='90px'
 															style={{
 																cursor: 'pointer',
 																paddingBottom: '0.5rem',
@@ -2429,6 +2606,38 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 													</Box>
 												);
 											})}
+											<CustomColorPicker
+												value={userMetaData?.company?.color}
+												changeHandler={(color: string) => {
+													const type = 'borders';
+													let existingObject = getExistingObject(type) as
+														| fabric.Image
+														| undefined;
+													if (
+														canvas?._activeObject &&
+														canvas?._activeObject?.type === 'image'
+													)
+														existingObject =
+															canvas?._activeObject as fabric.Image;
+
+													if (!existingObject) {
+														console.log('existing Border object not founded');
+														return;
+													}
+													const blendColorFilter1 =
+														new fabric.Image.filters.BlendColor({
+															color,
+															mode: 'tint',
+															alpha: 1,
+														});
+
+													existingObject.filters?.push(blendColorFilter1);
+													existingObject.applyFilters();
+													requestAnimationFrame(() => {
+														canvas?.renderAll();
+													});
+												}}
+											/>
 										</Box>
 										<Box
 											sx={{
@@ -2438,10 +2647,10 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 												position: 'relative',
 											}}
 										>
-											{elements.map((element: string) => {
+											{elements?.map((element: string, i) => {
 												return (
 													<img
-														key={element}
+														key={i}
 														src={element}
 														onClick={() => {
 															const iconSrc = '/icons/swipe.svg';
@@ -2496,21 +2705,22 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 													>
 														<img
 															src={imgShape}
-															onClick={() => {
-																fabric.Image.fromURL(
-																	imgShape,
-																	function (img) {
-																		img.set({ left: 230, top: 250 }).scale(0.2);
-																		canvas.add(img);
-																		requestAnimationFrame(() => {
-																			canvas.renderAll();
-																		});
-																	},
-																	{
-																		crossOrigin: 'anonymous',
-																	}
-																);
-															}}
+															onClick={() => borderColorChangeHandler(imgShape)}
+															// onClick={() => {
+															// 	fabric.Image.fromURL(
+															// 		imgShape,
+															// 		function (img) {
+															// 			img.set({ left: 230, top: 250 }).scale(0.2);
+															// 			canvas.add(img);
+															// 			requestAnimationFrame(() => {
+															// 				canvas.renderAll();
+															// 			});
+															// 		},
+															// 		{
+															// 			crossOrigin: 'anonymous',
+															// 		}
+															// 	);
+															// }}
 															alt=''
 															// width='90px'
 															style={{
@@ -2544,21 +2754,24 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 													>
 														<img
 															src={dividerImg}
-															onClick={() => {
-																fabric.Image.fromURL(
-																	dividerImg,
-																	function (img) {
-																		img.set({ left: 200, top: 250 }).scale(0.2);
-																		canvas.add(img);
-																		requestAnimationFrame(() => {
-																			canvas.renderAll();
-																		});
-																	},
-																	{
-																		crossOrigin: 'anonymous',
-																	}
-																);
-															}}
+															onClick={() =>
+																dividerColorChangeHandler(dividerImg)
+															}
+															// onClick={() => {
+															// 	fabric.Image.fromURL(
+															// 		dividerImg,
+															// 		function (img) {
+															// 			img.set({ left: 200, top: 250 }).scale(0.2);
+															// 			canvas.add(img);
+															// 			requestAnimationFrame(() => {
+															// 				canvas.renderAll();
+															// 			});
+															// 		},
+															// 		{
+															// 			crossOrigin: 'anonymous',
+															// 		}
+															// 	);
+															// }}
 															alt=''
 															// width='90px'
 															style={{
@@ -2572,6 +2785,38 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 													</Box>
 												);
 											})}
+											<CustomColorPicker
+												value={userMetaData?.company?.color}
+												changeHandler={(color: string) => {
+													const type = 'borders';
+													let existingObject = getExistingObject(type) as
+														| fabric.Image
+														| undefined;
+													if (
+														canvas?._activeObject &&
+														canvas?._activeObject?.type === 'image'
+													)
+														existingObject =
+															canvas?._activeObject as fabric.Image;
+
+													if (!existingObject) {
+														console.log('existing Border object not founded');
+														return;
+													}
+													const blendColorFilter1 =
+														new fabric.Image.filters.BlendColor({
+															color,
+															mode: 'tint',
+															alpha: 1,
+														});
+
+													existingObject.filters?.push(blendColorFilter1);
+													existingObject.applyFilters();
+													requestAnimationFrame(() => {
+														canvas?.renderAll();
+													});
+												}}
+											/>
 										</Box>
 
 										<Box
@@ -2581,10 +2826,10 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 												alignItems: 'center',
 											}}
 										>
-											{borders.map((border: string) => {
+											{borders?.map((border: string, i) => {
 												return (
 													<img
-														key={border}
+														key={i}
 														src={border}
 														onClick={() => {
 															const imageObject = getExistingObject(
@@ -2820,13 +3065,12 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 												mt: 1,
 											}}
 										>
-											{logos?.map((logo: string) => {
+											{logos?.map((logo: string, i) => {
 												const logoFillColor =
 													userMetaData?.company?.color || 'black';
-
 												return (
 													<img
-														key={logo}
+														key={i}
 														src={logo}
 														alt='logo'
 														onClick={() => {

@@ -146,7 +146,6 @@ export function createSwipeGroup(
 }
 
 export const updateSwipeColor = (canvas: fabric.Canvas, color: string) => {
-	console.log('🚀 ~ swipeGroup?._objects?.forEach ~ color:', color);
 	const swipeGroup = getExistingObject(canvas, 'swipeGroup');
 
 	if (swipeGroup) {
