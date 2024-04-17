@@ -109,19 +109,24 @@ export const createBubbleElement = (canvas: fabric.Canvas, imgUrl: string, optio
   };
 }
 
-export const updateBubbleElement = (canvas: fabric.Canvas,
+export const updateBubbleElement = (
+  canvas: fabric.Canvas,
   strokeCircle: fabric.Circle,
   options?: fabric.ICircleOptions
 ) => {
+  const imageClipPath = getExistingObject(canvas, 'bubble')?.clipPath as fabric.Circle;
 
-  const imageClipPath = getExistingObject(canvas, 'bubble')?.clipPath as fabric.Circle
   // Update strokeCircle properties
   if (options) {
     if (options.strokeWidth !== undefined) {
-
       // Update the clipPath radius to maintain the desired stroke outside the circle
       imageClipPath.radius = strokeCircle.radius!;
       imageClipPath.setCoords();
+    }
+
+    // Update shadow properties if provided
+    if (options.shadow) {
+      strokeCircle.shadow = new fabric.Shadow(options.shadow);
     }
 
     strokeCircle.set({
@@ -132,6 +137,9 @@ export const updateBubbleElement = (canvas: fabric.Canvas,
     canvas?.requestRenderAll();
   }
 };
+
+
+
 
 export const createBubble = (canvas: fabric.Canvas, imgUrl: string) => {
   fabric.Image.fromURL(imgUrl, function (img: fabric.Image) {

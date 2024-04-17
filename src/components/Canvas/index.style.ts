@@ -44,6 +44,7 @@ export const useStyles = makeStyles((theme: Theme) => ({
 		justifyContent: 'center',
 		alignItems: 'center',
 		height: '30px !important',
+		marginTop: '10px !important',
 		marginBottom: '10px !important',
 	},
 	buttonActive: {
