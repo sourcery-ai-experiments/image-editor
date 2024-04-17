@@ -321,7 +321,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
     const applyColor = () => {
       const activeObject = canvasInstanceRef.current.getActiveObject();
-      console.log("🚀 ~ applyColor ~ activeObject:", activeObject);
+
       if (activeObject && activeObject.type === "textbox") {
         activeObject.setSelectionStyles({
           fill: color,
@@ -745,57 +745,54 @@ const Canvas: React.FC<CanvasProps> = React.memo(
     }, [loadCanvas]);
 
     const updateBubbleImageContrast = () => {
-      console.log("setBubbleFilter", bubbleFilter);
       const activeObject = canvas?.getActiveObject();
-    
+
       if (activeObject && activeObject.type === "image") {
         // Check if the active object is an image
         let contrast = bubbleFilter.contrast; // Get the contrast value
-    
+
         // Ensure contrast is within valid range
         if (contrast < -1) {
           contrast = -1;
         } else if (contrast > 1) {
           contrast = 1;
         }
-    
+
         // Modify the contrast of the image
         activeObject.filters = []; // Clear existing filters
         activeObject.filters.push(
           new fabric.Image.filters.Contrast({ contrast })
         );
         activeObject.applyFilters();
-    
+
         canvas?.renderAll(); // Render the canvas to see the changes
       }
     };
 
     const updateBubbleImageBrightness = () => {
-      console.log("setBubbleFilter", bubbleFilter);
       const activeObject = canvas?.getActiveObject();
-    
+
       if (activeObject && activeObject.type === "image") {
         // Check if the active object is an image
         let brightness = bubbleFilter.brightness; // Get the brightness value
-    
+
         // Ensure brightness is within valid range
         if (brightness < -1) {
           brightness = -1;
         } else if (brightness > 1) {
           brightness = 1;
         }
-    
+
         // Modify the brightness of the image
         activeObject.filters = []; // Clear existing filters
         activeObject.filters.push(
           new fabric.Image.filters.Brightness({ brightness })
         );
         activeObject.applyFilters();
-    
+
         canvas?.renderAll(); // Render the canvas to see the changes
       }
     };
-    
 
     const updateBubbleImage = (
       imgUrl: string | undefined,
@@ -811,7 +808,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
       const existingBubbleStroke = getExistingObject("bubbleStroke");
 
       const activeObject = canvas?.getActiveObject();
-      console.log("activeObject", activeObject);
 
       if (!canvas) {
         console.error("Canvas Not initialized");
@@ -1191,7 +1187,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
     const updateOverlayImage = debounce((image: string, opacity: number) => {
       if (!canvas) {
-        console.log("Canvas not loaded yet");
         return;
       }
       const existingObject = getExistingObject("overlay");
@@ -1485,10 +1480,69 @@ const Canvas: React.FC<CanvasProps> = React.memo(
       distance: 10, // Initial distance value
       blur: 5, // Initial blur radius value
     });
+    const [elementShadowValues, setElementShadowValues] = useState({
+      opacity: 0.5, // Initial opacity value
+      distance: 10, // Initial distance value
+      blur: 5, // Initial blur radius value
+    });
     const [bubbleFilter, setBubbleFilter] = useState({
       contrast: "",
       brightness: "",
     });
+    const [elementOpacity, setElementOpacity] = useState<number>(1);
+
+    const updateElementOpacity = () => {
+      const activeObject = canvas?.getActiveObject();
+
+      if (activeObject && activeObject.type === "image") {
+        let opacity = elementOpacity;
+
+        // Ensure opacity is within valid range
+        if (opacity < 0) {
+          opacity = 0;
+        } else if (opacity > 1) {
+          opacity = 1;
+        }
+
+        // Modify the opacity of the image
+        activeObject.set("opacity", opacity);
+        canvas?.renderAll(); // Render the canvas to see the changes
+      }
+    };
+
+    const updateElementShadow = (
+      imgUrl: string | undefined,
+      filter?: { strokeWidth: number; stroke: string },
+      shadow?: {
+        color: string;
+        offsetX: number;
+        offsetY: number;
+        blur: number;
+      },
+      brightness?: number
+    ) => {
+      const activeObject = canvas?.getActiveObject();
+
+      if (activeObject) {
+        // Check if the active object exists
+        const { offsetX, offsetY, blur } = shadowValues;
+
+        // Modify the shadow properties of the active object
+        // color: shadow.color || "rgba(0,0,0,0.5)",
+        // offsetX: shadow.offsetX || 10,
+        // offsetY: shadow.offsetY || 10,
+        // blur: shadow.blur || 1,
+        activeObject.set({
+          shadow: {
+            color: shadow.color || "rgba(0,0,0,0.5)",
+            offsetX: shadow.offsetX || 10,
+            offsetY: shadow.offsetY || 10,
+            blur: shadow.blur || 1,
+          },
+        });
+        canvas?.renderAll(); // Render the canvas to see the changes
+      }
+    };
 
     return (
       <div
@@ -1816,6 +1870,23 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                     Size
                   </Typography>
 
+                  {activeTab === "element" && (
+                    <>
+                      <Typography
+                        className={classes.heading}
+                        onClick={() => setShow("opacity")}
+                      >
+                        Opacity
+                      </Typography>
+                      <Typography
+                        className={classes.heading}
+                        onClick={() => setShow("element-shadow")}
+                      >
+                        Shadow
+                      </Typography>
+                    </>
+                  )}
+
                   {/* <Typography
 										className={classes.heading}
 										onClick={() => setShow('colors1')}
@@ -1831,6 +1902,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
+                      width: "100%",
                     }}
                   >
                     <CustomColorPicker
@@ -1930,6 +2002,118 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                       <DeleteIcon />
                     </Button>
                   </Box>
+                )}
+
+                {activeTab === "element" && show === "opacity" && (
+                  <div className={classes.sliderContainer}>
+                    <Slider
+                      className={classes.slider}
+                      aria-label="size"
+                      color="secondary"
+                      value={elementOpacity}
+                      min={-1}
+                      max={1}
+                      onChange={(e: any) => {
+                        const value = +e.target.value;
+                        setElementOpacity(value);
+                        updateElementOpacity();
+                      }}
+                      step={0.01}
+                      valueLabelDisplay="auto"
+                    />
+                  </div>
+                )}
+                {show === "element-shadow" && (
+                  <div>
+                    <Typography id="opacity-slider" gutterBottom>
+                      Opacity
+                    </Typography>
+                    <Slider
+                      aria-labelledby="opacity-slider"
+                      value={elementShadowValues.opacity}
+                      onChange={(event, newValue) => {
+                        setElementShadowValues((prev) => ({
+                          ...prev,
+                          opacity: newValue,
+                        }));
+                        updateElementShadow(undefined, undefined, {
+                          color: `rgba(0,0,0,${newValue})`,
+                          offsetX: elementShadowValues.distance,
+                          offsetY: elementShadowValues.distance,
+                          blur: elementShadowValues.blur,
+                        });
+                      }}
+                      valueLabelDisplay="auto"
+                      step={0.1}
+                      min={0}
+                      max={1}
+                    />
+                    <Typography id="distance-slider" gutterBottom>
+                      Distance
+                    </Typography>
+                    <Slider
+                      aria-labelledby="distance-slider"
+                      value={elementShadowValues.distance}
+                      onChange={(event, newValue) => {
+                        setElementShadowValues((prev) => ({
+                          ...prev,
+                          distance: newValue,
+                        }));
+                        updateElementShadow(undefined, undefined, {
+                          color: `rgba(0,0,0,${elementShadowValues.opacity})`,
+                          offsetX: newValue,
+                          offsetY: newValue,
+                          blur: elementShadowValues.blur,
+                        });
+                      }}
+                      valueLabelDisplay="auto"
+                      step={1}
+                      min={0}
+                      max={50}
+                    />
+                    <Typography id="blur-slider" gutterBottom>
+                      Blur
+                    </Typography>
+                    <Slider
+                      aria-labelledby="blur-slider"
+                      value={elementShadowValues.blur}
+                      onChange={(event, newValue) => {
+                        setElementShadowValues((prev) => ({
+                          ...prev,
+                          blur: newValue,
+                        }));
+                        updateElementShadow(undefined, undefined, {
+                          color: `rgba(0,0,0,${elementShadowValues.opacity})`,
+                          offsetX: elementShadowValues.distance,
+                          offsetY: elementShadowValues.distance,
+                          blur: newValue,
+                        });
+                      }}
+                      valueLabelDisplay="auto"
+                      step={1}
+                      min={0}
+                      max={20}
+                    />
+                  </div>
+                )}
+                {show === "elementShadow" && (
+                  <div className={classes.sliderContainer}>
+                    <Slider
+                      className={classes.slider}
+                      aria-label="size"
+                      color="secondary"
+                      value={elementOpacity}
+                      min={-1}
+                      max={1}
+                      onChange={(e: any) => {
+                        const value = +e.target.value;
+                        setElementOpacity(value);
+                        updateElementOpacity();
+                      }}
+                      step={0.01}
+                      valueLabelDisplay="auto"
+                    />
+                  </div>
                 )}
 
                 {/* {show === 'colors1' && (
@@ -2275,7 +2459,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                           ...prev,
                           contrast: value,
                         }));
-                        updateBubbleImageContrast()
+                        updateBubbleImageContrast();
                       }}
                       step={0.01}
                       valueLabelDisplay="auto"

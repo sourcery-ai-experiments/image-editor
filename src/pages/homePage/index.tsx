@@ -24,6 +24,7 @@ const HomePage = () => {
 		templateData.templates[0]
 	);
 	const [scrappedData, setScrappedData] = useState<APIResponse>();
+	
 	const [updatedSeedData, setUpdatedSeedData] =
 		useState<TemplateData>(templateData);
 
