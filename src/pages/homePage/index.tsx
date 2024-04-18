@@ -50,38 +50,19 @@ const HomePage = () => {
 	}, [scrappedData]);
 
 	return (
-		// <>
-		// 	{step == 1 ? (
-		// 		<Templates
-		// 			updateStep={setStep}
-		// 			setDefaultTemplate={setSelectedTemplate}
-		// 		/>
-		// 	) : step == 2 ? (
-		// 		<StyledContainer>
-		// 			<Canvas
-		// 				updatedSeedData={updatedSeedData}
-		// 				template={selectedTemplate}
-		// 			/>
-		// 		</StyledContainer>
-		// 	) : step == 3 ? (
-		// 		<StyledContainer>
-		// 			<Canvas
-		// 				updatedSeedData={updatedSeedData}
-		// 				template={selectedTemplate}
-		// 			/>
-		// 		</StyledContainer>
-		// 	) : (
-		// 		''
-		// 	)}
-		// </>
 		<>
 			{step == 1 ? (
-				<LandingPage setScrappedData={setScrappedData} updateStep={setStep} />
-			) : step == 2 ? (
 				<Templates
 					updateStep={setStep}
 					setDefaultTemplate={setSelectedTemplate}
 				/>
+			) : step == 2 ? (
+				<StyledContainer>
+					<Canvas
+						updatedSeedData={updatedSeedData}
+						template={selectedTemplate}
+					/>
+				</StyledContainer>
 			) : step == 3 ? (
 				<StyledContainer>
 					<Canvas
@@ -93,6 +74,25 @@ const HomePage = () => {
 				''
 			)}
 		</>
+		// <>
+		// 	{step == 1 ? (
+		// 		<LandingPage setScrappedData={setScrappedData} updateStep={setStep} />
+		// 	) : step == 2 ? (
+		// 		<Templates
+		// 			updateStep={setStep}
+		// 			setDefaultTemplate={setSelectedTemplate}
+		// 		/>
+		// 	) : step == 3 ? (
+		// 		<StyledContainer>
+		// 			<Canvas
+		// 				updatedSeedData={updatedSeedData}
+		// 				template={selectedTemplate}
+		// 			/>
+		// 		</StyledContainer>
+		// 	) : (
+		// 		''
+		// 	)}
+		// </>
 	);
 };
 
