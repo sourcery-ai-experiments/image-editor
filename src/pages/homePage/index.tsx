@@ -33,10 +33,10 @@ interface PaginationStateItem {
 
 const HomePage = () => {
   const [step, setStep] = useState(1);
-  const [selectedTemplate, setSelectedTemplate] =
-    useState<PaginationStateItem | undefined>(undefined);
+  const [selectedTemplate, setSelectedTemplate] = useState<
+    PaginationStateItem | undefined
+  >(undefined);
   const { paginationState, selectedPage } = usePaginationContext();
-  console.log("paginationState", paginationState);
 
   const [scrappedData, setScrappedData] = useState<APIResponse>();
 
@@ -65,8 +65,6 @@ const HomePage = () => {
     }));
   }, [scrappedData]);
 
-
-
   useEffect(() => {
     if (paginationState) {
       const templateFound = paginationState.find(
@@ -78,10 +76,7 @@ const HomePage = () => {
   return (
     <>
       {step == 1 ? (
-        <Templates
-          updateStep={setStep}
-        
-        />
+        <Templates updateStep={setStep} />
       ) : step == 2 ? (
         <StyledContainer>
           <Canvas

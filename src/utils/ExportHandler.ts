@@ -23,8 +23,8 @@ export function saveImage(canvas: fabric.Canvas | null): void {
  */
 export const saveJSON = (
   canvas: fabric.Canvas | null,
-  
-): void => {
+  newTemplate?: boolean
+): string | void => {
   if (!canvas) {
     console.error("Canvas is undefined.");
     return;
@@ -58,4 +58,7 @@ export const saveJSON = (
   // // Remove the link from the document
   // document.body.removeChild(link);
 
+  if (newTemplate) {
+    return json;
+  }
 };

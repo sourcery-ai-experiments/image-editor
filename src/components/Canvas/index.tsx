@@ -11,10 +11,12 @@ import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import { styles, useStyles } from "./index.style";
 import ImageViewer from "../Image";
 import { IEvent, IRectOptions } from "fabric/fabric-impl";
-import { canvasDimension } from "../../constants";
+import { canvasDimension, templateData } from "../../constants";
 import CustomColorPicker from "../colorPicker";
 import { Template } from "../../types";
 import DeselectIcon from "@mui/icons-material/Deselect";
+import JSZip from "jszip";
+
 import {
   createSwipeGroup,
   createTextBox,
@@ -160,7 +162,8 @@ const Canvas: React.FC<CanvasProps> = React.memo(
       contrast: 0,
     });
 
-    const { paginationState, selectedPage } = usePaginationContext();
+    const { paginationState, selectedPage, setSelectedPage, addPage, update } =
+      usePaginationContext();
 
     const { userMetaData, updateIsUserMetaExist, updateUserMetaData } =
       useCanvasContext();
@@ -271,7 +274,8 @@ const Canvas: React.FC<CanvasProps> = React.memo(
         updateCanvasContext(null);
         canvas.dispose();
       };
-    }, [canvasDimension]);
+    }, [canvasDimension, selectedPage, paginationState]);
+
     const handleSelectionUpdated = () => {
       const activeObject = canvasInstanceRef.current.getActiveObject();
       if (activeObject && activeObject.type === "textbox") {
@@ -616,49 +620,36 @@ const Canvas: React.FC<CanvasProps> = React.memo(
     const handleButtonClick = (buttonType: string) =>
       setActiveButton(buttonType);
 
-    // const loadCanvas = useCallback(async () => {
-    //   function importLocale(locale: string) {
-    //     return import(`../../constants/templates/${locale}.json`);
-    //   }
+    const loadCanvas = useCallback(
+      async (pageNumber?: string) => {
+        const templateFound = paginationState?.find(
+          (item) => item.page === selectedPage
+        );
 
-    //   const templateJSON = await importLocale(template.filePath);
+        await new Promise((resolve) => {
+          canvas?.loadFromJSON(templateFound?.templateJSON, () => {
+            resolve(null);
+          });
+        });
+      },
+      [canvas, template, paginationState, selectedPage]
+    );
 
-    //   const img1 = "/images/sample/toa-heftiba-FV3GConVSss-unsplash.jpg";
-    //   const img2 = "/images/sample/scott-circle-image.png";
+    // const loadCanvas = async (pageNumber?: number) => {
 
     //   const templateFound = paginationState?.find(
-    //     (item) => item.page === selectedPage
+    //     (item) => item.page === pageNumber || item.page === selectedPage
     //   );
+    //   console.log("templateFound", templateFound);
 
-    //   if (templateFound) {
-    //     console.log("coming");
+    //   if (canvas && templateFound) {
     //     await new Promise((resolve) => {
-    //       canvas?.loadFromJSON(templateFound?.templateJSON, () => {
+    //       canvas.loadFromJSON(templateFound.templateJSON, () => {
     //         resolve(null);
     //       });
     //     });
     //   }
-    // }, [canvas, template, paginationState, selectedPage]);
-
-    const loadCanvas = useCallback(async () => {
-      // function importLocale(locale: string) {
-      //   return import(`../../constants/templates/${locale}.json`);
-      // }
-
-      // const templateJSON = await importLocale(template?.filePath);
-
-      // const img1 = "/images/sample/toa-heftiba-FV3GConVSss-unsplash.jpg";
-      // const img2 = "/images/sample/scott-circle-image.png";
-      const templateFound = paginationState.find(
-        (item) => item.page && selectedPage
-      );
-
-      await new Promise((resolve) => {
-        canvas?.loadFromJSON(templateFound?.templateJSON, () => {
-          resolve(null);
-        });
-      });
-    }, [canvas, template, paginationState, selectedPage]);
+    // };
 
     useEffect(() => {
       loadCanvas();
@@ -764,7 +755,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
         canvas?.off("selection:updated", handleCanvasUpdate);
         canvas?.off("selection:cleared", handleCanvasUpdate);
       };
-    }, [loadCanvas, paginationState]);
+    }, [loadCanvas]);
 
     const updateBubbleImageContrast = () => {
       const activeObject = canvas?.getActiveObject();
@@ -1566,9 +1557,100 @@ const Canvas: React.FC<CanvasProps> = React.memo(
       }
     };
 
-    const addTemplate = () => {
-      console.log("addd Template");
-      // const currentTemplateJSON =  saveJSON(canvas, true)
+    const findHighestPageNumber = (
+      paginationState: PaginationStateItem[]
+    ): number => {
+      let highestPageNumber = 0;
+
+      paginationState.forEach((item) => {
+        if (item.page > highestPageNumber) {
+          highestPageNumber = item.page;
+        }
+      });
+
+      return highestPageNumber + 1;
+    };
+
+    const addTemplate = async () => {
+      const currentTemplateJSON = await saveJSON(canvas, true);
+
+      update(selectedPage, { templateJSON: currentTemplateJSON });
+
+      const highestPageNumber = findHighestPageNumber(paginationState);
+
+      const templateFound = templateData.templates?.find(
+        (item) => item.filePath === paginationState[0].filePath
+      );
+
+      let templateJSON;
+
+      try {
+        templateJSON = await import(
+          `../../constants/templates/${template.filePath}.json`
+        );
+      } catch (error) {
+        console.error("Error importing JSON file:", error);
+        return;
+      }
+
+      const obj = {
+        page: highestPageNumber,
+        filePath: templateFound.filePath,
+        templateJSON: templateJSON,
+        ...templateFound,
+      };
+
+      addPage(obj);
+      setSelectedPage(highestPageNumber);
+      setTimeout(() => {
+        loadCanvas(highestPageNumber);
+      }, 2000);
+    };
+
+    const exportMultiCanvases = async () => {
+      // Create a new instance of JSZip
+      // const currentTemplateJSON = await saveJSON(canvas, true);
+
+      // update(selectedPage, { templateJSON: currentTemplateJSON });
+
+      const zip = new JSZip();
+
+      // Loop through paginationState
+      for (const page of paginationState) {
+        // Load templateJSON into canvas
+        await new Promise((resolve) => {
+          canvas?.loadFromJSON(page.templateJSON, () => {
+            resolve(null);
+          });
+        });
+
+        // Extract image data from canvas
+        const imageData = canvas?.toDataURL({ format: "png" });
+
+        // Add image data to zip file
+        zip.file(`page_${page.page}.png`, imageData.split("base64,")[1], {
+          base64: true,
+        });
+      }
+
+      // Generate zip file
+      const zipBlob = await zip.generateAsync({ type: "blob" });
+
+      // Convert blob to URL
+      const zipUrl = URL.createObjectURL(zipBlob);
+
+      // Create a link element
+      const link = document.createElement("a");
+      link.href = zipUrl;
+      link.download = "exported_images.zip";
+
+      // Simulate click on the link to trigger download
+      document.body.appendChild(link);
+      link.click();
+
+      // Cleanup
+      document.body.removeChild(link);
+      URL.revokeObjectURL(zipUrl);
     };
 
     return (
@@ -2625,8 +2707,28 @@ const Canvas: React.FC<CanvasProps> = React.memo(
           </div>
           {/* pagination */}
           <div className={classes.paginationContainer}>
-            <div className={classes.paginationStyle}>1</div>
-            <div className={classes.paginationStyle} onClick={addTemplate}>
+            {paginationState.map((item) => {
+              return (
+                <div
+                  onClick={async () => {
+                    const currentTemplateJSON = await saveJSON(canvas, true);
+
+                    update(selectedPage, { templateJSON: currentTemplateJSON });
+
+                    setSelectedPage(item.page);
+                    loadCanvas(item.page);
+                  }}
+                  key={item.page}
+                  className={classes.paginationStyle}
+                >
+                  {item.page}
+                </div>
+              );
+            })}
+            <div
+              className={classes.paginationStyle}
+              onClick={() => addTemplate()}
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="24"
@@ -3459,7 +3561,9 @@ const Canvas: React.FC<CanvasProps> = React.memo(
           </div>
           <div style={{ marginTop: "40%", position: "relative" }}>
             <button
-              onClick={() => saveImage(canvas)}
+              onClick={() => exportMultiCanvases()}
+              // onClick={() => saveImage(canvas)}
+
               style={{
                 width: "100%",
                 height: "42px",
