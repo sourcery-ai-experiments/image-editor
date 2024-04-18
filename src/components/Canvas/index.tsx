@@ -343,7 +343,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
 		const applyColor = () => {
 			const activeObject = canvasInstanceRef.current.getActiveObject();
-
 			if (color.length > 0 && activeObject && activeObject.type === 'textbox') {
 				activeObject.setSelectionStyles({
 					fill: color,
@@ -354,6 +353,24 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			}
 		};
 
+		// const removeColor = () => {
+		// 	const activeObject = canvasInstanceRef.current.getActiveObject();
+		// 	if (activeObject && activeObject.type === 'textbox') {
+		// 		activeObject.setSelectionStyles({ fill: '#ffffff' });
+		// 		activeObject.setCoords();
+		// 		activeObject.exitEditing();
+		// 		activeObject.set('startSelection', 0);
+		// 		activeObject.set('endSelection', 0);
+		// 		canvasInstanceRef.current.exitEditing();
+		// 		canvasInstanceRef.current.discardActiveObject();
+		// 		canvasInstanceRef.current.renderAll();
+		// 		setColorApplied(false);
+
+		// 		// 				Call the .exitEditing() function on the IText object.
+		// 		// Just remove the IText object as the active object with .discardActiveObject()
+		// 	}
+		// };
+
 		const removeColor = () => {
 			const activeObject = canvasInstanceRef.current.getActiveObject();
 			if (activeObject && activeObject.type === 'textbox') {
@@ -361,7 +378,8 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				canvasInstanceRef.current.renderAll();
 				setColor(color);
 				// setColor('#FD3232');
-				setColorApplied(false);
+				// setColorApplied(false);
+				// canvas.discardActiveObject().renderAll();
 			}
 		};
 
