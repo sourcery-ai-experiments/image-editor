@@ -30,6 +30,8 @@ import {
   updateImageSource,
 } from "../../utils/ImageHandler";
 import { useCanvasContext } from "../../context/CanvasContext";
+import { usePaginationContext } from "../../context/MultiCanvasPaginationContext";
+
 import FontsTab from "../Tabs/EditText/FontsTab";
 import {
   createHorizontalCollage,
@@ -103,9 +105,23 @@ import dividers3 from "../../assets/dividers/Divider-3.svg";
 import dividers4 from "../../assets/dividers/Divider-4.svg";
 import dividers5 from "../../assets/dividers/Divider-5.svg";
 import dividers6 from "../../assets/dividers/Divider-6.svg";
+import tempJSON from "./temp.json";
+
+type TemplateJSON = any;
+interface PaginationStateItem {
+  page: number;
+  template: string;
+  templateJSON: TemplateJSON;
+  backgroundImage: boolean;
+  diptych: string | undefined;
+  filePath: string;
+  opacity: number; // Changed to number
+  overlayImage: string;
+  placeholderImage: string;
+}
 
 interface CanvasProps {
-  template: Template;
+  template: PaginationStateItem | undefined;
   updatedSeedData: Record<string, any>;
 }
 
@@ -143,6 +159,8 @@ const Canvas: React.FC<CanvasProps> = React.memo(
       brightness: 0,
       contrast: 0,
     });
+
+    const { paginationState, selectedPage } = usePaginationContext();
 
     const { userMetaData, updateIsUserMetaExist, updateUserMetaData } =
       useCanvasContext();
@@ -182,8 +200,8 @@ const Canvas: React.FC<CanvasProps> = React.memo(
         fontFamily: "Fira Sans",
       },
       overlay: {
-        imgUrl: template.overlayImage,
-        opacity: template.opacity,
+        imgUrl: template?.overlayImage,
+        opacity: template?.opacity,
       },
       bubble: {
         image: "",
@@ -599,44 +617,48 @@ const Canvas: React.FC<CanvasProps> = React.memo(
       setActiveButton(buttonType);
 
     // const loadCanvas = useCallback(async () => {
-    // 	function importLocale(locale: string) {
-    // 		return import(`../../constants/templates/${locale}.json`);
-    // 	}
+    //   function importLocale(locale: string) {
+    //     return import(`../../constants/templates/${locale}.json`);
+    //   }
 
-    // 	const templateJSON = await importLocale(template.filePath);
+    //   const templateJSON = await importLocale(template.filePath);
 
-    // 	// Load canvas JSON template without adding default images
-    // 	await new Promise((resolve) => {
-    // 		canvas?.loadFromJSON(templateJSON, () => {
-    // 			resolve(null);
-    // 		});
-    // 	});
-    // }, [canvas, template]);
+    //   const img1 = "/images/sample/toa-heftiba-FV3GConVSss-unsplash.jpg";
+    //   const img2 = "/images/sample/scott-circle-image.png";
+
+    //   const templateFound = paginationState?.find(
+    //     (item) => item.page === selectedPage
+    //   );
+
+    //   if (templateFound) {
+    //     console.log("coming");
+    //     await new Promise((resolve) => {
+    //       canvas?.loadFromJSON(templateFound?.templateJSON, () => {
+    //         resolve(null);
+    //       });
+    //     });
+    //   }
+    // }, [canvas, template, paginationState, selectedPage]);
 
     const loadCanvas = useCallback(async () => {
-      function importLocale(locale: string) {
-        return import(`../../constants/templates/${locale}.json`);
-      }
+      // function importLocale(locale: string) {
+      //   return import(`../../constants/templates/${locale}.json`);
+      // }
 
-      const templateJSON = await importLocale(template.filePath);
+      // const templateJSON = await importLocale(template?.filePath);
 
-      const img1 = "/images/sample/toa-heftiba-FV3GConVSss-unsplash.jpg";
-      const img2 = "/images/sample/scott-circle-image.png";
+      // const img1 = "/images/sample/toa-heftiba-FV3GConVSss-unsplash.jpg";
+      // const img2 = "/images/sample/scott-circle-image.png";
+      const templateFound = paginationState.find(
+        (item) => item.page && selectedPage
+      );
 
-      // const img1 = '';
-      // const img2 = '';
-
-      // Load canvas JSON template
       await new Promise((resolve) => {
-        canvas?.loadFromJSON(templateJSON, () => {
-          // if (template.diptych === 'horizontal')
-          // 	createHorizontalCollage(canvas, [img1, img2]);
-          // else if (template.diptych === 'vertical')
-          // 	createVerticalCollage(canvas, [img1, img2]);
+        canvas?.loadFromJSON(templateFound?.templateJSON, () => {
           resolve(null);
         });
       });
-    }, [canvas, template]);
+    }, [canvas, template, paginationState, selectedPage]);
 
     useEffect(() => {
       loadCanvas();
@@ -742,7 +764,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
         canvas?.off("selection:updated", handleCanvasUpdate);
         canvas?.off("selection:cleared", handleCanvasUpdate);
       };
-    }, [loadCanvas]);
+    }, [loadCanvas, paginationState]);
 
     const updateBubbleImageContrast = () => {
       const activeObject = canvas?.getActiveObject();
@@ -838,9 +860,9 @@ const Canvas: React.FC<CanvasProps> = React.memo(
         let options: fabric.ICircleOptions = {
           ...existingBubbleStroke,
           ...(!existingBubbleStroke &&
-            template.diptych === "horizontal" && { top: 150 }),
+            template?.diptych === "horizontal" && { top: 150 }),
           ...(!existingBubbleStroke &&
-            template.diptych === "horizontal" && { left: 150, radius: 80 }),
+            template?.diptych === "horizontal" && { left: 150, radius: 80 }),
         };
         // Shadow for newly created bubble with increased length
 
@@ -870,7 +892,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
         const bgImages = ["bg-1"];
 
-        if (!template.backgroundImage) bgImages.push("bg-2");
+        if (!template?.backgroundImage) bgImages.push("bg-2");
 
         for (const customType of bgImages) {
           const existingObject: fabric.Image | undefined = getExistingObject(
@@ -1152,7 +1174,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
       );
 
       if (!activeObject) {
-        if (template.diptych === "horizontal") {
+        if (template?.diptych === "horizontal") {
           // createHorizontalCollage(canvas, [imageUrl, imageUrl]);
           if (currentImageIndex !== undefined && currentImageIndex % 2 === 0) {
             createHorizontalCollage(canvas, [imageUrl, null]);
@@ -1162,7 +1184,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
           ) {
             createHorizontalCollage(canvas, [null, imageUrl]);
           }
-        } else if (template.diptych === "vertical") {
+        } else if (template?.diptych === "vertical") {
           // createVerticalCollage(canvas, [imageUrl, imageUrl]);
           if (currentImageIndex !== undefined && currentImageIndex % 2 === 0) {
             createVerticalCollage(canvas, [imageUrl, null]);
@@ -1178,9 +1200,9 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
       if (!activeObject) return console.log("Still Object not found");
 
-      if (template.backgroundImage || !template.diptych)
+      if (template?.backgroundImage || !template?.diptych)
         updateImageSource(canvas, imageUrl, activeObject);
-      else if (template.diptych === "vertical")
+      else if (template?.diptych === "vertical")
         updateVerticalCollageImage(canvas, imageUrl, activeObject);
       else updateHorizontalCollageImage(canvas, imageUrl, activeObject);
     }, 100);
@@ -1349,7 +1371,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
       }
       const existingObject = getExistingObject("photo-border") as fabric.Rect;
 
-      if (template.diptych === "horizontal") {
+      if (template?.diptych === "horizontal") {
         updateRectangle({
           selectable: true,
           lockMovementX: existingObject.lockMovementX,
@@ -1544,6 +1566,11 @@ const Canvas: React.FC<CanvasProps> = React.memo(
       }
     };
 
+    const addTemplate = () => {
+      console.log("addd Template");
+      // const currentTemplateJSON =  saveJSON(canvas, true)
+    };
+
     return (
       <div
         style={{
@@ -1678,7 +1705,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                     Filter
                   </Button>
 
-                  {template.diptych && !template.backgroundImage ? (
+                  {template?.diptych && !template?.backgroundImage ? (
                     <Button
                       className={`${classes.button} ${
                         activeButton === "border" && classes.buttonActive
@@ -2596,6 +2623,26 @@ const Canvas: React.FC<CanvasProps> = React.memo(
               />
             </button>
           </div>
+          {/* pagination */}
+          <div className={classes.paginationContainer}>
+            <div className={classes.paginationStyle}>1</div>
+            <div className={classes.paginationStyle} onClick={addTemplate}>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+            </div>
+          </div>
         </div>
 
         {/* Footer Panel  End*/}
@@ -2618,7 +2665,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                   clickHandler={(img: string) => updateBackgroundImage(img)}
                   images={initialData.backgroundImages}
                 >
-                  {template.diptych === "vertical" ? (
+                  {template?.diptych === "vertical" ? (
                     <Box
                       sx={{
                         display: "flex",
@@ -2629,7 +2676,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                       <div>Top Images</div>
                       <div>Bottom Images</div>
                     </Box>
-                  ) : template.diptych === "horizontal" ? (
+                  ) : template?.diptych === "horizontal" ? (
                     <>
                       <Box
                         sx={{

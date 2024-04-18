@@ -5,6 +5,7 @@ import { BaseURL, templateData } from "../../constants";
 import { styled } from "@mui/styles";
 import Templates from "../templates/templates";
 import Canvas from "../../components/Canvas";
+import { usePaginationContext } from "../../context/MultiCanvasPaginationContext";
 
 const StyledContainer = styled("div")({
   display: "flex",
@@ -17,12 +18,26 @@ const StyledContainer = styled("div")({
   color: "white",
   width: "100%",
 });
+type TemplateJSON = any;
+interface PaginationStateItem {
+  page: number;
+  template: string;
+  templateJSON: TemplateJSON;
+  backgroundImage: boolean;
+  diptych: string | undefined;
+  filePath: string;
+  opacity: number; // Changed to number
+  overlayImage: string;
+  placeholderImage: string;
+}
 
 const HomePage = () => {
   const [step, setStep] = useState(1);
-  const [selectedTemplate, setSelectedTemplate] = useState<Template>(
-    templateData.templates[0]
-  );
+  const [selectedTemplate, setSelectedTemplate] =
+    useState<PaginationStateItem | undefined>(undefined);
+  const { paginationState, selectedPage } = usePaginationContext();
+  console.log("paginationState", paginationState);
+
   const [scrappedData, setScrappedData] = useState<APIResponse>();
 
   const [updatedSeedData, setUpdatedSeedData] =
@@ -50,39 +65,30 @@ const HomePage = () => {
     }));
   }, [scrappedData]);
 
+
+
+  useEffect(() => {
+    if (paginationState) {
+      const templateFound = paginationState.find(
+        (item) => item.page && selectedPage
+      );
+      setSelectedTemplate(templateFound);
+    }
+  }, [paginationState]);
   return (
-    // <>
-    // 	{step == 1 ? (
-    // 		<Templates
-    // 			updateStep={setStep}
-    // 			setDefaultTemplate={setSelectedTemplate}
-    // 		/>
-    // 	) : step == 2 ? (
-    // 		<StyledContainer>
-    // 			<Canvas
-    // 				updatedSeedData={updatedSeedData}
-    // 				template={selectedTemplate}
-    // 			/>
-    // 		</StyledContainer>
-    // 	) : step == 3 ? (
-    // 		<StyledContainer>
-    // 			<Canvas
-    // 				updatedSeedData={updatedSeedData}
-    // 				template={selectedTemplate}
-    // 			/>
-    // 		</StyledContainer>
-    // 	) : (
-    // 		''
-    // 	)}
-    // </>
     <>
       {step == 1 ? (
-        <LandingPage setScrappedData={setScrappedData} updateStep={setStep} />
-      ) : step == 2 ? (
         <Templates
           updateStep={setStep}
-          setDefaultTemplate={setSelectedTemplate}
+        
         />
+      ) : step == 2 ? (
+        <StyledContainer>
+          <Canvas
+            updatedSeedData={updatedSeedData}
+            template={selectedTemplate}
+          />
+        </StyledContainer>
       ) : step == 3 ? (
         <StyledContainer>
           <Canvas
@@ -94,6 +100,25 @@ const HomePage = () => {
         ""
       )}
     </>
+    // <>
+    // 	{step == 1 ? (
+    // 		<LandingPage setScrappedData={setScrappedData} updateStep={setStep} />
+    // 	) : step == 2 ? (
+    // 		<Templates
+    // 			updateStep={setStep}
+    // 			setDefaultTemplate={setSelectedTemplate}
+    // 		/>
+    // 	) : step == 3 ? (
+    // 		<StyledContainer>
+    // 			<Canvas
+    // 				updatedSeedData={updatedSeedData}
+    // 				template={selectedTemplate}
+    // 			/>
+    // 		</StyledContainer>
+    // 	) : (
+    // 		''
+    // 	)}
+    // </>
   );
 };
 
