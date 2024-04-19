@@ -62,3 +62,21 @@ export const saveJSON = (
     return json;
   }
 };
+
+export function hexToRgbA(hex: string) {
+  var c;
+  if (/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)) {
+    c = hex.substring(1).split("");
+    if (c.length === 3) {
+      c = [c[0] + c[1], c[0] + c[1], c[2] + c[2]];
+    } else {
+      c = [c[0] + c[1], c[2] + c[3], c[4] + c[5]];
+    }
+    c = "0x" + c.join("");
+    return (
+     
+      "rgba(" + [(Number(c) >> 16) & 255, (Number(c) >> 8) & 255, Number(c) & 255].join(",") + ", 1)"
+    );
+  }
+  throw new Error("Bad Hex");
+}
