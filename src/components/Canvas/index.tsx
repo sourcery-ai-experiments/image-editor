@@ -3561,6 +3561,26 @@ const Canvas: React.FC<CanvasProps> = React.memo(
           </div>
           <div style={{ marginTop: "40%", position: "relative" }}>
             <button
+              onClick={async () => {
+                const currentTemplateJSON = await saveJSON(canvas, true);
+                update(selectedPage, { templateJSON: currentTemplateJSON });
+                loadCanvas(selectedPage);
+              }}
+              // onClick={() => saveImage(canvas)}
+              style={{
+                width: "100%",
+                height: "42px",
+                borderRadius: "25px",
+                border: "none",
+                backgroundColor: "#3b0e39",
+                color: "white",
+                marginBottom: "15px",
+              }}
+            >
+              Save All Templates
+            </button>
+
+            <button
               onClick={() => exportMultiCanvases()}
               // onClick={() => saveImage(canvas)}
 
