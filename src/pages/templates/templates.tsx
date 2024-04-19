@@ -2,7 +2,7 @@
 import { styled } from "@mui/system";
 import { templateData } from "../../constants";
 import { Dispatch, SetStateAction } from "react";
-import { Template } from "../../types";
+// import { Template } from "../../types";
 import { usePaginationContext } from "../../context/MultiCanvasPaginationContext";
 
 interface Props {
@@ -25,8 +25,8 @@ function EgBanner({ updateStep }: Props) {
   const { addPage } = usePaginationContext();
 
   const onClickHandler = async (template: any) => {
-    const page = 1;
-    const filePath = template.filePath;
+    // const page = 1;
+    // const filePath = template.filePath;
     let templateJSON;
 
     try {

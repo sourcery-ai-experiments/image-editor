@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import LandingPage from "../landing page/landingPage";
-import { APIResponse, Template, TemplateData } from "../../types";
+import { APIResponse, TemplateData } from "../../types";
 import { BaseURL, templateData } from "../../constants";
 import { styled } from "@mui/styles";
 import Templates from "../templates/templates";
@@ -39,7 +39,6 @@ const HomePage = () => {
   const { paginationState, selectedPage } = usePaginationContext();
 
   const [scrappedData, setScrappedData] = useState<APIResponse>();
-
   const [updatedSeedData, setUpdatedSeedData] =
     useState<TemplateData>(templateData);
 
@@ -74,16 +73,32 @@ const HomePage = () => {
     }
   }, [paginationState]);
   return (
+    // <>
+    //   {step == 1 ? (
+    //     <Templates updateStep={setStep} />
+    //   ) : step == 2 ? (
+    //     <StyledContainer>
+    //       <Canvas
+    //         updatedSeedData={updatedSeedData}
+    //         template={selectedTemplate}
+    //       />
+    //     </StyledContainer>
+    //   ) : step == 3 ? (
+    //     <StyledContainer>
+    //       <Canvas
+    //         updatedSeedData={updatedSeedData}
+    //         template={selectedTemplate}
+    //       />
+    //     </StyledContainer>
+    //   ) : (
+    //     ""
+    //   )}
+    // </>
     <>
       {step == 1 ? (
-        <Templates updateStep={setStep} />
+        <LandingPage setScrappedData={setScrappedData} updateStep={setStep} />
       ) : step == 2 ? (
-        <StyledContainer>
-          <Canvas
-            updatedSeedData={updatedSeedData}
-            template={selectedTemplate}
-          />
-        </StyledContainer>
+        <Templates updateStep={setStep} />
       ) : step == 3 ? (
         <StyledContainer>
           <Canvas
@@ -95,25 +110,6 @@ const HomePage = () => {
         ""
       )}
     </>
-    // <>
-    // 	{step == 1 ? (
-    // 		<LandingPage setScrappedData={setScrappedData} updateStep={setStep} />
-    // 	) : step == 2 ? (
-    // 		<Templates
-    // 			updateStep={setStep}
-    // 			setDefaultTemplate={setSelectedTemplate}
-    // 		/>
-    // 	) : step == 3 ? (
-    // 		<StyledContainer>
-    // 			<Canvas
-    // 				updatedSeedData={updatedSeedData}
-    // 				template={selectedTemplate}
-    // 			/>
-    // 		</StyledContainer>
-    // 	) : (
-    // 		''
-    // 	)}
-    // </>
   );
 };
 

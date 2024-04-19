@@ -1,7 +1,15 @@
 // @ts-nocheck
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { fabric } from "fabric";
-import { Typography, Box, IconButton, Stack, Alert } from "@mui/material";
+import {
+  Typography,
+  Box,
+  IconButton,
+  Stack,
+  Alert,
+  FormControlLabel,
+  Checkbox,
+} from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
@@ -45,6 +53,7 @@ import { activeTabs } from "../../types/context";
 import FlipIcon from "@mui/icons-material/Flip";
 import {
   createBubbleElement,
+  createBubbleElement1,
   updateBubbleElement,
 } from "../../utils/BubbleHandler";
 import { debounce } from "lodash";
@@ -121,6 +130,7 @@ interface PaginationStateItem {
   overlayImage: string;
   placeholderImage: string;
 }
+import toast from "react-hot-toast";
 
 interface CanvasProps {
   template: PaginationStateItem | undefined;
@@ -167,7 +177,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
     const { userMetaData, updateIsUserMetaExist, updateUserMetaData } =
       useCanvasContext();
-    // console.log('🚀 ~ userMetaData:', userMetaData?.company?.name);
+
     const [canvasToolbox, setCanvasToolbox] = useState({
       activeObject: null,
       isDeselectDisabled: true,
@@ -248,6 +258,17 @@ const Canvas: React.FC<CanvasProps> = React.memo(
     const [fontFamily, setFontFamily] = useState("Arial");
     const [fontWeightApplied, setFontWeightApplied] = useState(false);
 
+    //add another bubble
+    const [isChecked, setIsChecked] = useState(false);
+
+    const handleCheckboxChange = (
+      event: React.ChangeEvent<HTMLInputElement>
+    ) => {
+      setIsChecked(event.target.checked);
+    };
+
+    //--------------------
+
     useEffect(() => {
       const options = {
         width: canvasDimension.width,
@@ -267,7 +288,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
       canvas.on("selection:updated", handleSelectionUpdated);
 
       // Register event listener
-      canvas.on("mouse:down", handleMouseDown);
+      // canvas.on('mouse:down', handleMouseDown);
 
       return () => {
         // Cleanup
@@ -343,8 +364,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
     const applyColor = () => {
       const activeObject = canvasInstanceRef.current.getActiveObject();
-
-      if (activeObject && activeObject.type === "textbox") {
+      if (color.length > 0 && activeObject && activeObject.type === "textbox") {
         activeObject.setSelectionStyles({
           fill: color,
         });
@@ -358,8 +378,11 @@ const Canvas: React.FC<CanvasProps> = React.memo(
       const activeObject = canvasInstanceRef.current.getActiveObject();
       if (activeObject && activeObject.type === "textbox") {
         activeObject.setSelectionStyles({ fill: "#ffffff" });
-        canvasInstanceRef.current.renderAll(); // Render only the selected object
-        setColorApplied(false);
+        canvasInstanceRef.current.renderAll();
+        setColor(color);
+        // setColor('#FD3232');
+        // setColorApplied(false);
+        // canvas.discardActiveObject().renderAll();
       }
     };
 
@@ -391,231 +414,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
         setFontFamily(family);
       }
     };
-
-    //   useEffect(() => {
-    //       const options = {
-    //           width: canvasDimension.width,
-    //           height: canvasDimension.height,
-    //           renderOnAddRemove: false,
-    //           preserveObjectStacking: true,
-    //           selection: true,
-    //       };
-    //       const canvas = new fabric.Canvas(canvasEl.current, options);
-    //       canvasInstanceRef.current = canvas;
-    //       // make the fabric.Canvas instance available to your app
-    //       updateCanvasContext(canvas);
-
-    //       // Event listener for mouse click
-    //       canvas.on('mouse:down', handleMouseDown);
-
-    //       function handleMouseDown(event) {
-    //           const selectedObject = event.target;
-
-    //           if (selectedObject && selectedObject.type === 'textbox') {
-    //               const selectionStart = selectedObject.selectionStart;
-    //               const selectionEnd = selectedObject.selectionEnd;
-
-    //               if (selectionStart !== selectionEnd) {
-    //                   const fill = overlayTextFiltersState1.color;
-    //                   selectedObject.setSelectionStyles({ fill }, selectionStart, selectionEnd);
-    //                   canvas.renderAll();
-    //               }
-    //           }
-    //       }
-
-    //       return () => {
-    //           updateCanvasContext(null);
-    //           canvas.dispose();
-    //       };
-    //   }, [canvasDimension, overlayTextFiltersState1]);
-
-    //   const changeColor = (color) => {
-    //       const activeObject = canvasInstanceRef.current.getActiveObject();
-    //       if (activeObject && activeObject.type === 'textbox') {
-    //           activeObject.setSelectionStyles({ fill: color });
-    //           canvasInstanceRef.current.renderAll();
-    //       }
-    //   };
-    // 	const removeColor = () => {
-    // 		const activeObject = canvasInstanceRef.current.getActiveObject();
-    // 		if (activeObject && activeObject.type === 'textbox') {
-    // 				activeObject.setSelectionStyles({ fill: 'white' }); // Revert to default color
-    // 				canvasInstanceRef.current.renderAll();
-    // 		}
-    // };
-
-    //   const changeFont = (fontFamily) => {
-    //       const activeObject = canvasInstanceRef.current.getActiveObject();
-    //       if (activeObject && activeObject.type === 'textbox') {
-    //           activeObject.setSelectionStyles({ fontFamily });
-    //           canvasInstanceRef.current.renderAll();
-    //       }
-    //   };
-
-    //   const changeFontSize = (fontSize) => {
-    //       const activeObject = canvasInstanceRef.current.getActiveObject();
-    //       if (activeObject && activeObject.type === 'textbox') {
-    //           activeObject.setSelectionStyles({ fontSize });
-    //           canvasInstanceRef.current.renderAll();
-    //       }
-    //   };
-
-    //   const changeFontWeight = (fontWeight) => {
-    //       const activeObject = canvasInstanceRef.current.getActiveObject();
-    //       if (activeObject && activeObject.type === 'textbox') {
-    //           activeObject.setSelectionStyles({ fontWeight });
-    //           canvasInstanceRef.current.renderAll();
-    //       }
-    //   };
-
-    // 	useEffect(() => {
-    // 		const options = {
-    // 				width: canvasDimension.width,
-    // 				height: canvasDimension.height,
-    // 				renderOnAddRemove: false,
-    // 				preserveObjectStacking: true,
-    // 				selection: true,
-
-    // 		};
-    // 		const canvas = new fabric.Canvas(canvasEl.current, options);
-    // 		canvasInstanceRef.current = canvas;
-    // 		// make the fabric.Canvas instance available to your app
-    // 		updateCanvasContext(canvas);
-
-    // 		// Event listener for mouse click
-    // 		canvas.on('mouse:down', handleMouseDown);
-
-    // 		function handleMouseDown(event) {
-    // 				const selectedObject = event.target;
-
-    // 				if (selectedObject && selectedObject.type === 'textbox') {
-    // 						const selectionStart = selectedObject.selectionStart;
-    // 						const selectionEnd = selectedObject.selectionEnd;
-
-    // 						if (selectionStart !== selectionEnd) {
-    // 								const fill = overlayTextFiltersState1.color;
-    // 								console.log('🚀  fill:', fill);
-    // 								selectedObject.setSelectionStyles({ fill }, selectionStart, selectionEnd);
-
-    // 								// Change font size and fontWeight
-    // 								selectedObject.setSelectionStyles({ fontSize: 30, fontWeight: 'bold', 				fontFamily: 'Fira Sans',
-    // 							}, selectionStart, selectionEnd);
-
-    // 								canvas.renderAll();
-    // 						}
-    // 				}
-    // 		}
-
-    // 		return () => {
-    // 				updateCanvasContext(null);
-    // 				canvas.dispose();
-    // 		};
-    // }, []);
-
-    // useEffect(() => {
-    // 	const options = {
-    // 		width: canvasDimension.width,
-    // 		height: canvasDimension.height,
-    // 		renderOnAddRemove: false,
-    // 		preserveObjectStacking: true,
-    // 		selection: true, // Enable text selection
-    // 	};
-    // 	const canvas = new fabric.Canvas(canvasEl.current, options);
-    // 	canvasInstanceRef.current = canvas;
-    // 	// make the fabric.Canvas instance available to your app
-    // 	updateCanvasContext(canvas);
-
-    // 	// Event listener for mouse click
-    // 	canvas.on('mouse:down', handleMouseDown);
-
-    // 	function handleMouseDown(event) {
-    // 		const selectedObject = event.target;
-
-    // 		if (selectedObject && selectedObject.type === 'textbox') {
-    // 			const selectionStart = selectedObject.selectionStart;
-    // 			const selectionEnd = selectedObject.selectionEnd;
-
-    // 			if (selectionStart !== selectionEnd) {
-    // 				const fill = overlayTextFiltersState1.color;
-    // 				console.log('🚀  fill:', fill);
-    // 				selectedObject.setSelectionStyles(
-    // 					{ fill },
-    // 					selectionStart,
-    // 					selectionEnd
-    // 				);
-    // 				canvas.renderAll();
-    // 			}
-    // 		}
-    // 	}
-
-    // 	return () => {
-    // 		updateCanvasContext(null);
-    // 		canvas.dispose();
-    // 	};
-    // }, []);
-
-    // useEffect(() => {
-    // 	const options = {
-    // 		width: canvasDimension.width,
-    // 		height: canvasDimension.height,
-    // 		renderOnAddRemove: false,
-    // 		preserveObjectStacking: true,
-    // 		selection: true, // Enable text selection
-    // 	};
-    // 	const canvas = new fabric.Canvas(canvasEl.current, options);
-    // 	canvasInstanceRef.current = canvas;
-    // 	// make the fabric.Canvas instance available to your app
-    // 	updateCanvasContext(canvas);
-
-    // 	// Event listener for mouse click
-    // 	canvas.on('mouse:down', handleMouseDown);
-
-    // 	function handleMouseDown(event) {
-    // 		const selectedObject = canvas.getActiveObject();
-
-    // 		console.log('🚀  selectedObject:', selectedObject);
-    // 		console.log('🚀  selectedObject Type:', selectedObject.type);
-    // 		console.log('selectedObject.text:', selectedObject.text);
-
-    // 		if (selectedObject && selectedObject.type === 'textbox') {
-    // 			selectedObject.set('fill', '#ff0000');
-    // 			canvas.renderAll();
-    // 		}
-    // 	}
-
-    // 	return () => {
-    // 		updateCanvasContext(null);
-    // 		canvas.dispose();
-    // 	};
-    // }, []);
-
-    // useEffect(() => {
-    // 	const options = {
-    // 		width: canvasDimension.width,
-    // 		height: canvasDimension.height,
-    // 		renderOnAddRemove: false,
-    // 		preserveObjectStacking: true,
-    // 	};
-    // 	const canvas = new fabric.Canvas(canvasEl.current, options);
-    // 	canvasInstanceRef.current = canvas;
-    // 	// make the fabric.Canvas instance available to your app
-    // 	updateCanvasContext(canvas);
-
-    // 	canvas.on('selection:created', function (e) {
-    // 		console.log('----run----', e);
-    // 		if (e.target.type === 'textbox') {
-    // 			e.target.set('fill', 'red');
-    // 			console.log('----run program----');
-
-    // 			canvas.renderAll();
-    // 		}
-    // 	});
-
-    // 	return () => {
-    // 		updateCanvasContext(null);
-    // 		canvas.dispose();
-    // 	};
-    // }, []);
 
     const handleButtonClick = (buttonType: string) =>
       setActiveButton(buttonType);
@@ -757,7 +555,11 @@ const Canvas: React.FC<CanvasProps> = React.memo(
       };
     }, [loadCanvas]);
 
+    // Define an array to store references to created bubbles
+    const createdBubbles: fabric.Object[] = [];
+
     const updateBubbleImageContrast = () => {
+      console.log("setBubbleFilter", bubbleFilter);
       const activeObject = canvas?.getActiveObject();
 
       if (activeObject && activeObject.type === "image") {
@@ -783,6 +585,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
     };
 
     const updateBubbleImageBrightness = () => {
+      console.log("setBubbleFilter", bubbleFilter);
       const activeObject = canvas?.getActiveObject();
 
       if (activeObject && activeObject.type === "image") {
@@ -819,14 +622,12 @@ const Canvas: React.FC<CanvasProps> = React.memo(
       brightness?: number
     ) => {
       const existingBubbleStroke = getExistingObject("bubbleStroke");
-
-      const activeObject = canvas?.getActiveObject();
+      console.log("🚀 ~ existingBubbleStroke:", existingBubbleStroke);
 
       if (!canvas) {
         console.error("Canvas Not initialized");
         return;
       }
-
       if (shadow) {
         const newOptions: fabric.ICircleOptions = {
           shadow: {
@@ -839,15 +640,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
         updateBubbleElement(canvas, existingBubbleStroke, newOptions);
         canvas.renderAll();
       }
-
-      if (filter && !imgUrl && existingBubbleStroke) {
-        const newOptions: fabric.ICircleOptions = {
-          stroke: filter?.stroke || "blue",
-          strokeWidth: filter?.strokeWidth || 15,
-        };
-        updateBubbleElement(canvas, existingBubbleStroke, newOptions);
-        canvas.renderAll();
-      } else {
+      if (!isChecked) {
         let options: fabric.ICircleOptions = {
           ...existingBubbleStroke,
           ...(!existingBubbleStroke &&
@@ -865,7 +658,39 @@ const Canvas: React.FC<CanvasProps> = React.memo(
           spread: 100,
         };
         requestAnimationFrame(() => {
-          createBubbleElement(canvas!, imgUrl!, options);
+          createBubbleElement1(canvas!, imgUrl!, options);
+          canvas.renderAll();
+        });
+        return;
+      }
+
+      const activeBubble = canvas.getActiveObject();
+
+      if (activeBubble) {
+        if (activeBubble instanceof fabric.Circle) {
+          // If the active object is a Circle
+          const newOptions: fabric.ICircleOptions = {
+            stroke: filter?.stroke || "blue",
+            strokeWidth: filter?.strokeWidth || 15,
+            // Add any other options you want to update
+          };
+          updateBubbleElement(canvas, activeObject, newOptions);
+          canvas.renderAll();
+        } else {
+          toast.error("No active Circle selected.");
+          console.log();
+        }
+      }
+      if (!activeBubble && isChecked) {
+        // let options: fabric.ICircleOptions = {
+        // 	...existingBubbleStroke,
+        // 	...(!existingBubbleStroke &&
+        // 		template.diptych === 'horizontal' && { top: 150 }),
+        // 	...(!existingBubbleStroke &&
+        // 		template.diptych === 'horizontal' && { left: 150, radius: 80 }),
+        // };
+        requestAnimationFrame(() => {
+          createBubbleElement(canvas!, imgUrl!);
           canvas.renderAll();
         });
       }
@@ -924,162 +749,10 @@ const Canvas: React.FC<CanvasProps> = React.memo(
       },
       200
     );
-    // const updateBackgroundFilters = debounce(
-    // 	(filter: fabric.IBaseFilter, type: string): void => {
-    // 		if (!canvas) return;
-
-    // 		const bgImages = ['bg-1'];
-
-    // 		if (!template.backgroundImage) bgImages.push('bg-2');
-
-    // 		for (const customType of bgImages) {
-    // 			const existingObject: fabric.Image | undefined = getExistingObject(
-    // 				customType
-    // 			) as fabric.Image;
-    // 			if (existingObject) {
-    // 				const hasBrightnessOrContrast =
-    // 					filter.hasOwnProperty('brightness') ||
-    // 					filter.hasOwnProperty('contrast');
-
-    // 				const index: number | undefined = existingObject.filters?.findIndex(
-    // 					(fil) => fil[type as any]
-    // 				);
-
-    // 				if (index !== -1) {
-    // 					existingObject.filters?.splice(index as number, 1, filter);
-    // 					if (!hasBrightnessOrContrast)
-    // 						existingObject.filters?.splice(index as number, 1);
-    // 				} else {
-    // 					existingObject.filters?.push(filter);
-    // 				}
-    // 				existingObject.applyFilters();
-    // 				canvas.renderAll();
-    // 			}
-    // 		}
-    // 	},
-    // 	200
-    // );
 
     //grid add
     const [isSelected, setIsSelected] = useState(false);
     //---------------------------------Canvas---------------------------------------------
-
-    //------------------ canvas grid --------------------------------
-    // useEffect(() => {
-    // 	if (!canvasEl.current) return;
-
-    // 	const canvas = new fabric.Canvas(canvasEl.current, {
-    // 		selection: false,
-    // 		// height: window.innerHeight,
-    // 		// width: window.innerWidth,
-    // 		width: 545,
-    // 	});
-
-    // 	const drawGrid = () => {
-    // 		const options = {
-    // 			distance: 10,
-    // 			// width: canvas.width,
-    // 			// height: canvas.height,
-    // 			width: 542,
-    // 			// height: 1200,
-    // 			param: {
-    // 				stroke: '#ebebeb',
-    // 				strokeWidth: 1,
-    // 				selectable: false,
-    // 			},
-    // 		};
-
-    // 		const gridLen = options.width / options.distance;
-
-    // 		for (let i = 0; i < gridLen; i++) {
-    // 			const distance = i * options.distance;
-    // 			const horizontal = new fabric.Line(
-    // 				[distance, 0, distance, options.width],
-    // 				options.param
-    // 			);
-    // 			const vertical = new fabric.Line(
-    // 				[0, distance, options.width, distance],
-    // 				options.param
-    // 			);
-    // 			canvas.add(horizontal);
-    // 			canvas.add(vertical);
-    // 			if (i % 5 === 0) {
-    // 				horizontal.set({ stroke: '#cccccc' });
-    // 				vertical.set({ stroke: '#cccccc' });
-    // 			}
-    // 		}
-    // 	};
-
-    // 	if (isSelected) {
-    // 		drawGrid();
-    // 	}
-
-    // 	return () => {
-    // 		canvas.clear();
-    // 	};
-    // }, [isSelected]);
-
-    // const [imagePath, setImagePath] = useState<string>('');
-
-    // useEffect(() => {
-    // 	if (!canvasEl.current) return;
-
-    // 	const canvas = new fabric.Canvas(canvasEl.current, {
-    // 		selection: false,
-    // 		width: 542, // Initial width
-    // 		height: 660,
-    // 		backgroundColor: 'rgba(0, 0, 0, 0)',
-    // 	});
-
-    // 	const drawGrid = () => {
-    // 		const options = {
-    // 			distance: 10,
-    // 			width: 675,
-    // 			height: 650,
-    // 			param: {
-    // 				stroke: '#ebebeb',
-    // 				strokeWidth: 1,
-    // 				selectable: false,
-    // 				zIndex: 100,
-    // 			},
-    // 		};
-
-    // 		const gridLen = options.width / options.distance;
-
-    // 		for (let i = 0; i < gridLen; i++) {
-    // 			const distance = i * options.distance;
-    // 			const horizontal = new fabric.Line(
-    // 				[distance, 0, distance, options.height],
-    // 				options.param
-    // 			);
-    // 			const vertical = new fabric.Line(
-    // 				[0, distance, options.width, distance],
-    // 				options.param
-    // 			);
-    // 			canvas.add(horizontal);
-    // 			canvas.add(vertical);
-    // 			if (i % 5 === 0) {
-    // 				horizontal.set({ stroke: '#cccccc' });
-    // 				vertical.set({ stroke: '#cccccc' });
-    // 			}
-    // 		}
-
-    // 		requestAnimationFrame(() => {
-    // 			canvas.renderAll();
-    // 		});
-    // 		// canvas.renderAll(); // Render grid
-    // 	};
-
-    // 	if (isSelected) {
-    // 		drawGrid();
-    // 	} else {
-    // 		canvas.clear(); // Clear grid
-    // 	}
-
-    // 	return () => {
-    // 		canvas.dispose(); // Dispose canvas
-    // 	};
-    // }, [isSelected]);
 
     function draw_grid(canvasRef, grid_size) {
       const canvas = canvasRef.current;
@@ -1134,16 +807,13 @@ const Canvas: React.FC<CanvasProps> = React.memo(
       }
     };
 
-    //------------------------------------------------------------------------------------
-    // const toggleSelection = () => {
-    // 	setIsSelected(!isSelected);
+    //-------------chose element color change
+    const [selectedColor, setSelectedColor] = useState(
+      userMetaData?.company?.color || "#ffffff"
+    );
 
-    // 	if (isSelected) {
-    // 		alert(`Selected`);
-    // 	} else {
-    // 		alert(`Not Selected`);
-    // 	}
-    // };
+    //------------------------------------------------------------------------------------
+
     //old code
     const updateBackgroundImage = debounce((imageUrl: string) => {
       if (!canvas) return;
@@ -1200,6 +870,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
     const updateOverlayImage = debounce((image: string, opacity: number) => {
       if (!canvas) {
+        console.log("Canvas not loaded yet");
         return;
       }
       const existingObject = getExistingObject("overlay");
@@ -1318,43 +989,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
       }
     };
 
-    // useEffect(() => {
-    //   const handleClickOutsideCanvas = (event: MouseEvent) => {
-    //     const canvasElement = canvasEl.current;
-    //     const boundingBox = canvasElement?.getBoundingClientRect();
-
-    //     // Check if the click event coordinates are outside the canvas bounding box
-    //     if (
-    //       boundingBox &&
-    //       (event.clientX < boundingBox.left ||
-    //         event.clientX > boundingBox.right ||
-    //         event.clientY < boundingBox.top ||
-    //         event.clientY > boundingBox.bottom)
-    //     ) {
-    //       setTimeout(() => {
-    //         // Check again after a short delay to allow Fabric.js to handle its events
-    //         if (canvas && canvas._activeObject) {
-    //           canvas.discardActiveObject();
-    //           canvas.renderAll();
-    //           setCanvasToolbox((prev) => ({
-    //             ...prev,
-    //             activeObject: null,
-    //             isDeselectDisabled: true,
-    //           }));
-    //           console.log('Clicked outside the canvas!');
-    //         }
-    //       }, 0);
-    //     }
-    //   };
-
-    //   document.addEventListener('mouseup', handleClickOutsideCanvas);
-
-    //   return () => {
-    //     // Cleanup: Remove the event listener when the component unmounts
-    //     document.removeEventListener('mouseup', handleClickOutsideCanvas);
-    //   };
-    // }, [canvas]);
-
     const debouncedUpdateRectangle = debounce((strokeWidth) => {
       if (!canvas) {
         console.log("Canvas not found");
@@ -1384,43 +1018,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
     //---------------------Sharpen --------------------------
     const [sharpenApplied, setSharpenApplied] = useState(false);
 
-    //--------------------shapes data--------------------------------------
-    // const [canvas, setCanvas] = useState<fabric.Canvas | null>(null);
-    // const [selectedText, setSelectedText] = useState<fabric.Object | null>(
-    // 	null
-    // );
-
-    // // Function to change text color
-    // const changeTextColor = (color: string) => {
-    // 	if (selectedText instanceof fabric.Textbox) {
-    // 		selectedText.set('fill', color);
-    // 		canvas?.renderAll();
-    // 	}
-    // };
-
-    // const [selectedWord, setSelectedWord] = useState<string>('');
-
-    // // Function to handle word selection
-    // const handleWordSelect = () => {
-    // 	const selection = window.getSelection();
-    // 	if (selection) {
-    // 		const selectedText = selection.toString().trim();
-    // 		setSelectedWord(selectedText);
-    // 	}
-    // };
-
-    // // Function to change the color of the selected word
-    // const changeColor = (color: string) => {
-    // 	const paragraph = document.getElementById('paragraph');
-    // 	if (!paragraph) return;
-
-    // 	const updatedHTML = paragraph.innerHTML.replace(
-    // 		new RegExp(`\\b${selectedWord}\\b`, 'g'),
-    // 		`<span style="color: ${color};">${selectedWord}</span>`
-    // 	);
-
-    // 	paragraph.innerHTML = updatedHTML;
-    // };
     const shapeData = [
       { imgShape: shape1 },
       { imgShape: shape2 },
@@ -1434,15 +1031,67 @@ const Canvas: React.FC<CanvasProps> = React.memo(
       { imgShape: shape10 },
     ];
 
+    const borderColorChangeHandler = (imgShape) => {
+      const color = userMetaData?.company?.color;
+
+      var filter = new fabric.Image.filters.BlendColor({
+        color,
+        mode: "tint",
+        alpha: 1,
+      });
+
+      fabric.Image.fromURL(
+        imgShape,
+        function (img) {
+          img.set({ left: 230, top: 250 }).scale(0.2);
+          img.filters.push(filter);
+          img.applyFilters();
+          canvas.add(img);
+          requestAnimationFrame(() => {
+            canvas.renderAll();
+          });
+        },
+        {
+          crossOrigin: "anonymous",
+        }
+      );
+    };
+
     const swipeData = [
-      { swipeImg: swipe1 },
-      { swipeImg: swipe2 },
-      { swipeImg: swipe3 },
-      { swipeImg: arrowImg1 },
-      { swipeImg: arrowImg2 },
-      { swipeImg: arrowImg3 },
-      { swipeImg: arrowImg4 },
+      { swipeImg: swipe1, id: 1 },
+      { swipeImg: swipe2, id: 2 },
+      { swipeImg: swipe3, id: 3 },
+      { swipeImg: arrowImg1, id: 4 },
+      { swipeImg: arrowImg2, id: 5 },
+      { swipeImg: arrowImg3, id: 6 },
+      { swipeImg: arrowImg4, id: 7 },
     ];
+
+    const swipeColorChangeHandler = (id, swipeImg) => {
+      const color = userMetaData?.company?.color || selectedColor;
+
+      var filter = new fabric.Image.filters.BlendColor({
+        color,
+        mode: "tint",
+        alpha: 1,
+      });
+
+      fabric.Image.fromURL(
+        swipeImg,
+        function (img) {
+          img.set({ left: 230, top: 250 }).scale(0.2);
+          img.filters.push(filter);
+          img.applyFilters();
+          canvas.add(img);
+          requestAnimationFrame(() => {
+            canvas.renderAll();
+          });
+        },
+        {
+          crossOrigin: "anonymous",
+        }
+      );
+    };
 
     const socialPlatformsData1 = [
       { spImg: socialPlatformsImg1 },
@@ -1487,74 +1136,30 @@ const Canvas: React.FC<CanvasProps> = React.memo(
       { dividerImg: dividers5 },
       { dividerImg: dividers6 },
     ];
+    const dividerColorChangeHandler = (imgShape) => {
+      const color = userMetaData?.company?.color;
 
-    const [shadowValues, setShadowValues] = useState({
-      opacity: 0.5, // Initial opacity value
-      distance: 10, // Initial distance value
-      blur: 5, // Initial blur radius value
-    });
-    const [elementShadowValues, setElementShadowValues] = useState({
-      opacity: 0.5, // Initial opacity value
-      distance: 10, // Initial distance value
-      blur: 5, // Initial blur radius value
-    });
-    const [bubbleFilter, setBubbleFilter] = useState({
-      contrast: "",
-      brightness: "",
-    });
-    const [elementOpacity, setElementOpacity] = useState<number>(1);
+      var filter = new fabric.Image.filters.BlendColor({
+        color,
+        mode: "tint",
+        alpha: 1,
+      });
 
-    const updateElementOpacity = () => {
-      const activeObject = canvas?.getActiveObject();
-
-      if (activeObject && activeObject.type === "image") {
-        let opacity = elementOpacity;
-
-        // Ensure opacity is within valid range
-        if (opacity < 0) {
-          opacity = 0;
-        } else if (opacity > 1) {
-          opacity = 1;
+      fabric.Image.fromURL(
+        imgShape,
+        function (img) {
+          img.set({ left: 230, top: 250 }).scale(0.2);
+          img.filters.push(filter);
+          img.applyFilters();
+          canvas.add(img);
+          requestAnimationFrame(() => {
+            canvas.renderAll();
+          });
+        },
+        {
+          crossOrigin: "anonymous",
         }
-
-        // Modify the opacity of the image
-        activeObject.set("opacity", opacity);
-        canvas?.renderAll(); // Render the canvas to see the changes
-      }
-    };
-
-    const updateElementShadow = (
-      imgUrl: string | undefined,
-      filter?: { strokeWidth: number; stroke: string },
-      shadow?: {
-        color: string;
-        offsetX: number;
-        offsetY: number;
-        blur: number;
-      },
-      brightness?: number
-    ) => {
-      const activeObject = canvas?.getActiveObject();
-
-      if (activeObject) {
-        // Check if the active object exists
-        const { offsetX, offsetY, blur } = shadowValues;
-
-        // Modify the shadow properties of the active object
-        // color: shadow.color || "rgba(0,0,0,0.5)",
-        // offsetX: shadow.offsetX || 10,
-        // offsetY: shadow.offsetY || 10,
-        // blur: shadow.blur || 1,
-        activeObject.set({
-          shadow: {
-            color: shadow.color || "rgba(0,0,0,0.5)",
-            offsetX: shadow.offsetX || 10,
-            offsetY: shadow.offsetY || 10,
-            blur: shadow.blur || 1,
-          },
-        });
-        canvas?.renderAll(); // Render the canvas to see the changes
-      }
+      );
     };
 
     const findHighestPageNumber = (
@@ -1653,6 +1258,74 @@ const Canvas: React.FC<CanvasProps> = React.memo(
       URL.revokeObjectURL(zipUrl);
     };
 
+    const [shadowValues, setShadowValues] = useState({
+      opacity: 0.5, // Initial opacity value
+      distance: 10, // Initial distance value
+      blur: 5, // Initial blur radius value
+    });
+    const [elementShadowValues, setElementShadowValues] = useState({
+      opacity: 0.5, // Initial opacity value
+      distance: 10, // Initial distance value
+      blur: 5, // Initial blur radius value
+    });
+    const [bubbleFilter, setBubbleFilter] = useState({
+      contrast: "",
+      brightness: "",
+    });
+    const [elementOpacity, setElementOpacity] = useState<number>(1);
+
+    const updateElementOpacity = () => {
+      const activeObject = canvas?.getActiveObject();
+
+      if (activeObject && activeObject.type === "image") {
+        let opacity = elementOpacity;
+
+        // Ensure opacity is within valid range
+        if (opacity < 0) {
+          opacity = 0;
+        } else if (opacity > 1) {
+          opacity = 1;
+        }
+
+        // Modify the opacity of the image
+        activeObject.set("opacity", opacity);
+        canvas?.renderAll(); // Render the canvas to see the changes
+      }
+    };
+
+    const updateElementShadow = (
+      imgUrl: string | undefined,
+      filter?: { strokeWidth: number; stroke: string },
+      shadow?: {
+        color: string;
+        offsetX: number;
+        offsetY: number;
+        blur: number;
+      },
+      brightness?: number
+    ) => {
+      const activeObject = canvas?.getActiveObject();
+
+      if (activeObject) {
+        // Check if the active object exists
+        const { offsetX, offsetY, blur } = shadowValues;
+
+        // Modify the shadow properties of the active object
+        // color: shadow.color || "rgba(0,0,0,0.5)",
+        // offsetX: shadow.offsetX || 10,
+        // offsetY: shadow.offsetY || 10,
+        // blur: shadow.blur || 1,
+        activeObject.set({
+          shadow: {
+            color: shadow.color || "rgba(0,0,0,0.5)",
+            offsetX: shadow.offsetX || 10,
+            offsetY: shadow.offsetY || 10,
+            blur: shadow.blur || 1,
+          },
+        });
+        canvas?.renderAll(); // Render the canvas to see the changes
+      }
+    };
     return (
       <div
         style={{
@@ -1707,39 +1380,9 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                 cursor: "pointer",
               }}
             />
-            {/* 
-						{isSelected ? (
-							<GridOnIcon
-								color={isSelected ? 'primary' : 'disabled'}
-								onClick={toggleSelection}
-								sx={{
-									px: 1,
-									color: 'white',
-									cursor: 'pointer',
-								}}
-							/>
-						) : (
-							<GridOffIcon
-								color={isSelected ? 'primary' : 'disabled'}
-								onClick={toggleSelection}
-								sx={{
-									color: 'white',
-									px: 1,
-									cursor: 'pointer',
-								}}
-							/>
-						)} */}
           </div>
 
           <canvas width="1080" height="1350" ref={canvasEl} />
-          {/* <>
-          
-            <button onClick={() => changeColor('red')}>Change Color</button>
-						<button onClick={() => removeColor()}>Remove Color</button>
-            <button onClick={() => changeFont('Arial')}>Change Font</button>
-            <button onClick={() => changeFontSize(24)}>Change Font Size</button>
-            <button onClick={() => changeFontWeight('bold')}>Change Font Weight</button>
-        </> */}
 
           {/* Footer Panel  Start*/}
           {activeTab == "background" && dropDown && (
@@ -1978,7 +1621,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                   >
                     Size
                   </Typography>
-
                   {activeTab === "element" && (
                     <>
                       <Typography
@@ -1995,13 +1637,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                       </Typography>
                     </>
                   )}
-
-                  {/* <Typography
-										className={classes.heading}
-										onClick={() => setShow('colors1')}
-									>
-										Text
-									</Typography> */}
                 </Box>
 
                 {show === "colors" && (
@@ -2011,7 +1646,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      width: "100%",
                     }}
                   >
                     <CustomColorPicker
@@ -2051,7 +1685,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
                       <Button
                         onClick={applyColor}
-                        // onClick={colorApplied ? removeColor : applyColor}
                         sx={{
                           color: "white",
                           textTransform: "none",
@@ -2066,12 +1699,10 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                         >
                           Text Highlight
                         </Typography>
-                        {/* {colorApplied ? 'Remove Color' : 'Apply Color'} */}
                       </Button>
                       <Button
                         onClick={removeColor}
                         sx={{
-                          // color: 'white',
                           textTransform: "none",
                           minWidth: "10px",
                         }}
@@ -2087,8 +1718,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                         handleSelectionUpdated();
                       }}
                     />
-                    {/* Apply Background Color Button */}
-                    {/* <button onClick={applyBackgroundColor}>Apply Bg</button> */}
                     <Button
                       onClick={handleSelectionUpdated}
                       sx={{
@@ -2225,105 +1854,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                   </div>
                 )}
 
-                {/* {show === 'colors1' && (
-									<Box className={classes.optionsContainer}>
-										<>
-											<input
-												type='color'
-												value={color}
-												onChange={(e) => setColor(e.target.value)}
-											/>
-											<Button
-												onClick={colorApplied ? removeColor : applyColor}
-												sx={{
-													color: 'white',
-													textTransform: 'none',
-												}}
-											>
-												{colorApplied ? 'Color' : 'Color'}
-												{colorApplied ? 'Remove Color' : 'Apply Color'}
-											</Button> 
-											<select
-												value={fontSize}
-												onChange={(e) =>
-													applyFontSize(parseInt(e.target.value))
-												}
-											>
-												<option value={12}>12</option>
-												<option value={14}>14</option>
-												<option value={16}>16</option>
-												<option value={18}>18</option>
-												<option value={20}>20</option>
-												<option value={22}>22</option>
-												<option value={24}>24</option>
-												<option value={26}>26</option>
-												<option value={28}>28</option>
-												<option value={30}>30</option>
-												<option value={32}>32</option>
-												<option value={34}>34</option>
-												<option value={36}>36</option>
-
-												
-											</select>
-											<Button
-												sx={{
-													color: 'white',
-													textTransform: 'none',
-												}}
-											>
-												Font Size
-											</Button>
-											<select
-												value={fontFamily}
-												onChange={(e) => applyFontFamily(e.target.value)}
-											>
-												<option value='Arial'>Arial</option>
-												<option value='Helvetica'>Helvetica</option>
-											
-												<option value='Fira Sans'>Fira Sans</option>
-												<option value='Pacifico'>Pacifico</option>
-												<option value='VT323'>VT323</option>
-												<option value='Quicksand'>Quicksand</option>
-												<option value='Inconsolata'>Inconsolata</option>
-												<option value='Roboto'>Roboto</option>
-											</select>
-											<Button
-												sx={{
-													color: 'white',
-													textTransform: 'none',
-												}}
-											>
-												Font Family
-											</Button>
-											<Button
-												onClick={applyFontWeight}
-												sx={{
-													color: 'white',
-													textTransform: 'none',
-												}}
-											>
-												{fontWeightApplied ? 'Bold' : 'Bold'}
-										
-											</Button>
-										</>
-										
-									</Box>
-								)} */}
-                {show === "bgColors" && (
-                  <Box className={classes.optionsContainer}>
-                    {/* <CustomColorPicker
-											value={overlayTextFiltersState.color}
-											changeHandler={(color: string) => {
-												updateTextBox(canvas, { fill: color });
-												setOverlayTextFiltersState((prev) => ({
-													...prev,
-													color,
-												}));
-											}}
-										/> */}
-                  </Box>
-                )}
-
                 {show === "fontWeight" && (
                   <Box my={2} className={classes.sliderContainer}>
                     <Slider
@@ -2406,14 +1936,15 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                     className={classes.heading}
                     onClick={() => setShow("colors")}
                   >
-                    COLORS
+                    Colors
                   </Typography>
                   <Typography
                     className={classes.heading}
                     onClick={() => setShow("size")}
                   >
-                    SIZE
+                    Size
                   </Typography>
+
                   <Typography
                     className={classes.heading}
                     onClick={() => setShow("shadow")}
@@ -2479,6 +2010,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                     />
                   </div>
                 )}
+
                 {show === "shadow" && (
                   <div>
                     <Typography id="opacity-slider" gutterBottom>
@@ -2898,16 +2430,45 @@ const Canvas: React.FC<CanvasProps> = React.memo(
             {activeTab == "bubble" && (
               <div>
                 <h4 style={{ margin: "0px", padding: "0px" }}>From Article</h4>
+
                 <ImageViewer
                   clickHandler={(img: string) => updateBubbleImage(img)}
                   images={initialData.bubbles}
                 />
 
-                <h4 style={{ margin: "0px", padding: "0px" }}>AI Images</h4>
-                <ImageViewer
-                  clickHandler={(img: string) => updateBubbleImage(img)}
-                  images={initialData.bubbles}
-                />
+                {/* <h4 style={{ margin: '0px', padding: '0px' }}>AI Images</h4>
+								<ImageViewer
+									clickHandler={(img: string) => updateBubbleImage(img)}
+									images={initialData.bubbles}
+								/> */}
+                <Box
+                  sx={{
+                    width: "100%",
+                  }}
+                >
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={isChecked}
+                        onChange={handleCheckboxChange}
+                        sx={{
+                          "& .MuiIconButton-root": {
+                            color: "#fff",
+                            border: "1px solid #fff",
+                          },
+                          "&.Mui-checked": {
+                            color: "#fff",
+                          },
+                          "& .MuiSvgIcon-root ": {
+                            fill: "#fff",
+                          },
+                        }}
+                      />
+                    }
+                    label="Click for adding another bubble"
+                    // label='Click checkbox to add another bubble.'
+                  />
+                </Box>
 
                 <Box {...styles.uploadBox}>
                   <label style={styles.uploadLabel}>
@@ -2945,10 +2506,10 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                         display: "flex",
                       }}
                     >
-                      {swipeData?.map(({ swipeImg }, i) => {
+                      {swipeData?.map(({ swipeImg, id }, i) => {
                         return (
                           <Box
-                            key={i}
+                            key={`swipe_${id}_${i}`}
                             sx={{
                               display: "flex",
                               justifyContent: "center",
@@ -2958,34 +2519,10 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                           >
                             <img
                               src={swipeImg}
-                              onClick={() => {
-                                const color =
-                                  userMetaData?.company?.color || "#ffffff";
-                                var filter =
-                                  new fabric.Image.filters.BlendColor({
-                                    color,
-                                    mode: "tint",
-                                    alpha: 1,
-                                  });
-
-                                fabric.Image.fromURL(
-                                  swipeImg,
-                                  function (img) {
-                                    img.set({ left: 230, top: 250 }).scale(0.2);
-                                    img.filters.push(filter);
-                                    img.applyFilters();
-                                    canvas.add(img);
-                                    requestAnimationFrame(() => {
-                                      canvas.renderAll();
-                                    });
-                                  },
-                                  {
-                                    crossOrigin: "anonymous",
-                                  }
-                                );
-                              }}
+                              onClick={() =>
+                                swipeColorChangeHandler(id, swipeImg)
+                              }
                               alt=""
-                              // width='90px'
                               style={{
                                 cursor: "pointer",
                                 paddingBottom: "0.5rem",
@@ -2996,7 +2533,66 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                           </Box>
                         );
                       })}
+                      {/* <CustomColorPicker
+                        value={userMetaData?.company?.color}
+                        changeHandler={(color: string) => {
+                          const type = "borders";
+                          let existingObject = getExistingObject(type) as
+                            | fabric.Image
+                            | undefined;
+
+                          if (
+                            canvas?._activeObject &&
+                            canvas?._activeObject?.type === "image"
+                          )
+                            existingObject =
+                              canvas?._activeObject as fabric.Image;
+
+                          if (!existingObject) {
+                            console.log("existing Border object not founded");
+                            return;
+                          }
+                          const blendColorFilter1 =
+                            new fabric.Image.filters.BlendColor({
+                              color,
+                              mode: "tint",
+                              alpha: 1,
+                            });
+                          //---------------
+                          const swipeGroup = getExistingObject("swipeGroup");
+                          const activeObj = canvas?.getActiveObject();
+                          if (activeObj?.customType === "swipeGroup") {
+                            if (swipeGroup) {
+                              swipeGroup.visible = true;
+
+                              swipeGroup?._objects?.forEach((obj) => {
+                                if (obj.customType === "swipeText") {
+                                  obj.fill = color;
+                                } else {
+                                  var filter =
+                                    new fabric.Image.filters.BlendColor({
+                                      color,
+                                      mode: "tint",
+                                      alpha: 1,
+                                    });
+                                  obj.filters.push(filter);
+                                  obj.applyFilters();
+                                }
+                                //   canvas.renderAll();
+                              });
+                            }
+                          }
+                          //-------------------
+
+                          existingObject.filters?.push(blendColorFilter1);
+                          existingObject.applyFilters();
+                          requestAnimationFrame(() => {
+                            canvas?.renderAll();
+                          });
+                        }}
+                      /> */}
                     </Box>
+
                     <Box
                       sx={{
                         display: "flex",
@@ -3005,10 +2601,10 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                         position: "relative",
                       }}
                     >
-                      {elements.map((element: string) => {
+                      {elements?.map((element: string, i) => {
                         return (
                           <img
-                            key={element}
+                            key={i}
                             src={element}
                             onClick={() => {
                               const iconSrc = "/icons/swipe.svg";
@@ -3028,11 +2624,71 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
                       <CustomColorPicker
                         value={userMetaData?.company?.color}
+                        changeHandler={(color: string) => {
+                          const type = "borders";
+                          let existingObject = getExistingObject(type) as
+                            | fabric.Image
+                            | undefined;
+
+                          if (
+                            canvas?._activeObject &&
+                            canvas?._activeObject?.type === "image"
+                          )
+                            existingObject =
+                              canvas?._activeObject as fabric.Image;
+
+                          if (!existingObject) {
+                            console.log("existing Border object not founded");
+                            return;
+                          }
+                          const blendColorFilter1 =
+                            new fabric.Image.filters.BlendColor({
+                              color,
+                              mode: "tint",
+                              alpha: 1,
+                            });
+                          //---------------
+                          const swipeGroup = getExistingObject("swipeGroup");
+                          const activeObj = canvas?.getActiveObject();
+                          if (activeObj?.customType === "swipeGroup") {
+                            if (swipeGroup) {
+                              swipeGroup.visible = true;
+
+                              swipeGroup?._objects?.forEach((obj) => {
+                                if (obj.customType === "swipeText") {
+                                  obj.fill = color;
+                                } else {
+                                  var filter =
+                                    new fabric.Image.filters.BlendColor({
+                                      color,
+                                      mode: "tint",
+                                      alpha: 1,
+                                    });
+                                  obj.filters.push(filter);
+                                  obj.applyFilters();
+                                }
+                                //   canvas.renderAll();
+                              });
+                            }
+                          }
+                          //-------------------
+
+                          existingObject.filters?.push(blendColorFilter1);
+                          existingObject.applyFilters();
+                          requestAnimationFrame(() => {
+                            canvas?.renderAll();
+                          });
+                        }}
+                      />
+                      {/* <CustomColorPicker
+                        value={userMetaData?.company?.color}
                         // value={overlayTextFiltersState.color}
                         changeHandler={(color: string) => {
                           updateSwipeColor(canvas, color);
                         }}
-                      />
+                      /> */}
+
+                      {/* //new */}
                     </Box>
                   </Box>
                   <Box>
@@ -3063,21 +2719,22 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                           >
                             <img
                               src={imgShape}
-                              onClick={() => {
-                                fabric.Image.fromURL(
-                                  imgShape,
-                                  function (img) {
-                                    img.set({ left: 230, top: 250 }).scale(0.2);
-                                    canvas.add(img);
-                                    requestAnimationFrame(() => {
-                                      canvas.renderAll();
-                                    });
-                                  },
-                                  {
-                                    crossOrigin: "anonymous",
-                                  }
-                                );
-                              }}
+                              onClick={() => borderColorChangeHandler(imgShape)}
+                              // onClick={() => {
+                              // 	fabric.Image.fromURL(
+                              // 		imgShape,
+                              // 		function (img) {
+                              // 			img.set({ left: 230, top: 250 }).scale(0.2);
+                              // 			canvas.add(img);
+                              // 			requestAnimationFrame(() => {
+                              // 				canvas.renderAll();
+                              // 			});
+                              // 		},
+                              // 		{
+                              // 			crossOrigin: 'anonymous',
+                              // 		}
+                              // 	);
+                              // }}
                               alt=""
                               // width='90px'
                               style={{
@@ -3111,21 +2768,24 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                           >
                             <img
                               src={dividerImg}
-                              onClick={() => {
-                                fabric.Image.fromURL(
-                                  dividerImg,
-                                  function (img) {
-                                    img.set({ left: 200, top: 250 }).scale(0.2);
-                                    canvas.add(img);
-                                    requestAnimationFrame(() => {
-                                      canvas.renderAll();
-                                    });
-                                  },
-                                  {
-                                    crossOrigin: "anonymous",
-                                  }
-                                );
-                              }}
+                              onClick={() =>
+                                dividerColorChangeHandler(dividerImg)
+                              }
+                              // onClick={() => {
+                              // 	fabric.Image.fromURL(
+                              // 		dividerImg,
+                              // 		function (img) {
+                              // 			img.set({ left: 200, top: 250 }).scale(0.2);
+                              // 			canvas.add(img);
+                              // 			requestAnimationFrame(() => {
+                              // 				canvas.renderAll();
+                              // 			});
+                              // 		},
+                              // 		{
+                              // 			crossOrigin: 'anonymous',
+                              // 		}
+                              // 	);
+                              // }}
                               alt=""
                               // width='90px'
                               style={{
@@ -3148,10 +2808,10 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                         alignItems: "center",
                       }}
                     >
-                      {borders.map((border: string) => {
+                      {borders?.map((border: string, i) => {
                         return (
                           <img
-                            key={border}
+                            key={i}
                             src={border}
                             onClick={() => {
                               const imageObject = getExistingObject(
@@ -3387,13 +3047,12 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                         mt: 1,
                       }}
                     >
-                      {logos?.map((logo: string) => {
+                      {logos?.map((logo: string, i) => {
                         const logoFillColor =
                           userMetaData?.company?.color || "black";
-
                         return (
                           <img
-                            key={logo}
+                            key={i}
                             src={logo}
                             alt="logo"
                             onClick={() => {
