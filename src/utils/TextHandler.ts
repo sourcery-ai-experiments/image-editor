@@ -177,6 +177,9 @@ export const updateSwipeColor = (canvas: fabric.Canvas, color: string) => {
  * @param {ITextboxOptions} options - The options to apply to the textbox.
  * @return {void} This function does not return anything.
  */
+
+//______________________________________________________________
+
 export function updateTextBox(
   canvas: fabric.Canvas | null,
   options: ITextboxOptions,
@@ -190,10 +193,11 @@ export function updateTextBox(
   );
 
   const activeObject = canvas?.getActiveObject();
+
   if (activeObject && activeObject.isType("textbox")) textbox = activeObject;
 
   if (!textbox) {
-    console.log("Textbox not founded");
+    console.log("Textbox not found");
     return;
   }
 
@@ -205,6 +209,53 @@ export function updateTextBox(
     canvas?.requestRenderAll();
   };
 
-  // Use requestAnimationFrame for smoother updates
+  // const updateAndRender = () => {
+  //   const newText = options.text?.split("").join("\n");
+  //   (textbox as fabric.Textbox).set({
+  //     ...options,
+  //     text: newText,
+  //     visible: true,
+  //     width:25,
+  //     top:10,
+  //     left:100,
+  //     fontSize: 12,
+  //   });
+  //   canvas?.requestRenderAll();
+  // };
+
   requestAnimationFrame(updateAndRender);
 }
+
+// export function updateTextBox(
+//   canvas: fabric.Canvas | null,
+//   options: ITextboxOptions,
+//   defaultType?: "title" | "hashtag" | "borders"
+// ): void {
+//   if (!canvas) return;
+
+//   let textbox: Object | undefined = getExistingObject(
+//     canvas,
+//     defaultType || "title"
+//   );
+
+//   const activeObject = canvas?.getActiveObject();
+//   if (activeObject && activeObject.isType("textbox")) textbox = activeObject;
+
+//   if (!textbox) {
+//     console.log("Textbox not founded");
+//     return;
+//   }
+//   // const verticalText = (textbox as fabric.Textbox).text.split("").join("\n");
+//   // console.log("🚀 ~ verticalText:", verticalText)
+
+// const updateAndRender = () => {
+//   (textbox as fabric.Textbox).set({
+//     ...options,
+//     visible: true,
+//   });
+//   canvas?.requestRenderAll();
+// };
+
+//   // Use requestAnimationFrame for smoother updates
+//   requestAnimationFrame(updateAndRender);
+// }

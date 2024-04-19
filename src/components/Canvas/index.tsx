@@ -118,6 +118,10 @@ import dividers5 from "../../assets/dividers/Divider-5.svg";
 import dividers6 from "../../assets/dividers/Divider-6.svg";
 import tempJSON from "./temp.json";
 
+import SwipeVerticalIcon from "@mui/icons-material/SwipeVertical";
+
+import SwipeRightIcon from "@mui/icons-material/SwipeRight";
+
 type TemplateJSON = any;
 interface PaginationStateItem {
   page: number;
@@ -750,7 +754,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
       200
     );
 
-    //grid add
+    //vertical to horizontal line
     const [isSelected, setIsSelected] = useState(false);
     //---------------------------------Canvas---------------------------------------------
 
@@ -801,9 +805,80 @@ const Canvas: React.FC<CanvasProps> = React.memo(
     const toggleSelection = () => {
       setIsSelected(!isSelected);
       if (isSelected) {
-        darw_Grid_btn();
+        const activeObject = canvas?.getActiveObject();
+        if (activeObject) {
+          if (activeObject && activeObject.type === "textbox") {
+            const textbox = activeObject as fabric.Textbox;
+            const newText = textbox.text.split("").join("\n");
+
+            textbox.set({
+              // ...options,
+              text: newText,
+              visible: true,
+              width: 25,
+              top: 10,
+              left: 100,
+              fontSize: 12,
+            });
+            // canvas?.add(textboxObj);
+
+            canvas?.requestRenderAll();
+            canvas?.discardActiveObject();
+            canvas?.renderAll();
+          } else {
+            toast.error("Textbox not found or not active");
+          }
+        } else {
+          toast.error("Not Selected Text");
+        }
       } else {
-        hideGrid(canvasEl, 15);
+        const activeObject = canvas?.getActiveObject();
+
+        if (activeObject) {
+          // Check if the active object exists and is of type "textbox"
+          if (activeObject && activeObject.type === "textbox") {
+            const textbox = activeObject as fabric.Textbox;
+
+            // Split the text into an array of characters and join them with newline characters
+            const newText = textbox.text.split("").join("\n");
+            let characters = newText.split("\n");
+
+            // Step 2: Join the characters together
+            let originalText = characters.join("");
+
+            // Update the textbox properties
+            // textbox.set({
+            //   // ...options,
+            //   text: originalText,
+            //   visible: true,
+            //   width: 305,
+            //   top: 50,
+            //   left: 50,
+            //   fontSize: 16,
+            // });
+            textbox.set({
+              // ...other options,
+              text: originalText,
+              visible: true,
+              width: 305,
+              top: 500,
+              left: 50,
+              fontSize: 16,
+              textAlign: "center",
+              originY: "center",
+            });
+
+            // canvas?.add(textboxObj);
+            // Render the canvas
+            canvas?.requestRenderAll();
+            canvas?.discardActiveObject();
+            canvas?.renderAll();
+          } else {
+            toast.error("Textbox not found or not active");
+          }
+        } else {
+          toast.error("Not Selected Text");
+        }
       }
     };
 
@@ -1351,19 +1426,31 @@ const Canvas: React.FC<CanvasProps> = React.memo(
               color={canvasToolbox.isDeselectDisabled ? "disabled" : "inherit"}
               aria-disabled={canvasToolbox.isDeselectDisabled}
               onClick={deselectObj}
+              sx={{
+                cursor: "pointer",
+              }}
             />
 
             <DeleteIcon
               color={canvasToolbox.isDeselectDisabled ? "disabled" : "inherit"}
               aria-disabled={canvasToolbox.isDeselectDisabled}
               onClick={deleteActiveSelection}
+              sx={{
+                cursor: "pointer",
+                mx: 0.5,
+              }}
             />
             <img
               src="/icons/flipX.svg"
               className={
                 !canvasToolbox.isDeselectDisabled ? "filter-white" : ""
               }
-              style={{ width: 25, height: 25, margin: "0 0.3rem" }}
+              style={{
+                width: 25,
+                height: 25,
+                margin: "0 0.3rem",
+                cursor: "pointer",
+              }}
               onClick={() => flipImage("flipX")}
             />
 
@@ -1372,18 +1459,59 @@ const Canvas: React.FC<CanvasProps> = React.memo(
               className={
                 !canvasToolbox.isDeselectDisabled ? "filter-white" : ""
               }
-              style={{ width: 25, height: 25 }}
+              style={{
+                width: 25,
+                height: 25,
+                cursor: "pointer",
+                marginLeft: 1.5,
+                marginRight: 1.5,
+              }}
               onClick={() => flipImage("flipY")}
             />
-            <GridOnIcon
+            {/* <GridOnIcon
               color={isSelected ? "primary" : "disabled"}
-              onClick={darw_Grid_btn}
+              // onClick={darw_Grid_btn}
+              onClick={toggleSelection}
               sx={{
                 px: 1,
                 color: "white",
                 cursor: "pointer",
               }}
+            /> */}
+            <GridOnIcon
+              color={canvasToolbox.isDeselectDisabled ? "disabled" : "inherit"}
+              aria-disabled={canvasToolbox.isDeselectDisabled}
+              onClick={darw_Grid_btn}
+              sx={{
+                cursor: "pointer",
+                mx: 0.5,
+              }}
             />
+
+            {isSelected ? (
+              <SwipeVerticalIcon
+                color={
+                  canvasToolbox.isDeselectDisabled ? "disabled" : "inherit"
+                }
+                aria-disabled={canvasToolbox.isDeselectDisabled}
+                onClick={toggleSelection}
+                sx={{
+                  cursor: "pointer",
+                  ml: 0.5,
+                }}
+              />
+            ) : (
+              <SwipeRightIcon
+                color={
+                  canvasToolbox.isDeselectDisabled ? "disabled" : "inherit"
+                }
+                aria-disabled={canvasToolbox.isDeselectDisabled}
+                onClick={toggleSelection}
+                sx={{
+                  cursor: "pointer",
+                }}
+              />
+            )}
           </div>
 
           <canvas width="1080" height="1350" ref={canvasEl} />
