@@ -32,7 +32,7 @@ import {
   updateTextBox,
 } from "../../utils/TextHandler";
 import { updateRect } from "../../utils/RectHandler";
-import { saveImage, saveJSON } from "../../utils/ExportHandler";
+import { saveImage, saveJSON, hexToRgbA } from "../../utils/ExportHandler";
 import DeleteIcon from "@mui/icons-material/Delete";
 import {
   createImage,
@@ -621,8 +621,8 @@ const Canvas: React.FC<CanvasProps> = React.memo(
       },
       brightness?: number
     ) => {
+      console.log("shadow", shadow);
       const existingBubbleStroke = getExistingObject("bubbleStroke");
-      console.log("🚀 ~ existingBubbleStroke:", existingBubbleStroke);
 
       if (!canvas) {
         console.error("Canvas Not initialized");
@@ -1268,6 +1268,9 @@ const Canvas: React.FC<CanvasProps> = React.memo(
       distance: 10, // Initial distance value
       blur: 5, // Initial blur radius value
     });
+    const [hexConversionForElement, setHexConversionForElement] = useState<
+      string | null
+    >(null);
     const [bubbleFilter, setBubbleFilter] = useState({
       contrast: "",
       brightness: "",
@@ -1326,6 +1329,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
         canvas?.renderAll(); // Render the canvas to see the changes
       }
     };
+    const [hexConvertion, setHexConversion] = useState<string | null>(null);
     return (
       <div
         style={{
@@ -1763,6 +1767,33 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                 )}
                 {show === "element-shadow" && (
                   <div>
+                    {/* setHexConversionForElement */}
+
+                    <Box className={classes.optionsContainer}>
+                      <Typography id="opacity-slider" gutterBottom>
+                        Color
+                      </Typography>
+                      <CustomColorPicker
+                        value={
+                          hexConversionForElement
+                            ? overlayTextFiltersState.color
+                            : "rgba(0,0,0,1)"
+                        }
+                        changeHandler={(color: string) => {
+                          const rgbaColorCode = hexToRgbA(color);
+                          setHexConversionForElement(rgbaColorCode);
+                          const splitHexConvertion = rgbaColorCode?.split(",");
+
+                          updateElementShadow(undefined, undefined, {
+                            color: `${splitHexConvertion[0]},${splitHexConvertion[1]},${splitHexConvertion[2]},${elementShadowValues.opacity})`,
+                            offsetX: elementShadowValues.distance,
+                            offsetY: elementShadowValues.distance,
+                            blur: elementShadowValues.opacity,
+                          });
+                        }}
+                      />
+                    </Box>
+
                     <Typography id="opacity-slider" gutterBottom>
                       Opacity
                     </Typography>
@@ -1774,8 +1805,14 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                           ...prev,
                           opacity: newValue,
                         }));
+
+                        const splitHexConvertion =
+                          hexConversionForElement.split(",");
+
                         updateElementShadow(undefined, undefined, {
-                          color: `rgba(0,0,0,${newValue})`,
+                          color: hexConversionForElement
+                            ? `${splitHexConvertion[0]},${splitHexConvertion[1]},${splitHexConvertion[2]},${newValue})`
+                            : `rgba(0,0,0,${newValue})`,
                           offsetX: elementShadowValues.distance,
                           offsetY: elementShadowValues.distance,
                           blur: elementShadowValues.blur,
@@ -1797,8 +1834,12 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                           ...prev,
                           distance: newValue,
                         }));
+                        const splitHexConvertion =
+                          hexConversionForElement.split(",");
                         updateElementShadow(undefined, undefined, {
-                          color: `rgba(0,0,0,${elementShadowValues.opacity})`,
+                          color: hexConversionForElement
+                            ? `${splitHexConvertion[0]},${splitHexConvertion[1]},${splitHexConvertion[2]},${elementShadowValues.opacity})`
+                            : `rgba(0,0,0,${elementShadowValues.opacity}})`,
                           offsetX: newValue,
                           offsetY: newValue,
                           blur: elementShadowValues.blur,
@@ -1806,7 +1847,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                       }}
                       valueLabelDisplay="auto"
                       step={1}
-                      min={0}
+                      min={-50}
                       max={50}
                     />
                     <Typography id="blur-slider" gutterBottom>
@@ -1820,8 +1861,12 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                           ...prev,
                           blur: newValue,
                         }));
+                        const splitHexConvertion =
+                          hexConversionForElement.split(",");
                         updateElementShadow(undefined, undefined, {
-                          color: `rgba(0,0,0,${elementShadowValues.opacity})`,
+                          color: hexConversionForElement
+                            ? `${splitHexConvertion[0]},${splitHexConvertion[1]},${splitHexConvertion[2]},${elementShadowValues.opacity})`
+                            : `rgba(0,0,0,${elementShadowValues.opacity}})`,
                           offsetX: elementShadowValues.distance,
                           offsetY: elementShadowValues.distance,
                           blur: newValue,
@@ -2013,6 +2058,34 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
                 {show === "shadow" && (
                   <div>
+                    <div className={classes.colorPicker}>
+                      <Box className={classes.optionsContainer}>
+                        <Typography id="opacity-slider" gutterBottom>
+                          Color
+                        </Typography>
+                        <CustomColorPicker
+                          value={
+                            hexConvertion
+                              ? overlayTextFiltersState.color
+                              : "rgba(0,0,0,1)"
+                          }
+                          changeHandler={(color: string) => {
+                            const rgbaColorCode = hexToRgbA(color);
+                            setHexConversion(rgbaColorCode);
+                            const splitHexConvertion =
+                              rgbaColorCode?.split(",");
+
+                            updateBubbleImage(undefined, undefined, {
+                              color: `${splitHexConvertion[0]},${splitHexConvertion[1]},${splitHexConvertion[2]},${shadowValues.opacity})`,
+                              offsetX: shadowValues.distance,
+                              offsetY: shadowValues.distance,
+                              blur: shadowValues.opacity,
+                            });
+                          }}
+                        />
+                      </Box>
+                    </div>
+
                     <Typography id="opacity-slider" gutterBottom>
                       Opacity
                     </Typography>
@@ -2024,8 +2097,13 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                           ...prev,
                           opacity: newValue,
                         }));
+
+                        const splitHexConvertion = hexConvertion?.split(",");
+
                         updateBubbleImage(undefined, undefined, {
-                          color: `rgba(0,0,0,${newValue})`,
+                          color: hexConvertion
+                            ? `${splitHexConvertion[0]},${splitHexConvertion[1]},${splitHexConvertion[2]},${newValue})`
+                            : `rgba(0,0,0,${newValue})`,
                           offsetX: shadowValues.distance,
                           offsetY: shadowValues.distance,
                           blur: shadowValues.blur,
@@ -2036,6 +2114,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                       min={0}
                       max={1}
                     />
+
                     <Typography id="distance-slider" gutterBottom>
                       Distance
                     </Typography>
@@ -2047,8 +2126,11 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                           ...prev,
                           distance: newValue,
                         }));
+                        const splitHexConvertion = hexConvertion?.split(",");
                         updateBubbleImage(undefined, undefined, {
-                          color: `rgba(0,0,0,${shadowValues.opacity})`,
+                          color: hexConvertion
+                            ? `${splitHexConvertion[0]},${splitHexConvertion[1]},${splitHexConvertion[2]},${shadowValues.opacity})`
+                            : `rgba(0,0,0,${shadowValues.opacity})`,
                           offsetX: newValue,
                           offsetY: newValue,
                           blur: shadowValues.blur,
@@ -2056,7 +2138,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                       }}
                       valueLabelDisplay="auto"
                       step={1}
-                      min={0}
+                      min={-50}
                       max={50}
                     />
                     <Typography id="blur-slider" gutterBottom>
@@ -2070,8 +2152,12 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                           ...prev,
                           blur: newValue,
                         }));
+                        const splitHexConvertion = hexConvertion?.split(",");
+
                         updateBubbleImage(undefined, undefined, {
-                          color: `rgba(0,0,0,${shadowValues.opacity})`,
+                          color: hexConvertion
+                            ? `${splitHexConvertion[0]},${splitHexConvertion[1]},${splitHexConvertion[2]},${shadowValues.opacity})`
+                            : `rgba(0,0,0,${shadowValues.opacity})`,
                           offsetX: shadowValues.distance,
                           offsetY: shadowValues.distance,
                           blur: newValue,

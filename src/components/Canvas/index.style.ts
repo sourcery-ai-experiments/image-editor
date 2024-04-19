@@ -19,6 +19,7 @@ export const useStyles = makeStyles((theme: Theme) => ({
     flexDirection: "row",
     alignItems: "center",
     paddingTop: "12px",
+    width: "100%",
   },
   slider: {
     width: "100%",
