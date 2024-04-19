@@ -44,6 +44,7 @@ export const useStyles = makeStyles((theme: Theme) => ({
     justifyContent: "center",
     alignItems: "center",
     height: "30px !important",
+    marginTop: "10px !important",
     marginBottom: "10px !important",
   },
   buttonActive: {
@@ -111,6 +112,20 @@ export const useStyles = makeStyles((theme: Theme) => ({
     marginLeft: "10px",
     padding: 0,
     margin: 0,
+  },
+  paginationContainer: {
+    display: "flex",
+    flexDirection: "row",
+    gap: "5px",
+  },
+  paginationStyle: {
+    width: "30px",
+    height: "30px",
+    backgroundImage: "linear-gradient(to right, #4B1248, #F0C27B)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    cursor: "pointer",
   },
 }));
 

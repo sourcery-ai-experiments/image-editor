@@ -19,10 +19,12 @@ import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import { styles, useStyles } from "./index.style";
 import ImageViewer from "../Image";
 import { IEvent, IRectOptions } from "fabric/fabric-impl";
-import { canvasDimension } from "../../constants";
+import { canvasDimension, templateData } from "../../constants";
 import CustomColorPicker from "../colorPicker";
 import { Template } from "../../types";
 import DeselectIcon from "@mui/icons-material/Deselect";
+import JSZip from "jszip";
+
 import {
   createSwipeGroup,
   createTextBox,
@@ -38,6 +40,8 @@ import {
   updateImageSource,
 } from "../../utils/ImageHandler";
 import { useCanvasContext } from "../../context/CanvasContext";
+import { usePaginationContext } from "../../context/MultiCanvasPaginationContext";
+
 import FontsTab from "../Tabs/EditText/FontsTab";
 import {
   createHorizontalCollage,
@@ -112,10 +116,24 @@ import dividers3 from "../../assets/dividers/Divider-3.svg";
 import dividers4 from "../../assets/dividers/Divider-4.svg";
 import dividers5 from "../../assets/dividers/Divider-5.svg";
 import dividers6 from "../../assets/dividers/Divider-6.svg";
+import tempJSON from "./temp.json";
+
+type TemplateJSON = any;
+interface PaginationStateItem {
+  page: number;
+  template: string;
+  templateJSON: TemplateJSON;
+  backgroundImage: boolean;
+  diptych: string | undefined;
+  filePath: string;
+  opacity: number; // Changed to number
+  overlayImage: string;
+  placeholderImage: string;
+}
 import toast from "react-hot-toast";
 
 interface CanvasProps {
-  template: Template;
+  template: PaginationStateItem | undefined;
   updatedSeedData: Record<string, any>;
 }
 
@@ -153,6 +171,9 @@ const Canvas: React.FC<CanvasProps> = React.memo(
       brightness: 0,
       contrast: 0,
     });
+
+    const { paginationState, selectedPage, setSelectedPage, addPage, update } =
+      usePaginationContext();
 
     const { userMetaData, updateIsUserMetaExist, updateUserMetaData } =
       useCanvasContext();
@@ -192,8 +213,8 @@ const Canvas: React.FC<CanvasProps> = React.memo(
         fontFamily: "Fira Sans",
       },
       overlay: {
-        imgUrl: template.overlayImage,
-        opacity: template.opacity,
+        imgUrl: template?.overlayImage,
+        opacity: template?.opacity,
       },
       bubble: {
         image: "",
@@ -274,7 +295,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
         updateCanvasContext(null);
         canvas.dispose();
       };
-    }, [canvasDimension]);
+    }, [canvasDimension, selectedPage, paginationState]);
 
     const handleSelectionUpdated = () => {
       const activeObject = canvasInstanceRef.current.getActiveObject();
@@ -397,22 +418,36 @@ const Canvas: React.FC<CanvasProps> = React.memo(
     const handleButtonClick = (buttonType: string) =>
       setActiveButton(buttonType);
 
-    const loadCanvas = useCallback(async () => {
-      function importLocale(locale: string) {
-        return import(`../../constants/templates/${locale}.json`);
-      }
+    const loadCanvas = useCallback(
+      async (pageNumber?: string) => {
+        const templateFound = paginationState?.find(
+          (item) => item.page === selectedPage
+        );
 
-      const templateJSON = await importLocale(template.filePath);
-
-      const img1 = "/images/sample/toa-heftiba-FV3GConVSss-unsplash.jpg";
-      const img2 = "/images/sample/scott-circle-image.png";
-      // Load canvas JSON template
-      await new Promise((resolve) => {
-        canvas?.loadFromJSON(templateJSON, () => {
-          resolve(null);
+        await new Promise((resolve) => {
+          canvas?.loadFromJSON(templateFound?.templateJSON, () => {
+            resolve(null);
+          });
         });
-      });
-    }, [canvas, template]);
+      },
+      [canvas, template, paginationState, selectedPage]
+    );
+
+    // const loadCanvas = async (pageNumber?: number) => {
+
+    //   const templateFound = paginationState?.find(
+    //     (item) => item.page === pageNumber || item.page === selectedPage
+    //   );
+    //   console.log("templateFound", templateFound);
+
+    //   if (canvas && templateFound) {
+    //     await new Promise((resolve) => {
+    //       canvas.loadFromJSON(templateFound.templateJSON, () => {
+    //         resolve(null);
+    //       });
+    //     });
+    //   }
+    // };
 
     useEffect(() => {
       loadCanvas();
@@ -523,9 +558,68 @@ const Canvas: React.FC<CanvasProps> = React.memo(
     // Define an array to store references to created bubbles
     const createdBubbles: fabric.Object[] = [];
 
+    const updateBubbleImageContrast = () => {
+      console.log("setBubbleFilter", bubbleFilter);
+      const activeObject = canvas?.getActiveObject();
+
+      if (activeObject && activeObject.type === "image") {
+        // Check if the active object is an image
+        let contrast = bubbleFilter.contrast; // Get the contrast value
+
+        // Ensure contrast is within valid range
+        if (contrast < -1) {
+          contrast = -1;
+        } else if (contrast > 1) {
+          contrast = 1;
+        }
+
+        // Modify the contrast of the image
+        activeObject.filters = []; // Clear existing filters
+        activeObject.filters.push(
+          new fabric.Image.filters.Contrast({ contrast })
+        );
+        activeObject.applyFilters();
+
+        canvas?.renderAll(); // Render the canvas to see the changes
+      }
+    };
+
+    const updateBubbleImageBrightness = () => {
+      console.log("setBubbleFilter", bubbleFilter);
+      const activeObject = canvas?.getActiveObject();
+
+      if (activeObject && activeObject.type === "image") {
+        // Check if the active object is an image
+        let brightness = bubbleFilter.brightness; // Get the brightness value
+
+        // Ensure brightness is within valid range
+        if (brightness < -1) {
+          brightness = -1;
+        } else if (brightness > 1) {
+          brightness = 1;
+        }
+
+        // Modify the brightness of the image
+        activeObject.filters = []; // Clear existing filters
+        activeObject.filters.push(
+          new fabric.Image.filters.Brightness({ brightness })
+        );
+        activeObject.applyFilters();
+
+        canvas?.renderAll(); // Render the canvas to see the changes
+      }
+    };
+
     const updateBubbleImage = (
       imgUrl: string | undefined,
-      filter?: { strokeWidth: number; stroke: string }
+      filter?: { strokeWidth: number; stroke: string },
+      shadow?: {
+        color: string;
+        offsetX: number;
+        offsetY: number;
+        blur: number;
+      },
+      brightness?: number
     ) => {
       const existingBubbleStroke = getExistingObject("bubbleStroke");
       console.log("🚀 ~ existingBubbleStroke:", existingBubbleStroke);
@@ -534,13 +628,34 @@ const Canvas: React.FC<CanvasProps> = React.memo(
         console.error("Canvas Not initialized");
         return;
       }
+      if (shadow) {
+        const newOptions: fabric.ICircleOptions = {
+          shadow: {
+            color: shadow.color || "rgba(0,0,0,0.5)",
+            offsetX: shadow.offsetX || 10,
+            offsetY: shadow.offsetY || 10,
+            blur: shadow.blur || 1,
+          },
+        };
+        updateBubbleElement(canvas, existingBubbleStroke, newOptions);
+        canvas.renderAll();
+      }
       if (!isChecked) {
         let options: fabric.ICircleOptions = {
           ...existingBubbleStroke,
           ...(!existingBubbleStroke &&
-            template.diptych === "horizontal" && { top: 150 }),
+            template?.diptych === "horizontal" && { top: 150 }),
           ...(!existingBubbleStroke &&
-            template.diptych === "horizontal" && { left: 100, radius: 80 }),
+            template?.diptych === "horizontal" && { left: 150, radius: 80 }),
+        };
+        // Shadow for newly created bubble with increased length
+
+        options.shadow = {
+          color: "rgba(0,0,0,0.5)",
+          offsetX: 1,
+          offsetY: 1,
+          blur: 1,
+          spread: 100,
         };
         requestAnimationFrame(() => {
           createBubbleElement1(canvas!, imgUrl!, options);
@@ -593,7 +708,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
         const bgImages = ["bg-1"];
 
-        if (!template.backgroundImage) bgImages.push("bg-2");
+        if (!template?.backgroundImage) bgImages.push("bg-2");
 
         for (const customType of bgImages) {
           const existingObject: fabric.Image | undefined = getExistingObject(
@@ -720,7 +835,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
       );
 
       if (!activeObject) {
-        if (template.diptych === "horizontal") {
+        if (template?.diptych === "horizontal") {
           // createHorizontalCollage(canvas, [imageUrl, imageUrl]);
           if (currentImageIndex !== undefined && currentImageIndex % 2 === 0) {
             createHorizontalCollage(canvas, [imageUrl, null]);
@@ -730,7 +845,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
           ) {
             createHorizontalCollage(canvas, [null, imageUrl]);
           }
-        } else if (template.diptych === "vertical") {
+        } else if (template?.diptych === "vertical") {
           // createVerticalCollage(canvas, [imageUrl, imageUrl]);
           if (currentImageIndex !== undefined && currentImageIndex % 2 === 0) {
             createVerticalCollage(canvas, [imageUrl, null]);
@@ -746,9 +861,9 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
       if (!activeObject) return console.log("Still Object not found");
 
-      if (template.backgroundImage || !template.diptych)
+      if (template?.backgroundImage || !template?.diptych)
         updateImageSource(canvas, imageUrl, activeObject);
-      else if (template.diptych === "vertical")
+      else if (template?.diptych === "vertical")
         updateVerticalCollageImage(canvas, imageUrl, activeObject);
       else updateHorizontalCollageImage(canvas, imageUrl, activeObject);
     }, 100);
@@ -881,7 +996,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
       }
       const existingObject = getExistingObject("photo-border") as fabric.Rect;
 
-      if (template.diptych === "horizontal") {
+      if (template?.diptych === "horizontal") {
         updateRectangle({
           selectable: true,
           lockMovementX: existingObject.lockMovementX,
@@ -1046,6 +1161,171 @@ const Canvas: React.FC<CanvasProps> = React.memo(
         }
       );
     };
+
+    const findHighestPageNumber = (
+      paginationState: PaginationStateItem[]
+    ): number => {
+      let highestPageNumber = 0;
+
+      paginationState.forEach((item) => {
+        if (item.page > highestPageNumber) {
+          highestPageNumber = item.page;
+        }
+      });
+
+      return highestPageNumber + 1;
+    };
+
+    const addTemplate = async () => {
+      const currentTemplateJSON = await saveJSON(canvas, true);
+
+      update(selectedPage, { templateJSON: currentTemplateJSON });
+
+      const highestPageNumber = findHighestPageNumber(paginationState);
+
+      const templateFound = templateData.templates?.find(
+        (item) => item.filePath === paginationState[0].filePath
+      );
+
+      let templateJSON;
+
+      try {
+        templateJSON = await import(
+          `../../constants/templates/${template.filePath}.json`
+        );
+      } catch (error) {
+        console.error("Error importing JSON file:", error);
+        return;
+      }
+
+      const obj = {
+        page: highestPageNumber,
+        filePath: templateFound.filePath,
+        templateJSON: templateJSON,
+        ...templateFound,
+      };
+
+      addPage(obj);
+      setSelectedPage(highestPageNumber);
+      setTimeout(() => {
+        loadCanvas(highestPageNumber);
+      }, 2000);
+    };
+
+    const exportMultiCanvases = async () => {
+      // Create a new instance of JSZip
+      // const currentTemplateJSON = await saveJSON(canvas, true);
+
+      // update(selectedPage, { templateJSON: currentTemplateJSON });
+
+      const zip = new JSZip();
+
+      // Loop through paginationState
+      for (const page of paginationState) {
+        // Load templateJSON into canvas
+        await new Promise((resolve) => {
+          canvas?.loadFromJSON(page.templateJSON, () => {
+            resolve(null);
+          });
+        });
+
+        // Extract image data from canvas
+        const imageData = canvas?.toDataURL({ format: "png" });
+
+        // Add image data to zip file
+        zip.file(`page_${page.page}.png`, imageData.split("base64,")[1], {
+          base64: true,
+        });
+      }
+
+      // Generate zip file
+      const zipBlob = await zip.generateAsync({ type: "blob" });
+
+      // Convert blob to URL
+      const zipUrl = URL.createObjectURL(zipBlob);
+
+      // Create a link element
+      const link = document.createElement("a");
+      link.href = zipUrl;
+      link.download = "exported_images.zip";
+
+      // Simulate click on the link to trigger download
+      document.body.appendChild(link);
+      link.click();
+
+      // Cleanup
+      document.body.removeChild(link);
+      URL.revokeObjectURL(zipUrl);
+    };
+
+    const [shadowValues, setShadowValues] = useState({
+      opacity: 0.5, // Initial opacity value
+      distance: 10, // Initial distance value
+      blur: 5, // Initial blur radius value
+    });
+    const [elementShadowValues, setElementShadowValues] = useState({
+      opacity: 0.5, // Initial opacity value
+      distance: 10, // Initial distance value
+      blur: 5, // Initial blur radius value
+    });
+    const [bubbleFilter, setBubbleFilter] = useState({
+      contrast: "",
+      brightness: "",
+    });
+    const [elementOpacity, setElementOpacity] = useState<number>(1);
+
+    const updateElementOpacity = () => {
+      const activeObject = canvas?.getActiveObject();
+
+      if (activeObject && activeObject.type === "image") {
+        let opacity = elementOpacity;
+
+        // Ensure opacity is within valid range
+        if (opacity < 0) {
+          opacity = 0;
+        } else if (opacity > 1) {
+          opacity = 1;
+        }
+
+        // Modify the opacity of the image
+        activeObject.set("opacity", opacity);
+        canvas?.renderAll(); // Render the canvas to see the changes
+      }
+    };
+
+    const updateElementShadow = (
+      imgUrl: string | undefined,
+      filter?: { strokeWidth: number; stroke: string },
+      shadow?: {
+        color: string;
+        offsetX: number;
+        offsetY: number;
+        blur: number;
+      },
+      brightness?: number
+    ) => {
+      const activeObject = canvas?.getActiveObject();
+
+      if (activeObject) {
+        // Check if the active object exists
+        const { offsetX, offsetY, blur } = shadowValues;
+
+        // Modify the shadow properties of the active object
+        // color: shadow.color || "rgba(0,0,0,0.5)",
+        // offsetX: shadow.offsetX || 10,
+        // offsetY: shadow.offsetY || 10,
+        // blur: shadow.blur || 1,
+        activeObject.set({
+          shadow: {
+            color: shadow.color || "rgba(0,0,0,0.5)",
+            offsetX: shadow.offsetX || 10,
+            offsetY: shadow.offsetY || 10,
+            blur: shadow.blur || 1,
+          },
+        });
+        canvas?.renderAll(); // Render the canvas to see the changes
+      }
+    };
     return (
       <div
         style={{
@@ -1150,7 +1430,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                     Filter
                   </Button>
 
-                  {template.diptych && !template.backgroundImage ? (
+                  {template?.diptych && !template?.backgroundImage ? (
                     <Button
                       className={`${classes.button} ${
                         activeButton === "border" && classes.buttonActive
@@ -1341,6 +1621,22 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                   >
                     Size
                   </Typography>
+                  {activeTab === "element" && (
+                    <>
+                      <Typography
+                        className={classes.heading}
+                        onClick={() => setShow("opacity")}
+                      >
+                        Opacity
+                      </Typography>
+                      <Typography
+                        className={classes.heading}
+                        onClick={() => setShow("element-shadow")}
+                      >
+                        Shadow
+                      </Typography>
+                    </>
+                  )}
                 </Box>
 
                 {show === "colors" && (
@@ -1446,6 +1742,118 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                   </Box>
                 )}
 
+                {activeTab === "element" && show === "opacity" && (
+                  <div className={classes.sliderContainer}>
+                    <Slider
+                      className={classes.slider}
+                      aria-label="size"
+                      color="secondary"
+                      value={elementOpacity}
+                      min={-1}
+                      max={1}
+                      onChange={(e: any) => {
+                        const value = +e.target.value;
+                        setElementOpacity(value);
+                        updateElementOpacity();
+                      }}
+                      step={0.01}
+                      valueLabelDisplay="auto"
+                    />
+                  </div>
+                )}
+                {show === "element-shadow" && (
+                  <div>
+                    <Typography id="opacity-slider" gutterBottom>
+                      Opacity
+                    </Typography>
+                    <Slider
+                      aria-labelledby="opacity-slider"
+                      value={elementShadowValues.opacity}
+                      onChange={(event, newValue) => {
+                        setElementShadowValues((prev) => ({
+                          ...prev,
+                          opacity: newValue,
+                        }));
+                        updateElementShadow(undefined, undefined, {
+                          color: `rgba(0,0,0,${newValue})`,
+                          offsetX: elementShadowValues.distance,
+                          offsetY: elementShadowValues.distance,
+                          blur: elementShadowValues.blur,
+                        });
+                      }}
+                      valueLabelDisplay="auto"
+                      step={0.1}
+                      min={0}
+                      max={1}
+                    />
+                    <Typography id="distance-slider" gutterBottom>
+                      Distance
+                    </Typography>
+                    <Slider
+                      aria-labelledby="distance-slider"
+                      value={elementShadowValues.distance}
+                      onChange={(event, newValue) => {
+                        setElementShadowValues((prev) => ({
+                          ...prev,
+                          distance: newValue,
+                        }));
+                        updateElementShadow(undefined, undefined, {
+                          color: `rgba(0,0,0,${elementShadowValues.opacity})`,
+                          offsetX: newValue,
+                          offsetY: newValue,
+                          blur: elementShadowValues.blur,
+                        });
+                      }}
+                      valueLabelDisplay="auto"
+                      step={1}
+                      min={0}
+                      max={50}
+                    />
+                    <Typography id="blur-slider" gutterBottom>
+                      Blur
+                    </Typography>
+                    <Slider
+                      aria-labelledby="blur-slider"
+                      value={elementShadowValues.blur}
+                      onChange={(event, newValue) => {
+                        setElementShadowValues((prev) => ({
+                          ...prev,
+                          blur: newValue,
+                        }));
+                        updateElementShadow(undefined, undefined, {
+                          color: `rgba(0,0,0,${elementShadowValues.opacity})`,
+                          offsetX: elementShadowValues.distance,
+                          offsetY: elementShadowValues.distance,
+                          blur: newValue,
+                        });
+                      }}
+                      valueLabelDisplay="auto"
+                      step={1}
+                      min={0}
+                      max={20}
+                    />
+                  </div>
+                )}
+                {show === "elementShadow" && (
+                  <div className={classes.sliderContainer}>
+                    <Slider
+                      className={classes.slider}
+                      aria-label="size"
+                      color="secondary"
+                      value={elementOpacity}
+                      min={-1}
+                      max={1}
+                      onChange={(e: any) => {
+                        const value = +e.target.value;
+                        setElementOpacity(value);
+                        updateElementOpacity();
+                      }}
+                      step={0.01}
+                      valueLabelDisplay="auto"
+                    />
+                  </div>
+                )}
+
                 {show === "fontWeight" && (
                   <Box my={2} className={classes.sliderContainer}>
                     <Slider
@@ -1536,6 +1944,27 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                   >
                     Size
                   </Typography>
+
+                  <Typography
+                    className={classes.heading}
+                    onClick={() => setShow("shadow")}
+                  >
+                    SHADOW
+                  </Typography>
+                  <Typography
+                    className={classes.heading}
+                    onClick={() => setShow("contrast")}
+                    // onClick={() => handleButtonClick("Contrast")}
+                  >
+                    CONTRAST
+                  </Typography>
+                  <Typography
+                    className={classes.heading}
+                    onClick={() => setShow("brightness")}
+                    // onClick={() => handleButtonClick("Contrast")}
+                  >
+                    BRIGHTNESS
+                  </Typography>
                 </Box>
 
                 {show === "colors" && (
@@ -1577,6 +2006,126 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                         }));
                       }}
                       step={1}
+                      valueLabelDisplay="auto"
+                    />
+                  </div>
+                )}
+
+                {show === "shadow" && (
+                  <div>
+                    <Typography id="opacity-slider" gutterBottom>
+                      Opacity
+                    </Typography>
+                    <Slider
+                      aria-labelledby="opacity-slider"
+                      value={shadowValues.opacity}
+                      onChange={(event, newValue) => {
+                        setShadowValues((prev) => ({
+                          ...prev,
+                          opacity: newValue,
+                        }));
+                        updateBubbleImage(undefined, undefined, {
+                          color: `rgba(0,0,0,${newValue})`,
+                          offsetX: shadowValues.distance,
+                          offsetY: shadowValues.distance,
+                          blur: shadowValues.blur,
+                        });
+                      }}
+                      valueLabelDisplay="auto"
+                      step={0.1}
+                      min={0}
+                      max={1}
+                    />
+                    <Typography id="distance-slider" gutterBottom>
+                      Distance
+                    </Typography>
+                    <Slider
+                      aria-labelledby="distance-slider"
+                      value={shadowValues.distance}
+                      onChange={(event, newValue) => {
+                        setShadowValues((prev) => ({
+                          ...prev,
+                          distance: newValue,
+                        }));
+                        updateBubbleImage(undefined, undefined, {
+                          color: `rgba(0,0,0,${shadowValues.opacity})`,
+                          offsetX: newValue,
+                          offsetY: newValue,
+                          blur: shadowValues.blur,
+                        });
+                      }}
+                      valueLabelDisplay="auto"
+                      step={1}
+                      min={0}
+                      max={50}
+                    />
+                    <Typography id="blur-slider" gutterBottom>
+                      Blur
+                    </Typography>
+                    <Slider
+                      aria-labelledby="blur-slider"
+                      value={shadowValues.blur}
+                      onChange={(event, newValue) => {
+                        setShadowValues((prev) => ({
+                          ...prev,
+                          blur: newValue,
+                        }));
+                        updateBubbleImage(undefined, undefined, {
+                          color: `rgba(0,0,0,${shadowValues.opacity})`,
+                          offsetX: shadowValues.distance,
+                          offsetY: shadowValues.distance,
+                          blur: newValue,
+                        });
+                      }}
+                      valueLabelDisplay="auto"
+                      step={1}
+                      min={0}
+                      max={20}
+                    />
+                  </div>
+                )}
+
+                {show === "contrast" && (
+                  <div className={classes.sliderContainer}>
+                    <Slider
+                      className={classes.slider}
+                      aria-label="size"
+                      color="secondary"
+                      value={bubbleFilter.contrast}
+                      min={-1}
+                      max={1}
+                      onChange={(e: any) => {
+                        const value = +e.target.value;
+                        setBubbleFilter((prev) => ({
+                          ...prev,
+                          contrast: value,
+                        }));
+                        updateBubbleImageContrast();
+                      }}
+                      step={0.01}
+                      valueLabelDisplay="auto"
+                    />
+                  </div>
+                )}
+
+                {show === "brightness" && (
+                  <div className={classes.sliderContainer}>
+                    <Slider
+                      className={classes.slider}
+                      aria-label="size"
+                      color="secondary"
+                      value={bubbleFilter.brightness}
+                      min={-1}
+                      max={1}
+                      onChange={(e: any) => {
+                        const value = +e.target.value;
+                        setBubbleFilter((prev) => ({
+                          ...prev,
+                          brightness: value,
+                        }));
+                        updateBubbleImageBrightness();
+                      }}
+                      step={0.01}
                       valueLabelDisplay="auto"
                     />
                   </div>
@@ -1688,6 +2237,46 @@ const Canvas: React.FC<CanvasProps> = React.memo(
               />
             </button>
           </div>
+          {/* pagination */}
+          <div className={classes.paginationContainer}>
+            {paginationState.map((item) => {
+              return (
+                <div
+                  onClick={async () => {
+                    const currentTemplateJSON = await saveJSON(canvas, true);
+
+                    update(selectedPage, { templateJSON: currentTemplateJSON });
+
+                    setSelectedPage(item.page);
+                    loadCanvas(item.page);
+                  }}
+                  key={item.page}
+                  className={classes.paginationStyle}
+                >
+                  {item.page}
+                </div>
+              );
+            })}
+            <div
+              className={classes.paginationStyle}
+              onClick={() => addTemplate()}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+            </div>
+          </div>
         </div>
 
         {/* Footer Panel  End*/}
@@ -1710,7 +2299,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                   clickHandler={(img: string) => updateBackgroundImage(img)}
                   images={initialData.backgroundImages}
                 >
-                  {template.diptych === "vertical" ? (
+                  {template?.diptych === "vertical" ? (
                     <Box
                       sx={{
                         display: "flex",
@@ -1721,7 +2310,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                       <div>Top Images</div>
                       <div>Bottom Images</div>
                     </Box>
-                  ) : template.diptych === "horizontal" ? (
+                  ) : template?.diptych === "horizontal" ? (
                     <>
                       <Box
                         sx={{
@@ -2631,7 +3220,29 @@ const Canvas: React.FC<CanvasProps> = React.memo(
           </div>
           <div style={{ marginTop: "40%", position: "relative" }}>
             <button
-              onClick={() => saveImage(canvas)}
+              onClick={async () => {
+                const currentTemplateJSON = await saveJSON(canvas, true);
+                update(selectedPage, { templateJSON: currentTemplateJSON });
+                loadCanvas(selectedPage);
+              }}
+              // onClick={() => saveImage(canvas)}
+              style={{
+                width: "100%",
+                height: "42px",
+                borderRadius: "25px",
+                border: "none",
+                backgroundColor: "#3b0e39",
+                color: "white",
+                marginBottom: "15px",
+              }}
+            >
+              Save All Templates
+            </button>
+
+            <button
+              onClick={() => exportMultiCanvases()}
+              // onClick={() => saveImage(canvas)}
+
               style={{
                 width: "100%",
                 height: "42px",
