@@ -205,7 +205,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
     const [overlayTextFiltersState1, setOverlayTextFiltersState1] =
       useState<FilterState>({
-        color: "red",
+        color: "#909AE9",
       });
 
     const [filterValues, setFilterValues] = useState({
@@ -253,7 +253,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
     const classes = useStyles();
     const canvasInstanceRef = useRef(null);
-    const [color, setColor] = useState("#FD3232");
+    const [color, setColor] = useState("##909AE9");
     const [colorApplied, setColorApplied] = useState(false);
     const [bgColorApplied, setBgColorApplied] = useState(false);
     const [backgroundColor, setBackgroundColor] = useState("#909BEB");
@@ -455,11 +455,9 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
     useEffect(() => {
       loadCanvas();
-
       const handleCanvasUpdate = () => {
         const activeObject = canvas?.getActiveObject();
         const isSelectionCleared = canvas?._activeObject === null;
-
         return setCanvasToolbox((prev) => ({
           ...prev,
           isDeselectDisabled: isSelectionCleared,
@@ -1107,7 +1105,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
     ];
 
     const borderColorChangeHandler = (imgShape) => {
-      const color = userMetaData?.company?.color;
+      const color = userMetaData?.company?.color || "#909AE9";
 
       var filter = new fabric.Image.filters.BlendColor({
         color,
@@ -1143,7 +1141,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
     ];
 
     const swipeColorChangeHandler = (id, swipeImg) => {
-      const color = userMetaData?.company?.color || selectedColor;
+      const color = userMetaData?.company?.color || "#909AE9";
 
       var filter = new fabric.Image.filters.BlendColor({
         color,
@@ -1212,7 +1210,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
       { dividerImg: dividers6 },
     ];
     const dividerColorChangeHandler = (imgShape) => {
-      const color = userMetaData?.company?.color;
+      const color = userMetaData?.company?.color || "#909AE9";
 
       var filter = new fabric.Image.filters.BlendColor({
         color,
@@ -1288,11 +1286,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
     };
 
     const exportMultiCanvases = async () => {
-      // Create a new instance of JSZip
-      // const currentTemplateJSON = await saveJSON(canvas, true);
-
-      // update(selectedPage, { templateJSON: currentTemplateJSON });
-
       const zip = new JSZip();
 
       // Loop through paginationState
@@ -1722,36 +1715,47 @@ const Canvas: React.FC<CanvasProps> = React.memo(
           {(activeTab == "title" || activeTab === "element") && dropDown && (
             <div>
               <Paper className={classes.root}>
-                <Box className={classes.optionsContainer}>
+                <Box
+                  className={classes.optionsContainer}
+                  sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    textTransform: "capitalize",
+                    width: "100%",
+                  }}
+                >
                   <Typography
                     className={classes.heading}
                     onClick={() => setShow("font")}
+                    sx={{
+                      ml: 2,
+                    }}
                   >
-                    Font
+                    FONT
                   </Typography>
                   <Typography
                     className={classes.heading}
                     onClick={() => setShow("fontWeight")}
                   >
-                    FontWeight
+                    FONTWEIGHT
                   </Typography>
                   <Typography
                     className={classes.heading}
                     onClick={() => setShow("charSpacing")}
                   >
-                    Spacing
+                    SPACING
                   </Typography>
                   <Typography
                     className={classes.heading}
                     onClick={() => setShow("colors")}
                   >
-                    Colors
+                    COLORS
                   </Typography>
                   <Typography
                     className={classes.heading}
                     onClick={() => setShow("size")}
                   >
-                    Size
+                    SIZE
                   </Typography>
                   {activeTab === "element" && (
                     <>
@@ -1759,13 +1763,13 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                         className={classes.heading}
                         onClick={() => setShow("opacity")}
                       >
-                        Opacity
+                        OPACITY
                       </Typography>
                       <Typography
                         className={classes.heading}
                         onClick={() => setShow("element-shadow")}
                       >
-                        Shadow
+                        SHADOW
                       </Typography>
                     </>
                   )}
@@ -2104,18 +2108,24 @@ const Canvas: React.FC<CanvasProps> = React.memo(
           {activeTab == "bubble" && dropDown && (
             <div>
               <Paper className={classes.root}>
-                <Box className={classes.optionsContainer}>
+                <Box
+                  className={classes.optionsContainer}
+                  sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                  }}
+                >
                   <Typography
                     className={classes.heading}
                     onClick={() => setShow("colors")}
                   >
-                    Colors
+                    COLORS
                   </Typography>
                   <Typography
                     className={classes.heading}
                     onClick={() => setShow("size")}
                   >
-                    Size
+                    SIZE
                   </Typography>
 
                   <Typography
@@ -2747,6 +2757,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                           </Box>
                         );
                       })}
+
                       {/* <CustomColorPicker
                         value={userMetaData?.company?.color}
                         changeHandler={(color: string) => {
@@ -2837,7 +2848,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                       })}
 
                       <CustomColorPicker
-                        value={userMetaData?.company?.color}
+                        value={userMetaData?.company?.color || "#909AE9"}
                         changeHandler={(color: string) => {
                           const type = "borders";
                           let existingObject = getExistingObject(type) as
@@ -3063,7 +3074,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                       })}
                       <CustomColorPicker
                         // value={overlayTextFiltersState.color}
-                        value={userMetaData?.company?.color}
+                        value={userMetaData?.company?.color || "#909AE9"}
                         changeHandler={(color: string) => {
                           const type = "borders";
                           let existingObject = getExistingObject(type) as
@@ -3302,7 +3313,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                         );
                       })}
                       <CustomColorPicker
-                        value={userMetaData?.company?.color}
+                        value={userMetaData?.company?.color || "#909AE9"}
                         // value={overlayTextFiltersState.color}
                         changeHandler={(color: string) => {
                           const type = "hashtag";
