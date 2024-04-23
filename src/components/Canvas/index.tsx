@@ -621,7 +621,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
       },
       brightness?: number
     ) => {
-      
       const existingBubbleStroke = getExistingObject("bubbleStroke");
 
       if (!canvas) {
@@ -1551,9 +1550,16 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
           {/* Footer Panel  Start*/}
           {activeTab == "background" && dropDown && (
-            <div>
+            <div
+              style={{
+                width: "555px",
+              }}
+            >
               <Paper className={classes.root}>
-                <div className={classes.optionsContainer}>
+                <div
+                  className={classes.optionsContainer}
+                  style={{ display: "flex", justifyContent: "space-evenly" }}
+                >
                   <Button
                     className={`${classes.button} ${
                       activeButton === "Overlay" && classes.buttonActive
@@ -1753,13 +1759,19 @@ const Canvas: React.FC<CanvasProps> = React.memo(
             </div>
           )}
           {(activeTab == "title" || activeTab === "element") && dropDown && (
-            <div>
+            <div
+              style={{
+                width: "555px",
+                // border:"1px solid red"
+              }}
+            >
               <Paper className={classes.root}>
+                {console.log("classes.root", classes.root)}
                 <Box
                   className={classes.optionsContainer}
                   sx={{
                     display: "flex",
-                    justifyContent: "center",
+                    justifyContent: "space-evenly",
                     textTransform: "capitalize",
                     width: "100%",
                   }}
@@ -1768,7 +1780,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                     className={classes.heading}
                     onClick={() => setShow("font")}
                     sx={{
-                      ml: 2,
+                      ml: 1,
                     }}
                   >
                     FONT
@@ -1814,7 +1826,29 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                     </>
                   )}
                 </Box>
-
+                {/* <Box
+                  sx={{
+                    display: "flex",
+                    width: "81%",
+                  }}
+                >
+                  {activeTab === "element" && (
+                    <>
+                      <Typography
+                        className={classes.heading}
+                        onClick={() => setShow("opacity")}
+                      >
+                        OPACITY
+                      </Typography>
+                      <Typography
+                        className={classes.heading}
+                        onClick={() => setShow("element-shadow")}
+                      >
+                        SHADOW
+                      </Typography>
+                    </>
+                  )}
+                </Box> */}
                 {show === "colors" && (
                   <Box
                     className={classes.optionsContainer}
@@ -2146,13 +2180,18 @@ const Canvas: React.FC<CanvasProps> = React.memo(
             </div>
           )}
           {activeTab == "bubble" && dropDown && (
-            <div>
+            <div
+              style={{
+                width: "555px",
+              }}
+            >
               <Paper className={classes.root}>
                 <Box
                   className={classes.optionsContainer}
                   sx={{
                     display: "flex",
-                    justifyContent: "center",
+                    justifyContent: "space-around",
+                    pb: 1.5,
                   }}
                 >
                   <Typography
@@ -2403,7 +2442,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
               alignItems: "center",
               justifyContent: "center",
               borderRadius: 0,
-              width: "97%",
+              width: "96%",
             }}
             onClick={() => {
               dropDown ? setDropDown(false) : setDropDown(true);
