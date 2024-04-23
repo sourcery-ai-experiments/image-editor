@@ -60,7 +60,8 @@ export const useStyles = makeStyles((theme: Theme) => ({
   heading: {
     color: "white",
     cursor: "pointer",
-    paddingRight: "30px",
+    paddingRight: "10px",
+    fontSize: "15px",
   },
   headings: {
     color: "white",
