@@ -70,7 +70,6 @@ export const saveJSON = (
   //   // Remove the link from the document
   //   document.body.removeChild(link);
   // }
-
 };
 
 export function hexToRgbA(hex: string) {
@@ -84,8 +83,11 @@ export function hexToRgbA(hex: string) {
     }
     c = "0x" + c.join("");
     return (
-     
-      "rgba(" + [(Number(c) >> 16) & 255, (Number(c) >> 8) & 255, Number(c) & 255].join(",") + ", 1)"
+      "rgba(" +
+      [(Number(c) >> 16) & 255, (Number(c) >> 8) & 255, Number(c) & 255].join(
+        ","
+      ) +
+      ", 1)"
     );
   }
   throw new Error("Bad Hex");
