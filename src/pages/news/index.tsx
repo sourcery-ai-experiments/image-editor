@@ -344,7 +344,6 @@ import { useCanvasContext } from "../../context/CanvasContext";
 
 function MultiActionAreaCard({ feed, updateScrapURL }: any) {
   const navigate = useNavigate();
-  const { destroyMultiCanvas } = usePaginationContext();
 
   return (
     <>
@@ -477,7 +476,6 @@ function MultiActionAreaCard({ feed, updateScrapURL }: any) {
                       size="small"
                       color="primary"
                       onClick={async () => {
-                        destroyMultiCanvas();
                         await updateScrapURL(item?.link);
                         navigate("/");
                       }}
@@ -500,7 +498,6 @@ import Select, { MultiValue } from "react-select";
 import { updateUserData } from "../../services/userData";
 import { useAuth0 } from "@auth0/auth0-react";
 import Tooltip, { TooltipProps, tooltipClasses } from "@mui/material/Tooltip";
-import { usePaginationContext } from "../../context/MultiCanvasPaginationContext";
 
 const HtmlTooltip = styled(({ className, ...props }: TooltipProps) => (
   <Tooltip {...props} classes={{ popper: className }} />
