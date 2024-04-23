@@ -2850,7 +2850,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                       <CustomColorPicker
                         value={userMetaData?.company?.color || "#909AE9"}
                         changeHandler={(color: string) => {
-                          const type = "borders";
+                          const type = "swipeGroup";
                           let existingObject = getExistingObject(type) as
                             | fabric.Image
                             | undefined;
@@ -2874,35 +2874,19 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                             });
                           //---------------
                           const swipeGroup = getExistingObject("swipeGroup");
+                          // console.log("🚀 ~ swipeGroup:", swipeGroup)
                           const activeObj = canvas?.getActiveObject();
-                          if (activeObj?.customType === "swipeGroup") {
-                            if (swipeGroup) {
-                              swipeGroup.visible = true;
 
-                              swipeGroup?._objects?.forEach((obj) => {
-                                if (obj.customType === "swipeText") {
-                                  obj.fill = color;
-                                } else {
-                                  var filter =
-                                    new fabric.Image.filters.BlendColor({
-                                      color,
-                                      mode: "tint",
-                                      alpha: 1,
-                                    });
-                                  obj.filters.push(filter);
-                                  obj.applyFilters();
-                                }
-                                //   canvas.renderAll();
-                              });
-                            }
+                          if (activeObj?.customType === "swipeGroup") {
+                            updateSwipeColor(canvas, color);
+                          } else {
+                            existingObject.filters?.push(blendColorFilter1);
+                            existingObject.applyFilters();
+                            requestAnimationFrame(() => {
+                              canvas?.renderAll();
+                            });
                           }
                           //-------------------
-
-                          existingObject.filters?.push(blendColorFilter1);
-                          existingObject.applyFilters();
-                          requestAnimationFrame(() => {
-                            canvas?.renderAll();
-                          });
                         }}
                       />
                       {/* <CustomColorPicker
