@@ -61,6 +61,16 @@ export const saveJSON = (
   if (newTemplate) {
     return json;
   }
+  // if (newTemplate) {
+  //   return json;
+  // } else {
+  //   // Click the link to trigger the download
+  //   link.click();
+
+  //   // Remove the link from the document
+  //   document.body.removeChild(link);
+  // }
+
 };
 
 export function hexToRgbA(hex: string) {
