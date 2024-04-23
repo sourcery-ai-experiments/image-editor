@@ -561,7 +561,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
     const createdBubbles: fabric.Object[] = [];
 
     const updateBubbleImageContrast = () => {
-      console.log("setBubbleFilter", bubbleFilter);
       const activeObject = canvas?.getActiveObject();
 
       if (activeObject && activeObject.type === "image") {
@@ -587,7 +586,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
     };
 
     const updateBubbleImageBrightness = () => {
-      console.log("setBubbleFilter", bubbleFilter);
       const activeObject = canvas?.getActiveObject();
 
       if (activeObject && activeObject.type === "image") {
@@ -623,7 +621,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
       },
       brightness?: number
     ) => {
-      console.log("shadow", shadow);
+      
       const existingBubbleStroke = getExistingObject("bubbleStroke");
 
       if (!canvas) {
@@ -1398,6 +1396,48 @@ const Canvas: React.FC<CanvasProps> = React.memo(
       }
     };
     const [hexConvertion, setHexConversion] = useState<string | null>(null);
+    // const [bubbleObjectState, setBubbleObjectState] = useState({});
+    // console.log("bubbleObjectState", bubbleObjectState);
+
+    // useEffect(() => {
+    //   const handleSelectionChanged = () => {
+    //     const activeObject = canvas?.getActiveObject();
+    //     console.log("activeObject", activeObject);
+    //     if (activeObject && activeObject.customType === "bubbleStroke") {
+    //       const groupObjects = canvas
+    //         ?.getObjects()
+    //         .filter((obj) => obj.group && obj.group === activeObject.id);
+    //       if (groupObjects && groupObjects.length > 0) {
+    //         const bubbleObject = groupObjects.find(
+    //           (obj) => obj.type === "image" && obj.customType === "bubble"
+    //         );
+    //         if (bubbleObject) {
+    //           const outerCircle = activeObject;
+    //           const relativePosition = {
+    //             left: bubbleObject.left - outerCircle.left,
+    //             top: bubbleObject.top - outerCircle.top,
+    //           };
+    //           setBubbleObjectState({
+    //             position: relativePosition,
+    //             id: bubbleObject.id,
+    //             parent: outerCircle.id,
+    //           });
+    //         }
+    //       }
+    //     }
+    //   };
+
+    //   canvas?.on("selection:created", handleSelectionChanged);
+    //   canvas?.on("selection:updated", handleSelectionChanged);
+    //   canvas?.on("selection:cleared", handleSelectionChanged);
+
+    //   return () => {
+    //     canvas?.off("selection:created", handleSelectionChanged);
+    //     canvas?.off("selection:updated", handleSelectionChanged);
+    //     canvas?.off("selection:cleared", handleSelectionChanged);
+    //   };
+    // }, [canvas]);
+
     return (
       <div
         style={{

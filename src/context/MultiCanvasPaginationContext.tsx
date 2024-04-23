@@ -27,6 +27,7 @@ interface PaginationContext {
   update: (page: number, updatedFields: Partial<PaginationStateItem>) => void;
   selectedPage: number;
   setSelectedPage: React.Dispatch<SetStateAction<number>>;
+  destroyMultiCanvas: () => void;
 }
 
 // Create context
@@ -69,6 +70,10 @@ const PaginationProvider: React.FC<{ children: ReactNode }> = ({
       )
     );
   };
+  const destroyMultiCanvas = () => {
+    setSelectedPage(1);
+    setPaginationState([]);
+  };
 
   const paginationContextValue: PaginationContext = {
     paginationState,
@@ -76,6 +81,7 @@ const PaginationProvider: React.FC<{ children: ReactNode }> = ({
     update,
     setSelectedPage,
     selectedPage,
+    destroyMultiCanvas,
   };
 
   return (
