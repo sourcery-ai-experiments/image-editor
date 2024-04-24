@@ -253,7 +253,8 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
     const classes = useStyles();
     const canvasInstanceRef = useRef(null);
-    const [color, setColor] = useState("##909AE9");
+    const [color, setColor] = useState("#909AE9");
+    console.log("🚀 ~ color:", color);
     const [colorApplied, setColorApplied] = useState(false);
     const [bgColorApplied, setBgColorApplied] = useState(false);
     const [backgroundColor, setBackgroundColor] = useState("#909BEB");
@@ -664,22 +665,60 @@ const Canvas: React.FC<CanvasProps> = React.memo(
       }
 
       const activeBubble = canvas.getActiveObject();
+      console.log("🚀 ~ activeBubble:", activeBubble);
+      const obj = {
+        left: activeBubble?.left,
+        top: activeBubble?.top,
+        scaleX: activeBubble?.scaleX,
+        scaleY: activeBubble?.scaleY,
+        angle: activeBubble?.angle,
+        flipX: activeBubble?.flipX,
+        flipY: activeBubble?.flipY,
+        opacity: activeBubble?.opacity,
+        selectable: activeBubble?.selectable,
+        hoverCursor: activeBubble?.hoverCursor,
+        customType: activeBubble?.customType,
+        zoomX: activeBubble?.customType,
+        zoomY: activeBubble?.customType,
+      };
+      console.log("🚀 ~ obj:", obj);
 
-      if (activeBubble) {
-        if (activeBubble instanceof fabric.Circle) {
-          // If the active object is a Circle
-          const newOptions: fabric.ICircleOptions = {
-            stroke: filter?.stroke || "blue",
-            strokeWidth: filter?.strokeWidth || 15,
-            // Add any other options you want to update
-          };
-          updateBubbleElement(canvas, activeObject, newOptions);
+      if (activeBubble && activeBubble.customType === "bubble") {
+        // Remove existing bubble element from canvas
+        canvas.remove(activeBubble);
+
+        // Create a new fabric.Image element with the updated image URL
+        fabric.Image.fromURL(imgUrl, function (img) {
+          // Set properties of the new image to match active bubble
+
+          img.set({
+            left: activeBubble.left,
+            top: activeBubble.top,
+            scaleX: activeBubble.scaleX,
+            scaleY: activeBubble.scaleY,
+            angle: activeBubble.angle,
+            flipX: activeBubble.flipX,
+            flipY: activeBubble.flipY,
+            opacity: activeBubble.opacity,
+            selectable: activeBubble.selectable,
+            hoverCursor: activeBubble.hoverCursor,
+            customType: activeBubble.customType,
+          });
+
+          // Set clip path of the new image to match the active bubble's clip path
+          img.clipPath = activeBubble.clipPath;
+
+          // Add the new image to the canvas
+          canvas.add(img);
+
+          // Set the new image as the active object
+          canvas.setActiveObject(img);
+
+          // Render the canvas
           canvas.renderAll();
-        } else {
-          toast.error("No active Circle selected.");
-          console.log();
-        }
+        });
       }
+
       if (!activeBubble && isChecked) {
         // let options: fabric.ICircleOptions = {
         // 	...existingBubbleStroke,
@@ -695,6 +734,51 @@ const Canvas: React.FC<CanvasProps> = React.memo(
       }
     };
 
+    //-----------------------------------------------
+    // const [bubbleObjectState, setBubbleObjectState] = useState({});
+    // console.log("bubbleObjectState", bubbleObjectState);
+    // useEffect(() => {
+    //   const handleSelectionChanged = () => {
+    //     const activeObject = canvas?.getActiveObject();
+    //     console.log(
+    //       "🚀 ~ handleSelectionChanged ~ activeObject:",
+    //       activeObject
+    //     );
+    //     if (activeObject?.customType === "bubble") {
+    //       fabric.Image.fromURL("image_1713875134.007559.png", function (img) {
+    //         img.set({
+    //           left: activeObject.left,
+    //           top: activeObject.top,
+    //           scaleX: activeObject.scaleX,
+    //           scaleY: activeObject.scaleY,
+    //           angle: activeObject.angle,
+    //           flipX: activeObject.flipX,
+    //           flipY: activeObject.flipY,
+    //           opacity: activeObject.opacity,
+    //           selectable: activeObject.selectable,
+    //           hoverCursor: activeObject.hoverCursor,
+    //           customType: activeObject.customType,
+    //         });
+    //         canvas.remove(activeObject);
+    //         canvas.add(img);
+    //         canvas.setActiveObject(img);
+    //         canvas.renderAll();
+    //       });
+    //     }
+    //   };
+
+    //   canvas?.on("selection:created", handleSelectionChanged);
+    //   canvas?.on("selection:updated", handleSelectionChanged);
+    //   canvas?.on("selection:cleared", handleSelectionChanged);
+
+    //   return () => {
+    //     canvas?.off("selection:created", handleSelectionChanged);
+    //     canvas?.off("selection:updated", handleSelectionChanged);
+    //     canvas?.off("selection:cleared", handleSelectionChanged);
+    //   };
+    // }, [canvas]);
+
+    //---------------------------------------------
     /**
      * Updates the background filters of the canvas.
      * @param {IBaseFilter} filter - The filter to be applied to the background image.
@@ -1436,6 +1520,26 @@ const Canvas: React.FC<CanvasProps> = React.memo(
     //     canvas?.off("selection:cleared", handleSelectionChanged);
     //   };
     // }, [canvas]);
+
+    // ------------------------save all templates--------------------------------
+    const [templateSaved, setTemplateSaved] = useState(false);
+
+    const handleSaveTemplate = async (event) => {
+      event.preventDefault();
+      const currentTemplateJSON = await saveJSON(canvas, true);
+      update(selectedPage, { templateJSON: currentTemplateJSON });
+      loadCanvas(selectedPage);
+      setTemplateSaved(true); // Mark template as saved
+    };
+
+    const handleExport = async () => {
+      if (templateSaved) {
+        await exportMultiCanvases();
+      } else {
+        // Show alert if template is not saved
+        toast.error("Please save all templates before exporting.");
+      }
+    };
 
     return (
       <div
@@ -3508,6 +3612,36 @@ const Canvas: React.FC<CanvasProps> = React.memo(
           </div>
           <div style={{ marginTop: "40%", position: "relative" }}>
             <button
+              onClick={handleSaveTemplate}
+              style={{
+                width: "100%",
+                height: "42px",
+                borderRadius: "25px",
+                border: "none",
+                backgroundColor: "#3b0e39",
+                color: "white",
+                marginBottom: "15px",
+              }}
+            >
+              Save All Templates
+            </button>
+
+            <button
+              onClick={handleExport}
+              style={{
+                width: "100%",
+                height: "42px",
+                borderRadius: "25px",
+                border: "none",
+                backgroundColor: "#3b0e39",
+                color: "white",
+              }}
+            >
+              Export
+            </button>
+          </div>
+          {/* <div style={{ marginTop: "40%", position: "relative" }}>
+            <button
               onClick={async () => {
                 const currentTemplateJSON = await saveJSON(canvas, true);
                 update(selectedPage, { templateJSON: currentTemplateJSON });
@@ -3528,7 +3662,8 @@ const Canvas: React.FC<CanvasProps> = React.memo(
             </button>
 
             <button
-              onClick={() => exportMultiCanvases()}
+          
+              onClick={ async() => exportMultiCanvases()}
               // onClick={() => saveImage(canvas)}
 
               style={{
@@ -3542,7 +3677,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
             >
               Export
             </button>
-          </div>
+          </div> */}
           <div style={{ marginTop: "5%", position: "relative" }}>
             <button
               onClick={() => saveJSON(canvas)}
