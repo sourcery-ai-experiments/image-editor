@@ -60,7 +60,7 @@ const PaginationProvider: React.FC<{ children: ReactNode }> = ({
     setPaginationState((prevState) => [...prevState, newPage]);
   };
 
-  const update = (
+  const update = async (
     page: number,
     updatedFields: Partial<PaginationStateItem>
   ) => {

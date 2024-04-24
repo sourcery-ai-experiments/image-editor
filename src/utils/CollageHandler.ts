@@ -77,11 +77,11 @@ export const createVerticalCollage = (
 			width: width + 10,
 			lockMovementX: true,
 			selectable: true,
-			// visible: true,
+			visible: true,
 			customType: 'photo-border',
-			// stroke: 'red', // Set border color to red
-			// strokeWidth: 2, //, // Adjust border width as needed
-			visible: false, // Set border visibility to false
+			stroke: 'none', // Set border color to red
+			strokeWidth: 0, //, // Adjust border width as needed
+			// visible: false, // Set border visibility to false
 			
 		},
 		1
@@ -180,11 +180,11 @@ export const createHorizontalCollage = (
 			selectable: true,
 			lockMovementY: true,
 			width: 0,
-			// visible: true,
+			visible: true,
 			customType: 'photo-border',
 			stroke: 'none', // Set border color to red
 			strokeWidth: 0, //, // Adjust border width as needed
-			visible: false, // Set border visibility to false
+			// visible: false, // Set border visibility to false
 			
 		},
 		1

@@ -254,7 +254,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
     const classes = useStyles();
     const canvasInstanceRef = useRef(null);
     const [color, setColor] = useState("#909AE9");
-    console.log("🚀 ~ color:", color);
+
     const [colorApplied, setColorApplied] = useState(false);
     const [bgColorApplied, setBgColorApplied] = useState(false);
     const [backgroundColor, setBackgroundColor] = useState("#909BEB");
@@ -1364,6 +1364,8 @@ const Canvas: React.FC<CanvasProps> = React.memo(
       setTimeout(() => {
         loadCanvas(highestPageNumber);
       }, 2000);
+
+      updateActiveTab("background");
     };
 
     const exportMultiCanvases = async () => {
@@ -1525,18 +1527,18 @@ const Canvas: React.FC<CanvasProps> = React.memo(
     const [templateSaved, setTemplateSaved] = useState(false);
 
     const handleSaveTemplate = async (event) => {
-      event.preventDefault();
       const currentTemplateJSON = await saveJSON(canvas, true);
       update(selectedPage, { templateJSON: currentTemplateJSON });
       loadCanvas(selectedPage);
-      setTemplateSaved(true); // Mark template as saved
+      setTemplateSaved(true);
     };
 
     const handleExport = async () => {
       if (templateSaved) {
+        console.log("Pagination -", paginationState);
         await exportMultiCanvases();
+        setTemplateSaved(false);
       } else {
-        // Show alert if template is not saved
         toast.error("Please save all templates before exporting.");
       }
     };
@@ -3090,7 +3092,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                         pt: 1,
                       }}
                     >
-                      Borders
+                      Shapes
                     </Typography>
                     <Box
                       sx={{
@@ -3191,8 +3193,54 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                           </Box>
                         );
                       })}
-                    </Box>
+                      <CustomColorPicker
+                        // value={overlayTextFiltersState.color}
+                        value={userMetaData?.company?.color || "#909AE9"}
+                        changeHandler={(color: string) => {
+                          const type = "borders";
+                          let existingObject = getExistingObject(type) as
+                            | fabric.Image
+                            | undefined;
+                          if (
+                            canvas?._activeObject &&
+                            canvas?._activeObject?.type === "image"
+                          )
+                            existingObject =
+                              canvas?._activeObject as fabric.Image;
 
+                          if (!existingObject) {
+                            console.log("existing Border object not founded");
+                            return;
+                          }
+                          const blendColorFilter =
+                            new fabric.Image.filters.BlendColor({
+                              color,
+                              mode: "tint",
+                              alpha: 1,
+                            });
+
+                          existingObject.filters?.push(blendColorFilter);
+                          existingObject.applyFilters();
+                          requestAnimationFrame(() => {
+                            canvas?.renderAll();
+                          });
+                        }}
+                      />
+                    </Box>
+                    <Box
+                      sx={{
+                        py: 1,
+                      }}
+                    >
+                      <Typography
+                        sx={{
+                          fontWeight: "bold",
+                          pt: 1,
+                        }}
+                      >
+                        Borders
+                      </Typography>
+                    </Box>
                     <Box
                       sx={{
                         display: "flex",
@@ -3610,35 +3658,40 @@ const Canvas: React.FC<CanvasProps> = React.memo(
               </div>
             )}
           </div>
-          <div style={{ marginTop: "40%", position: "relative" }}>
-            <button
-              onClick={handleSaveTemplate}
-              style={{
-                width: "100%",
-                height: "42px",
-                borderRadius: "25px",
-                border: "none",
-                backgroundColor: "#3b0e39",
-                color: "white",
-                marginBottom: "15px",
-              }}
-            >
-              Save All Templates
-            </button>
 
-            <button
-              onClick={handleExport}
-              style={{
-                width: "100%",
-                height: "42px",
-                borderRadius: "25px",
-                border: "none",
-                backgroundColor: "#3b0e39",
-                color: "white",
-              }}
-            >
-              Export
-            </button>
+          <div style={{ marginTop: "40%", position: "relative" }}>
+            {!templateSaved ? (
+              <button
+                onClick={handleSaveTemplate}
+                style={{
+                  width: "100%",
+                  height: "42px",
+                  borderRadius: "25px",
+                  border: "none",
+                  backgroundColor: "#3b0e39",
+                  color: "white",
+
+                  cursor: "pointer",
+                }}
+              >
+                Save All Templates
+              </button>
+            ) : (
+              <button
+                onClick={handleExport}
+                style={{
+                  width: "100%",
+                  height: "42px",
+                  borderRadius: "25px",
+                  border: "none",
+                  backgroundColor: "#3b0e39",
+                  color: "white",
+                  cursor: "pointer",
+                }}
+              >
+                Export
+              </button>
+            )}
           </div>
           {/* <div style={{ marginTop: "40%", position: "relative" }}>
             <button
@@ -3688,6 +3741,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                 border: "none",
                 backgroundColor: "#3b0e39",
                 color: "white",
+                cursor: "pointer",
               }}
             >
               JSON
@@ -3715,6 +3769,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                   border: "none",
                   backgroundColor: "#3b0e39",
                   color: "white",
+                  cursor: "pointer",
                 }}
               >
                 Next
