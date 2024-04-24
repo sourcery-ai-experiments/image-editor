@@ -35,14 +35,16 @@ interface Props {
 function LandingPage({ setScrappedData, updateStep }: Props) {
   const { isAuthenticated } = useAuth0();
   const { scrapURL, updateScrapURL } = useCanvasContext();
+
   const { destroyMultiCanvas } = usePaginationContext();
+
   const [loading, setLoading] = useState(false);
 
   const getData = async () => {
     if (loading) return;
+    destroyMultiCanvas();
 
     try {
-      destroyMultiCanvas();
       setLoading(true);
       const response = await fetch(`${BaseURL}/scrapping_data`, {
         method: "POST",
