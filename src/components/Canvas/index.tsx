@@ -1181,11 +1181,12 @@ const Canvas: React.FC<CanvasProps> = React.memo(
         mode: "tint",
         alpha: 1,
       });
-
+      const left = Math.random() * (400 - 100) + 100;
+      const top = Math.random() * (400 - 200) + 100;
       fabric.Image.fromURL(
         imgShape,
         function (img) {
-          img.set({ left: 230, top: 250 }).scale(0.2);
+          img.set({ left: left, top: top }).scale(0.2);
           img.filters.push(filter);
           img.applyFilters();
           canvas.add(img);
@@ -1218,10 +1219,13 @@ const Canvas: React.FC<CanvasProps> = React.memo(
         alpha: 1,
       });
 
+      const left = Math.random() * (450 - 100) + 100;
+      const top = Math.random() * (500 - 100) + 100;
+
       fabric.Image.fromURL(
         swipeImg,
         function (img) {
-          img.set({ left: 230, top: 250 }).scale(0.2);
+          img.set({ left: left, top: top }).scale(0.2);
           img.filters.push(filter);
           img.applyFilters();
           canvas.add(img);
@@ -1286,11 +1290,12 @@ const Canvas: React.FC<CanvasProps> = React.memo(
         mode: "tint",
         alpha: 1,
       });
-
+      const left = Math.random() * (400 - 100) + 100;
+      const top = Math.random() * (500 - 300) + 100;
       fabric.Image.fromURL(
         imgShape,
         function (img) {
-          img.set({ left: 230, top: 250 }).scale(0.2);
+          img.set({ left: left, top: top }).scale(0.2);
           img.filters.push(filter);
           img.applyFilters();
           canvas.add(img);
@@ -3364,10 +3369,14 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                             <img
                               src={spImg}
                               onClick={() => {
+                                const left = Math.random() * (400 - 100) + 100;
+                                const top = Math.random() * (800 - 400) + 100;
                                 fabric.Image.fromURL(
                                   spImg,
                                   function (img) {
-                                    img.set({ left: 230, top: 250 }).scale(0.2);
+                                    img
+                                      .set({ left: left, top: top })
+                                      .scale(0.2);
                                     canvas.add(img);
                                     requestAnimationFrame(() => {
                                       canvas.renderAll();
@@ -3410,10 +3419,14 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                             <img
                               src={spImg}
                               onClick={() => {
+                                const left = Math.random() * (400 - 100) + 100;
+                                const top = Math.random() * (800 - 500) + 100;
                                 fabric.Image.fromURL(
                                   spImg,
                                   function (img) {
-                                    img.set({ left: 230, top: 250 }).scale(0.2);
+                                    img
+                                      .set({ left: left, top: top })
+                                      .scale(0.2);
                                     canvas.add(img);
                                     requestAnimationFrame(() => {
                                       canvas.renderAll();
@@ -3457,10 +3470,14 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                             <img
                               src={spImg}
                               onClick={() => {
+                                const left = Math.random() * (400 - 100) + 100;
+                                const top = Math.random() * (800 - 600) + 100;
                                 fabric.Image.fromURL(
                                   spImg,
                                   function (img) {
-                                    img.set({ left: 230, top: 250 }).scale(0.2);
+                                    img
+                                      .set({ left: left, top: top })
+                                      .scale(0.2);
                                     canvas.add(img);
                                     requestAnimationFrame(() => {
                                       canvas.renderAll();
@@ -3562,94 +3579,101 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                           mt: 2,
                         }}
                       >
-                        <img
-                          src={userMetaData?.company?.logo}
-                          onClick={() => {
-                            fabric.Image.fromURL(
-                              userMetaData?.company?.logo,
-                              function (img) {
-                                img.set({
-                                  width: 400,
-                                  height: 400,
-                                });
-                                canvas.add(img);
-                                requestAnimationFrame(() => {
-                                  canvas.renderAll();
-                                });
-                              },
-                              {
-                                crossOrigin: "anonymous",
-                              }
-                            );
-                          }}
-                          alt=""
-                          // width='90px'
-                          style={{
-                            cursor: "pointer",
-                            paddingBottom: "0.5rem",
-                            width: "80px",
-                            height: "60px",
-                          }}
-                        />
-                        <img
-                          src={userMetaData?.company?.logo2}
-                          onClick={() => {
-                            fabric.Image.fromURL(
-                              userMetaData?.company?.logo2,
-                              function (img) {
-                                img.set({
-                                  width: 400,
-                                  height: 400,
-                                });
-                                canvas.add(img);
-                                requestAnimationFrame(() => {
-                                  canvas.renderAll();
-                                });
-                              },
-                              {
-                                crossOrigin: "anonymous",
-                              }
-                            );
-                          }}
-                          alt=""
-                          // width='90px'
-                          style={{
-                            cursor: "pointer",
-                            paddingBottom: "0.5rem",
-                            width: "80px",
-                            height: "60px",
-                          }}
-                        />
+                        {userMetaData?.company?.logo && (
+                          <img
+                            src={userMetaData?.company?.logo}
+                            onClick={() => {
+                              fabric.Image.fromURL(
+                                userMetaData?.company?.logo,
+                                function (img) {
+                                  img.set({
+                                    width: 400,
+                                    height: 400,
+                                  });
+                                  canvas.add(img);
+                                  requestAnimationFrame(() => {
+                                    canvas.renderAll();
+                                  });
+                                },
+                                {
+                                  crossOrigin: "anonymous",
+                                }
+                              );
+                            }}
+                            alt=""
+                            // width='90px'
+                            style={{
+                              cursor: "pointer",
+                              paddingBottom: "0.5rem",
+                              width: "80px",
+                              height: "60px",
+                            }}
+                          />
+                        )}
 
-                        <img
-                          src={userMetaData?.company?.logo3}
-                          onClick={() => {
-                            fabric.Image.fromURL(
-                              userMetaData?.company?.logo3,
-                              function (img) {
-                                img.set({
-                                  width: 400,
-                                  height: 400,
-                                });
-                                canvas.add(img);
-                                requestAnimationFrame(() => {
-                                  canvas.renderAll();
-                                });
-                              },
-                              {
-                                crossOrigin: "anonymous",
-                              }
-                            );
-                          }}
-                          alt=""
-                          // width='90px'
-                          style={{
-                            cursor: "pointer",
-                            paddingBottom: "0.5rem",
-                            width: "80px",
-                            height: "60px",
-                          }}
-                        />
+                        {userMetaData?.company?.logo2 && (
+                          <img
+                            src={userMetaData?.company?.logo2}
+                            onClick={() => {
+                              fabric.Image.fromURL(
+                                userMetaData?.company?.logo2,
+                                function (img) {
+                                  img.set({
+                                    width: 400,
+                                    height: 400,
+                                  });
+                                  canvas.add(img);
+                                  requestAnimationFrame(() => {
+                                    canvas.renderAll();
+                                  });
+                                },
+                                {
+                                  crossOrigin: "anonymous",
+                                }
+                              );
+                            }}
+                            alt=""
+                            // width='90px'
+                            style={{
+                              cursor: "pointer",
+                              paddingBottom: "0.5rem",
+                              width: "80px",
+                              height: "60px",
+                            }}
+                          />
+                        )}
+
+                        {userMetaData?.company?.logo3 && (
+                          <img
+                            src={userMetaData?.company?.logo3}
+                            onClick={() => {
+                              fabric.Image.fromURL(
+                                userMetaData?.company?.logo3,
+                                function (img) {
+                                  img.set({
+                                    width: 400,
+                                    height: 400,
+                                  });
+                                  canvas.add(img);
+                                  requestAnimationFrame(() => {
+                                    canvas.renderAll();
+                                  });
+                                },
+                                {
+                                  crossOrigin: "anonymous",
+                                }
+                              );
+                            }}
+                            alt=""
+                            // width='90px'
+                            style={{
+                              cursor: "pointer",
+                              paddingBottom: "0.5rem",
+                              width: "80px",
+                              height: "60px",
+                            }}
+                          />
+                        )}
                       </Box>
                     </Box>
                   </Box>
