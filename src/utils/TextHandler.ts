@@ -12,6 +12,9 @@ export function createTextBox(
   options: FabricTextBox
 ): fabric.Textbox | undefined {
   if (!canvas) return;
+
+  // const { userMetaData } = useCanvasContext();
+  // console.log("🚀 ~ userMetaData:", userMetaData)
   const defaultOptions: ITextboxOptions = {
     left: 50,
     top: 50,
