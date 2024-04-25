@@ -14,11 +14,12 @@ export const createBubbleElement = (
   // 	canvas,
   // 	'bubbleStroke'
   // ) as fabric.Circle;
-
+  const left = Math.floor(Math.random() * (450 - 100 + 1)) + 100; // Random left position between 100 and 450
+  const top = Math.floor(Math.random() * (500 - 100 + 1)) + 100;
   var strokeCircle = new fabric.Circle({
     radius: 100,
-    left: 350,
-    top: 330,
+    left: left,
+    top: top,
     originX: "center",
     originY: "center",
     fill: "transparent",
@@ -134,10 +135,14 @@ export const createBubbleElement1 = (
     canvas,
     "bubbleStroke"
   ) as fabric.Circle;
+
+  const left = Math.floor(Math.random() * (450 - 100 + 1)) + 100;
+  const top = Math.floor(Math.random() * (500 - 100 + 1)) + 100;
+
   var strokeCircle = new fabric.Circle({
     radius: 100,
-    left: 350,
-    top: 330,
+    left: left,
+    top: top,
     originX: "center",
     originY: "center",
     fill: "transparent",
