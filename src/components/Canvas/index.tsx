@@ -640,6 +640,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
         updateBubbleElement(canvas, existingBubbleStroke, newOptions);
         canvas.renderAll();
       }
+
       if (!isChecked) {
         let options: fabric.ICircleOptions = {
           ...existingBubbleStroke,
@@ -665,7 +666,8 @@ const Canvas: React.FC<CanvasProps> = React.memo(
       }
 
       const activeBubble = canvas.getActiveObject();
-      console.log("🚀 ~ activeBubble:", activeBubble);
+      // console.log("🚀 ~ activeBubble:", activeBubble);
+
       const obj = {
         left: activeBubble?.left,
         top: activeBubble?.top,
@@ -681,16 +683,10 @@ const Canvas: React.FC<CanvasProps> = React.memo(
         zoomX: activeBubble?.customType,
         zoomY: activeBubble?.customType,
       };
-      console.log("🚀 ~ obj:", obj);
 
       if (activeBubble && activeBubble.customType === "bubble") {
-        // Remove existing bubble element from canvas
         canvas.remove(activeBubble);
-
-        // Create a new fabric.Image element with the updated image URL
         fabric.Image.fromURL(imgUrl, function (img) {
-          // Set properties of the new image to match active bubble
-
           img.set({
             left: activeBubble.left,
             top: activeBubble.top,
@@ -704,17 +700,9 @@ const Canvas: React.FC<CanvasProps> = React.memo(
             hoverCursor: activeBubble.hoverCursor,
             customType: activeBubble.customType,
           });
-
-          // Set clip path of the new image to match the active bubble's clip path
           img.clipPath = activeBubble.clipPath;
-
-          // Add the new image to the canvas
           canvas.add(img);
-
-          // Set the new image as the active object
           canvas.setActiveObject(img);
-
-          // Render the canvas
           canvas.renderAll();
         });
       }
@@ -1419,9 +1407,12 @@ const Canvas: React.FC<CanvasProps> = React.memo(
       distance: 10, // Initial distance value
       blur: 5, // Initial blur radius value
     });
-    const [hexConversionForElement, setHexConversionForElement] = useState<
-      string | null
-    >(null);
+    // const [hexConversionForElement, setHexConversionForElement] = useState<
+    //   string | null
+    // >(null);
+
+    const [hexConversionForElement, setHexConversionForElement] =
+      useState<"rgba(0,0,0,1)">("rgba(0,0,0,1)");
     const [bubbleFilter, setBubbleFilter] = useState({
       contrast: "",
       brightness: "",
@@ -1535,7 +1526,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
     const handleExport = async () => {
       if (templateSaved) {
-        console.log("Pagination -", paginationState);
         await exportMultiCanvases();
         setTemplateSaved(false);
       } else {
@@ -1872,7 +1862,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
               }}
             >
               <Paper className={classes.root}>
-                {console.log("classes.root", classes.root)}
                 <Box
                   className={classes.optionsContainer}
                   sx={{
@@ -2087,7 +2076,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                       </Typography>
                       <CustomColorPicker
                         value={
-                          hexConversionForElement
+                          !hexConversionForElement
                             ? overlayTextFiltersState.color
                             : "rgba(0,0,0,1)"
                         }
@@ -2095,7 +2084,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                           const rgbaColorCode = hexToRgbA(color);
                           setHexConversionForElement(rgbaColorCode);
                           const splitHexConvertion = rgbaColorCode?.split(",");
-
                           updateElementShadow(undefined, undefined, {
                             color: `${splitHexConvertion[0]},${splitHexConvertion[1]},${splitHexConvertion[2]},${elementShadowValues.opacity})`,
                             offsetX: elementShadowValues.distance,
@@ -2111,7 +2099,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                     </Typography>
                     <Slider
                       aria-labelledby="opacity-slider"
-                      value={elementShadowValues.opacity}
+                      value={elementShadowValues?.opacity}
                       onChange={(event, newValue) => {
                         setElementShadowValues((prev) => ({
                           ...prev,
@@ -2119,15 +2107,15 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                         }));
 
                         const splitHexConvertion =
-                          hexConversionForElement.split(",");
+                          hexConversionForElement?.split(",");
 
                         updateElementShadow(undefined, undefined, {
                           color: hexConversionForElement
                             ? `${splitHexConvertion[0]},${splitHexConvertion[1]},${splitHexConvertion[2]},${newValue})`
                             : `rgba(0,0,0,${newValue})`,
-                          offsetX: elementShadowValues.distance,
-                          offsetY: elementShadowValues.distance,
-                          blur: elementShadowValues.blur,
+                          offsetX: elementShadowValues?.distance,
+                          offsetY: elementShadowValues?.distance,
+                          blur: elementShadowValues?.blur,
                         });
                       }}
                       valueLabelDisplay="auto"
@@ -2146,8 +2134,9 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                           ...prev,
                           distance: newValue,
                         }));
+
                         const splitHexConvertion =
-                          hexConversionForElement.split(",");
+                          hexConversionForElement?.split(",");
                         updateElementShadow(undefined, undefined, {
                           color: hexConversionForElement
                             ? `${splitHexConvertion[0]},${splitHexConvertion[1]},${splitHexConvertion[2]},${elementShadowValues.opacity})`
@@ -2167,20 +2156,20 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                     </Typography>
                     <Slider
                       aria-labelledby="blur-slider"
-                      value={elementShadowValues.blur}
+                      value={elementShadowValues?.blur}
                       onChange={(event, newValue) => {
                         setElementShadowValues((prev) => ({
                           ...prev,
                           blur: newValue,
                         }));
                         const splitHexConvertion =
-                          hexConversionForElement.split(",");
+                          hexConversionForElement?.split(",");
                         updateElementShadow(undefined, undefined, {
                           color: hexConversionForElement
                             ? `${splitHexConvertion[0]},${splitHexConvertion[1]},${splitHexConvertion[2]},${elementShadowValues.opacity})`
-                            : `rgba(0,0,0,${elementShadowValues.opacity}})`,
-                          offsetX: elementShadowValues.distance,
-                          offsetY: elementShadowValues.distance,
+                            : `rgba(0,0,0,${elementShadowValues?.opacity}})`,
+                          offsetX: elementShadowValues?.distance,
+                          offsetY: elementShadowValues?.distance,
                           blur: newValue,
                         });
                       }}
@@ -2845,6 +2834,22 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                   images={initialData.bubbles}
                 />
 
+                {/* <ImageViewer
+                  clickHandler={(img: string) => {
+                    const activeBubble = canvas?.getActiveObject();
+
+                    if (
+                      isChecked &&
+                      activeBubble?.customType === "bubbleStroke"
+                    ) {
+                      canvas.discardActiveObject();
+                      canvas?.renderAll();
+                    }
+                    updateBubbleImage(img);
+                  }}
+                  images={initialData.bubbles}
+                /> */}
+
                 {/* <h4 style={{ margin: '0px', padding: '0px' }}>AI Images</h4>
 								<ImageViewer
 									clickHandler={(img: string) => updateBubbleImage(img)}
@@ -3059,7 +3064,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                             });
                           //---------------
                           const swipeGroup = getExistingObject("swipeGroup");
-                          // console.log("🚀 ~ swipeGroup:", swipeGroup)
+
                           const activeObj = canvas?.getActiveObject();
 
                           if (activeObj?.customType === "swipeGroup") {

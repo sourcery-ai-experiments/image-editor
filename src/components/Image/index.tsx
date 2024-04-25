@@ -19,7 +19,7 @@ const ImageViewer = ({ images, clickHandler, children }: Props) => {
     speed: 500,
     slidesToShow: 2,
     slidesToScroll: 2,
-    initialSlide: 2,
+    initialSlide: 0,
     responsive: [
       {
         breakpoint: 1024,
@@ -35,7 +35,7 @@ const ImageViewer = ({ images, clickHandler, children }: Props) => {
         settings: {
           slidesToShow: 2,
           slidesToScroll: 2,
-          initialSlide: 2,
+          initialSlide: 1,
         },
       },
       {
@@ -49,6 +49,7 @@ const ImageViewer = ({ images, clickHandler, children }: Props) => {
   };
 
   const evenImages = images.filter((_, index) => index % 2 === 0);
+  // console.log('🚀 ~ ImageViewer ~ evenImages:', evenImages);
   const oddImages = images.filter((_, index) => index % 2 !== 0);
 
   return (

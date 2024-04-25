@@ -115,6 +115,7 @@ export const updateImageProperties = (
     imageObject.set({
       ...options,
     });
+    x;
     imageObject.filters = [imageObject.filters, options.filters];
     imageObject.applyFilters();
     return canvas.renderAll();
