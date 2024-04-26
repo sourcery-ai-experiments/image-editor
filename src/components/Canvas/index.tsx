@@ -673,144 +673,40 @@ const Canvas: React.FC<CanvasProps> = React.memo(
       }
 
       const activeBubble = canvas.getActiveObject();
-      // console.log("🚀 ~ activeObject.type === 'group':", activeBubble);
-      console.log("🚀 ~ activeBubble.customId':", activeBubble?.customId);
+
       var c_id = activeBubble?.customId;
 
-      const obj = {
-        left: activeBubble?.left,
-        top: activeBubble?.top,
-        scaleX: activeBubble?.scaleX,
-        scaleY: activeBubble?.scaleY,
-        angle: activeBubble?.angle,
-        flipX: activeBubble?.flipX,
-        flipY: activeBubble?.flipY,
-        opacity: activeBubble?.opacity,
-        selectable: activeBubble?.selectable,
-        hoverCursor: activeBubble?.hoverCursor,
-        customType: activeBubble?.customType,
-        zoomX: activeBubble?.customType,
-        zoomY: activeBubble?.customType,
-      };
+      // const obj = {
+      //   left: activeBubble?.left,
+      //   top: activeBubble?.top,
+      //   scaleX: activeBubble?.scaleX,
+      //   scaleY: activeBubble?.scaleY,
+      //   angle: activeBubble?.angle,
+      //   flipX: activeBubble?.flipX,
+      //   flipY: activeBubble?.flipY,
+      //   opacity: activeBubble?.opacity,
+      //   selectable: activeBubble?.selectable,
+      //   hoverCursor: activeBubble?.hoverCursor,
+      //   customType: activeBubble?.customType,
+      //   zoomX: activeBubble?.customType,
+      //   zoomY: activeBubble?.customType,
+      // };
+
       if (activeBubble && activeBubble.customType === "bubble") {
-        // deleteActiveSelection();
-        // var activeObject = canvas.getActiveObject();
+        const obj = {
+          left: Math.floor(activeBubble?.clipPath?.left),
+          top: Math.floor(activeBubble?.clipPath?.top),
+        };
+
         const getExistingObject = canvas
           ?.getObjects()
           ?.filter((obj: any) => obj.customId === c_id);
-        console.log("🚀 ~ getExistingObject:", getExistingObject);
 
         getExistingObject.forEach((obj) => {
           canvas.remove(obj);
         });
+        createBubbleElement(canvas!, imgUrl!, obj);
         canvas.renderAll();
-        //   if (activeBubble.customId === c_id) {
-        //     // Remove the activeBubble object from the canvas
-        //     canvas.remove(activeBubble);
-
-        //     // Render the canvas
-        //     canvas.renderAll();
-        // }
-
-        // console.log("Before")(clipPath as any).customType = "bubbleClipPath";
-        // var imageElement = document.createElement("img");
-        // imageElement.src = imgUrl;
-        // imageElement.crossOrigin = "anonymous";
-        // imageElement.onload = function () {
-        //   var fabricImage = new fabric.Image(imageElement);
-        //   (fabricImage as any).customType = "bubble";
-
-        //   fabricImage.clipPath = clipPath;
-
-        //   var circleCenter = strokeCircle.getCenterPoint();
-        //   const circleRadius = strokeCircle.radius!;
-        //   const scaleFactor = Math.max(
-        //     (circleRadius * 2) / fabricImage.width!,
-        //     (circleRadius * 2) / fabricImage.height!
-        //   );
-
-        //   const imgFitWidth = strokeCircle.width! + 50;
-        //   const imgFitHeight = strokeCircle.height! + 50;
-
-        //   scaleToFit(fabricImage, { width: imgFitWidth, height: imgFitHeight });
-
-        //   fabricImage
-        //     .set({
-        //       absolutePositioned: false,
-        //       perPixelTargetFind: true,
-        //       left:
-        //         circleCenter.x - (fabricImage.width! * scaleFactor) / 2 - 30,
-        //       top:
-        //         circleCenter.y - (fabricImage.height! * scaleFactor) / 2 - 30,
-        //     })
-        //     .setCoords();
-
-        //   (strokeCircle as any).customType = "bubbleStroke";
-        //   if (existingBubble) canvas?.remove(existingBubble);
-        //   if (existingBubbleStroke) canvas?.remove(existingBubbleStroke);
-        //   canvas.insertAt(strokeCircle, 4, false);
-        //   canvas.insertAt(fabricImage, 5, false);
-
-        //   strokeCircle.on("moving", function () {
-        //     var circleCenter = strokeCircle.getCenterPoint();
-        //     var imageCenter = fabricImage.getCenterPoint();
-
-        //     var offsetX = circleCenter.x - imageCenter.x;
-        //     var offsetY = circleCenter.y - imageCenter.y;
-
-        //     fabricImage
-        //       .set({
-        //         left: fabricImage.left! + offsetX,
-        //         top: fabricImage.top! + offsetY,
-        //       })
-        //       .setCoords();
-
-        //     clipPath
-        //       .set({
-        //         left: strokeCircle.left,
-        //         top: strokeCircle.top,
-        //       })
-        //       .setCoords();
-        //   });
-
-        //   strokeCircle.on("scaling", function () {
-        //     clipPath.scaleToWidth(strokeCircle.getScaledWidth());
-        //     clipPath.scaleToHeight(strokeCircle.getScaledHeight());
-        //     clipPath
-        //       .set({
-        //         left: strokeCircle.left,
-        //         top: strokeCircle.top,
-        //         scaleX: strokeCircle.scaleX,
-        //         scaleY: strokeCircle.scaleY,
-        //         radius: strokeCircle.radius!,
-        //       })
-        //       .setCoords();
-        //   });
-
-        //   canvas.renderAll();
-        // };
-        console.log("after");
-
-        // canvas.remove(activeBubble);
-        // fabric.Image.fromURL(imgUrl, function (img) {
-        //   img.set({
-        //     left: activeBubble.left,
-        //     top: activeBubble.top,
-        //     scaleX: activeBubble.scaleX,
-        //     scaleY: activeBubble.scaleY,
-        //     angle: activeBubble.angle,
-        //     flipX: activeBubble.flipX,
-        //     flipY: activeBubble.flipY,
-        //     opacity: activeBubble.opacity,
-        //     selectable: activeBubble.selectable,
-        //     hoverCursor: activeBubble.hoverCursor,
-        //     customType: activeBubble.customType,
-        //   });
-        //   img.clipPath = activeBubble.clipPath;
-        //   canvas.add(img);
-        //   canvas.setActiveObject(img);
-        //   canvas.renderAll();
-        // });
       }
 
       if (!activeBubble && isChecked) {
@@ -3001,12 +2897,12 @@ const Canvas: React.FC<CanvasProps> = React.memo(
               <div>
                 <h4 style={{ margin: "0px", padding: "0px" }}>From Article</h4>
 
-                <ImageViewer
+                {/* <ImageViewer
                   clickHandler={(img: string) => updateBubbleImage(img)}
                   images={initialData.bubbles}
-                />
+                /> */}
 
-                {/* <ImageViewer
+                <ImageViewer
                   clickHandler={(img: string) => {
                     const activeBubble = canvas?.getActiveObject();
 
@@ -3020,7 +2916,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                     updateBubbleImage(img);
                   }}
                   images={initialData.bubbles}
-                /> */}
+                />
 
                 {/* <h4 style={{ margin: '0px', padding: '0px' }}>AI Images</h4>
 								<ImageViewer
