@@ -673,8 +673,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
       }
 
       const activeBubble = canvas.getActiveObject();
-      console.log("🚀 ~ activeBubble:", activeBubble)
-      
+
       var c_id = activeBubble?.customId;
 
       // const obj = {
@@ -692,34 +691,22 @@ const Canvas: React.FC<CanvasProps> = React.memo(
       //   zoomX: activeBubble?.customType,
       //   zoomY: activeBubble?.customType,
       // };
-    
 
-
-       
       if (activeBubble && activeBubble.customType === "bubble") {
-
         const obj = {
           left: Math.floor(activeBubble?.clipPath?.left),
           top: Math.floor(activeBubble?.clipPath?.top),
         };
-      
-        console.log("🚀 ~ obj:", obj)
-        // deleteActiveSelection();
-        // var activeObject = canvas.getActiveObject();
+
         const getExistingObject = canvas
           ?.getObjects()
           ?.filter((obj: any) => obj.customId === c_id);
-        console.log("🚀 ~ getExistingObject:", getExistingObject);
 
         getExistingObject.forEach((obj) => {
           canvas.remove(obj);
         });
         createBubbleElement(canvas!, imgUrl!, obj);
         canvas.renderAll();
-       
-        console.log("after");
-
-       
       }
 
       if (!activeBubble && isChecked) {
