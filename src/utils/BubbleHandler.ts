@@ -5,22 +5,39 @@ import { scaleToFit } from "./ImageHandler";
 
 fabric.Object.prototype.noScaleCache = false;
 
+interface BubbleObject {
+  left: number;
+  top: number;
+}
 export const createBubbleElement = (
   canvas: fabric.Canvas,
-  imgUrl: string
+  imgUrl: string,
+  obj: BubbleObject
   // options?: fabric.ICircleOptions
 ) => {
   // const existingBubbleStroke = getExistingObject(
   // 	canvas,
   // 	'bubbleStroke'
   // ) as fabric.Circle;
+  console.log("get obj", obj)
+  
   const id: number = Math.floor(Math.random() * 100);
   const left = Math.floor(Math.random() * (450 - 100 + 1)) + 100; // Random left position between 100 and 450
-  const top = Math.floor(Math.random() * (500 - 100 + 1)) + 100;
+  const top = Math.floor(Math.random() * (450 - 100 + 1)) + 100;
+  const res = obj?.left ? obj.left : left
+  const res2 = obj?.top ? obj.top : top
+  console.log("🚀 ~ top:", top)
+  console.log("🚀 ~ left:", left)
+  console.log("🚀 ~ res left:", res)
+  console.log("🚀 ~ res top:", res2)
+
+
   var strokeCircle = new fabric.Circle({
     radius: 100,
-    left: left,
-    top: top,
+    left: obj?.left ? obj.left : left,
+    top: obj?.top? obj.top : top,
+    // left:280,
+    // top:280,
     originX: "center",
     originY: "center",
     fill: "transparent",
@@ -32,6 +49,7 @@ export const createBubbleElement = (
     // ...options,
   });
   (strokeCircle as any).customId = id;
+ 
 
   // const existingBubble = getExistingObject(canvas, 'bubble') as fabric.Circle;
   var clipPath = new fabric.Circle({
