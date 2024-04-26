@@ -11,8 +11,8 @@ export function createTextBox(
   canvas: fabric.Canvas | null,
   options: FabricTextBox
 ): fabric.Textbox | undefined {
+  console.log("Option name:", options?.name);
   if (!canvas) return;
-
   // const { userMetaData } = useCanvasContext();
   // console.log("🚀 ~ userMetaData:", userMetaData)
   const defaultOptions: ITextboxOptions = {
@@ -26,7 +26,8 @@ export function createTextBox(
     fill: "#000000",
     lineHeight: 1.16,
     strokeWidth: 1,
-    text: "Your text here",
+    text: `${options?.name}` || "Your text here",
+    // text: "Your text here",
     selection: true, // Enable text selection
     cursorWidth: 1, // Set cursor width to enable selecting individual words
   };

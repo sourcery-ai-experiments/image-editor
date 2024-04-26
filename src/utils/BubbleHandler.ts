@@ -14,6 +14,7 @@ export const createBubbleElement = (
   // 	canvas,
   // 	'bubbleStroke'
   // ) as fabric.Circle;
+  const id: number = Math.floor(Math.random() * 100);
   const left = Math.floor(Math.random() * (450 - 100 + 1)) + 100; // Random left position between 100 and 450
   const top = Math.floor(Math.random() * (500 - 100 + 1)) + 100;
   var strokeCircle = new fabric.Circle({
@@ -30,6 +31,7 @@ export const createBubbleElement = (
     // ...(existingBubbleStroke && { ...existingBubbleStroke }),
     // ...options,
   });
+  (strokeCircle as any).customId = id;
 
   // const existingBubble = getExistingObject(canvas, 'bubble') as fabric.Circle;
   var clipPath = new fabric.Circle({
@@ -49,6 +51,7 @@ export const createBubbleElement = (
   });
 
   (clipPath as any).customType = "bubbleClipPath";
+  (clipPath as any).customId = id;
   var imageElement = document.createElement("img");
   imageElement.src = imgUrl;
   imageElement.crossOrigin = "anonymous";
@@ -57,6 +60,7 @@ export const createBubbleElement = (
   imageElement.onload = function () {
     var fabricImage = new fabric.Image(imageElement);
     (fabricImage as any).customType = "bubble";
+    (fabricImage as any).customId = id;
 
     fabricImage.clipPath = clipPath;
 
@@ -82,6 +86,7 @@ export const createBubbleElement = (
       .setCoords();
 
     (strokeCircle as any).customType = "bubbleStroke";
+    (strokeCircle as any).customId = id;
     // if (existingBubble) canvas?.remove(existingBubble);
     // if (existingBubbleStroke) canvas?.remove(existingBubbleStroke);
     canvas.add(strokeCircle);
