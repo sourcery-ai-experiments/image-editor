@@ -1874,7 +1874,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
               </Paper>
             </div>
           )}
-          {(activeTab == "writePost" || activeTab === "element") &&
+          {(activeTab == "writePost" || activeTab === "element" || activeTab === "title") &&
             dropDown && (
               <div
                 style={{
@@ -3130,7 +3130,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                               mode: "tint",
                               alpha: 1,
                             });
-                          //---------------
+                         
                           const swipeGroup = getExistingObject("swipeGroup");
 
                           const activeObj = canvas?.getActiveObject();
@@ -3804,7 +3804,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
               <div>
                 <h2>Write post</h2>
                 {summaryContent && summaryContent.content && (
-                  <p
+                  <h5
                     onClick={() => {
                       const text = summaryContent.content;
 
@@ -3814,7 +3814,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                         fill: "#fff",
                         width: 303,
                         height: 39,
-                        top: 504,
+                        top: 350,
                         left: 34,
                         scaleX: 1.53,
                         scaleY: 1.53,
@@ -3826,15 +3826,23 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                       // canvas && canvas.add("text", summaryContent.content);
                       // canvas && canvas.renderAll();
                     }}
+                    style={{
+                      margin: "0px",
+                      marginBottom: "18px",
+                      cursor: "pointer",
+                      color: "#a19d9d",
+                      textAlign:"justify",
+                      lineHeight:1.5
+                    }}
                   >
                     {summaryContent?.content}
-                  </p>
+                  </h5>
                 )}
               </div>
             )}
           </div>
 
-          <div style={{ marginTop: "40%", position: "relative" }}>
+          <div style={{ marginTop: "45%", position: "relative" }}>
             {!templateSaved ? (
               <button
                 onClick={handleSaveTemplate}
