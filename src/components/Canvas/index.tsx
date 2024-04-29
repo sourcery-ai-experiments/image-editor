@@ -1562,6 +1562,156 @@ const Canvas: React.FC<CanvasProps> = React.memo(
           setSummaryContent(response?.data?.data?.response);
       })();
     }, []);
+
+    const [bubbleObjectState, setBubbleObjectState] = useState({});
+
+    const handleSelectionChanged = () => {
+      const activeObject = canvas?.getActiveObject();
+    };
+
+    let dndBackground = useRef(false);
+
+    const handleDrop = (e) => {
+      // e.preventDefault();
+    
+      const imageUrl = e.dataTransfer.getData("text/uri-list");
+      if (dndBackground?.current) {
+        updateBackgroundImage(imageUrl);
+        return;
+      }
+
+      const plainText = e.dataTransfer.getData("text/plain");
+      // if (!plainText || !imageUrl) return;
+
+      if (imageUrl) {
+        const imageUrl = e.dataTransfer.getData("text/plain");
+
+        const color = userMetaData?.company?.color || "#909AE9";
+
+        var filter = new fabric.Image.filters.BlendColor({
+          color,
+          mode: "tint",
+          alpha: 1,
+        });
+
+        const left = Math.random() * (450 - 100) + 100;
+        const top = Math.random() * (500 - 100) + 100;
+
+        fabric.Image.fromURL(
+          imageUrl,
+          function (img) {
+            img.set({ left: left, top: top }).scale(0.2);
+            // img.filters.push(filter);
+            // img.applyFilters();
+            canvas.add(img);
+            requestAnimationFrame(() => {
+              canvas.renderAll();
+            });
+          },
+          {
+            crossOrigin: "anonymous",
+          }
+        );
+      } else if (plainText) {
+        const text = plainText;
+
+        return createTextBox(canvas, {
+          text,
+          customType: "title",
+          fill: "#fff",
+          width: 303,
+          height: 39,
+          top: 504,
+          left: 34,
+          scaleX: 1.53,
+          scaleY: 1.53,
+          fontSize: 16,
+        });
+      } else {
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+          const file = files[0];
+          const isImage = file.type.startsWith("image/");
+          if (isImage) {
+            console.log("Image file dropped:", file);
+          } else {
+            console.log("Non-image file dropped:", file);
+          }
+        } else {
+          console.log("No plain text, image URL, or file dropped.");
+        }
+      }
+    };
+
+    // const handleDrop = (e) => {
+    //   e.preventDefault();
+    //   console.log("e", e);
+    //   const imageUrl = e.dataTransfer.getData("text/plain");
+
+    //   const color = userMetaData?.company?.color || "#909AE9";
+
+    //   var filter = new fabric.Image.filters.BlendColor({
+    //     color,
+    //     mode: "tint",
+    //     alpha: 1,
+    //   });
+
+    //   const left = Math.random() * (450 - 100) + 100;
+    //   const top = Math.random() * (500 - 100) + 100;
+
+    //   fabric.Image.fromURL(
+    //     imageUrl,
+    //     function (img) {
+    //       img.set({ left: left, top: top }).scale(0.2);
+    //       // img.filters.push(filter);
+    //       // img.applyFilters();
+    //       canvas.add(img);
+    //       requestAnimationFrame(() => {
+    //         canvas.renderAll();
+    //       });
+    //     },
+    //     {
+    //       crossOrigin: "anonymous",
+    //     }
+    //   );
+    // };
+
+    const handleDragOver = (e) => {
+      e.preventDefault();
+    };
+    const handleDragStart = (e, imageUrl, background) => {
+      // e.preventDefault();
+      if (background) {
+        dndBackground.current = true;
+        const dt = e.dataTransfer;
+        dt.setData("text/plain", imageUrl);
+      } else {
+        dndBackground.current = false;
+
+        const dt = e.dataTransfer;
+        dt.setData("text/plain", imageUrl);
+      }
+    };
+
+    useEffect(() => {
+      if (!canvas) return;
+      canvas?.on("selection:created", handleSelectionChanged);
+      canvas?.on("selection:updated", handleSelectionChanged);
+      canvas?.on("selection:cleared", handleSelectionChanged);
+
+      canvas?.wrapperEl?.addEventListener("drop", handleDrop);
+      canvas?.wrapperEl?.addEventListener("dragover", handleDragOver);
+
+      return () => {
+        canvas.off("selection:created", handleSelectionChanged);
+        canvas.off("selection:updated", handleSelectionChanged);
+        canvas.off("selection:cleared", handleSelectionChanged);
+        canvas?.wrapperEl?.removeEventListener("drop", handleDrop);
+        canvas?.wrapperEl?.removeEventListener("dragover", handleDragOver);
+      };
+    }, [canvas]);
+    // here come
+
     return (
       <div
         style={{
@@ -1745,7 +1895,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                       className={classes.slider}
                       aria-label="Overlay, Brightness, Contrast"
                       color="secondary"
-                      value={filterValues.overlay.opacity}
+                      value={filterValues.overlay.opacity ?? 0.6}
                       min={0}
                       onChange={(e: any) => {
                         // if (val !== 0) {
@@ -2777,6 +2927,11 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                 <ImageViewer
                   clickHandler={(img: string) => updateBackgroundImage(img)}
                   images={initialData.backgroundImages}
+                  onDragStart={(e, imageUrl) => {
+                    const background = true;
+                    handleDragStart(e, imageUrl, background);
+                  }}
+                  // onDragStart={(e, imageUrl) => console.log('e, imageURl', e, imageUrl)}
                 >
                   {template?.diptych === "vertical" ? (
                     <Box
@@ -2866,6 +3021,8 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                   {texts.map((text: string) => {
                     return (
                       <h5
+                        draggable
+                        onDragStart={(e) => handleDragStart(e, text)}
                         onClick={() => {
                           const existingObject = getExistingObject("title") as
                             | fabric.Textbox
@@ -3014,6 +3171,8 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                             }}
                           >
                             <img
+                              draggable={true}
+                              onDragStart={(e) => handleDragStart(e, swipeImg)}
                               src={swipeImg}
                               onClick={() =>
                                 swipeColorChangeHandler(id, swipeImg)
@@ -3201,6 +3360,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                             <img
                               src={imgShape}
                               onClick={() => borderColorChangeHandler(imgShape)}
+                              onDragStart={(e) => handleDragStart(e, imgShape)}
                               // onClick={() => {
                               // 	fabric.Image.fromURL(
                               // 		imgShape,
@@ -3306,6 +3466,9 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                           >
                             <img
                               src={dividerImg}
+                              onDragStart={(e) =>
+                                handleDragStart(e, dividerImg)
+                              }
                               onClick={() =>
                                 dividerColorChangeHandler(dividerImg)
                               }
@@ -3350,6 +3513,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                           <img
                             key={i}
                             src={border}
+                            onDragStart={(e) => handleDragStart(e, border)}
                             onClick={() => {
                               const imageObject = getExistingObject(
                                 "borders"
@@ -3455,6 +3619,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                           >
                             <img
                               src={spImg}
+                              onDragStart={(e) => handleDragStart(e, spImg)}
                               onClick={() => {
                                 const left = Math.random() * (400 - 100) + 100;
                                 const top = Math.random() * (800 - 400) + 100;
