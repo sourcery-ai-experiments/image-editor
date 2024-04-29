@@ -676,22 +676,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
       var c_id = activeBubble?.customId;
 
-      // const obj = {
-      //   left: activeBubble?.left,
-      //   top: activeBubble?.top,
-      //   scaleX: activeBubble?.scaleX,
-      //   scaleY: activeBubble?.scaleY,
-      //   angle: activeBubble?.angle,
-      //   flipX: activeBubble?.flipX,
-      //   flipY: activeBubble?.flipY,
-      //   opacity: activeBubble?.opacity,
-      //   selectable: activeBubble?.selectable,
-      //   hoverCursor: activeBubble?.hoverCursor,
-      //   customType: activeBubble?.customType,
-      //   zoomX: activeBubble?.customType,
-      //   zoomY: activeBubble?.customType,
-      // };
-
       if (activeBubble && activeBubble.customType === "bubble") {
         const obj = {
           left: Math.floor(activeBubble?.clipPath?.left),
@@ -703,7 +687,12 @@ const Canvas: React.FC<CanvasProps> = React.memo(
           ?.filter((obj: any) => obj.customId === c_id);
 
         getExistingObject.forEach((obj) => {
-          canvas.remove(obj);
+          if (
+            obj?.customType === "bubble" ||
+            obj?.customType === "bubbleStroke"
+          ) {
+            canvas.remove(obj);
+          }
         });
         createBubbleElement(canvas!, imgUrl!, obj);
         canvas.renderAll();
@@ -1874,7 +1863,9 @@ const Canvas: React.FC<CanvasProps> = React.memo(
               </Paper>
             </div>
           )}
-          {(activeTab == "writePost" || activeTab === "element" || activeTab === "title") &&
+          {(activeTab == "writePost" ||
+            activeTab === "element" ||
+            activeTab === "title") &&
             dropDown && (
               <div
                 style={{
@@ -2248,13 +2239,41 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                   )}
 
                   {show === "size" && (
-                    <Box my={2}>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          flexDirection: "column",
+                    <Box my={2} className={classes.sliderContainer}>
+                      <Slider
+                        className={classes.slider}
+                        aria-label="size"
+                        color="secondary"
+                        defaultValue={overlayTextFiltersState.fontSize}
+                        min={10}
+                        max={100}
+                        onChange={(e: any) => {
+                          const value = +e.target.value;
+                          updateTextBox(canvas, { fontSize: value });
+                          setOverlayTextFiltersState((prev) => ({
+                            ...prev,
+                            fontSize: value,
+                          }));
                         }}
-                      >
+                        step={1}
+                        valueLabelDisplay="auto"
+                      />
+                    </Box>
+                  )}
+
+                  {show === "charSpacing" && (
+                    <Box
+                      my={2}
+                      // className={classes.sliderContainer}
+                      sx={{
+                        display: "flex",
+                        justifyContent: "center",
+                        flexDirection: "column",
+
+                        width: "90%",
+                      }}
+                    >
+                      <Box>
                         <Typography
                           sx={{
                             fontWeight: 600,
@@ -2262,27 +2281,26 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                             textAlign: "center",
                           }}
                         >
-                          Font Size
+                          Spacing
                         </Typography>
                         <Slider
                           className={classes.slider}
                           aria-label="size"
                           color="secondary"
-                          defaultValue={overlayTextFiltersState.fontSize}
-                          min={10}
-                          max={100}
+                          value={overlayTextFiltersState.charSpacing}
+                          min={-200}
+                          max={800}
                           onChange={(e: any) => {
-                            const value = +e.target.value;
-                            updateTextBox(canvas, { fontSize: value });
+                            const charSpacing = +e.target.value;
+                            updateTextBox(canvas, { charSpacing });
                             setOverlayTextFiltersState((prev) => ({
                               ...prev,
-                              fontSize: value,
+                              charSpacing,
                             }));
                           }}
                           step={1}
                           valueLabelDisplay="auto"
                         />
-
                         <Typography
                           sx={{
                             fontWeight: 600,
@@ -2307,33 +2325,10 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                               lineHeight: value,
                             }));
                           }}
-                          step={1}
+                          step={0.5}
                           valueLabelDisplay="auto"
                         />
                       </Box>
-                    </Box>
-                  )}
-
-                  {show === "charSpacing" && (
-                    <Box my={2} className={classes.sliderContainer}>
-                      <Slider
-                        className={classes.slider}
-                        aria-label="size"
-                        color="secondary"
-                        value={overlayTextFiltersState.charSpacing}
-                        min={-200}
-                        max={800}
-                        onChange={(e: any) => {
-                          const charSpacing = +e.target.value;
-                          updateTextBox(canvas, { charSpacing });
-                          setOverlayTextFiltersState((prev) => ({
-                            ...prev,
-                            charSpacing,
-                          }));
-                        }}
-                        step={1}
-                        valueLabelDisplay="auto"
-                      />
                     </Box>
                   )}
                   {show === "font" && (
@@ -3130,7 +3125,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                               mode: "tint",
                               alpha: 1,
                             });
-                         
+
                           const swipeGroup = getExistingObject("swipeGroup");
 
                           const activeObj = canvas?.getActiveObject();
@@ -3831,8 +3826,8 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                       marginBottom: "18px",
                       cursor: "pointer",
                       color: "#a19d9d",
-                      textAlign:"justify",
-                      lineHeight:1.5
+                      textAlign: "justify",
+                      lineHeight: 1.5,
                     }}
                   >
                     {summaryContent?.content}
