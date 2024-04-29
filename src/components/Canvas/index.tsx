@@ -1564,7 +1564,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
     const handleDrop = (e) => {
       // e.preventDefault();
-      console.log("dndBackground", dndBackground?.current);
+    
       const imageUrl = e.dataTransfer.getData("text/uri-list");
       if (dndBackground?.current) {
         updateBackgroundImage(imageUrl);
@@ -1677,9 +1677,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
         const dt = e.dataTransfer;
         dt.setData("text/plain", imageUrl);
       } else {
-        console.log("before", dndBackground.current);
         dndBackground.current = false;
-        console.log("after", dndBackground.current);
 
         const dt = e.dataTransfer;
         dt.setData("text/plain", imageUrl);
