@@ -209,6 +209,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
         charSpacing: 1,
         lineHeight: 1,
       });
+    console.log("🚀 ~ overlayTextFiltersState:", overlayTextFiltersState);
 
     const [overlayTextFiltersState1, setOverlayTextFiltersState1] =
       useState<FilterState>({
@@ -225,7 +226,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
       },
       overlay: {
         imgUrl: template?.overlayImage,
-        opacity: template?.opacity,
+        opacity: template?.opacity || 0.6,
       },
       bubble: {
         image: "",
@@ -312,38 +313,65 @@ const Canvas: React.FC<CanvasProps> = React.memo(
     const handleSelectionUpdated = () => {
       const activeObject = canvasInstanceRef.current.getActiveObject();
       if (activeObject && activeObject.type === "textbox") {
-        const selectedText = window.getSelection().toString();
-        if (activeObject.text.includes(selectedText)) {
-          const startPos = activeObject.text.indexOf(selectedText);
-          const endPos = startPos + selectedText.length;
-          activeObject.setSelectionStyles(
-            { textBackgroundColor: backgroundColor },
-            startPos,
-            endPos
-          );
-          setBgColorApplied(true);
-          canvasInstanceRef.current.renderAll(); // Render only the canvas instance
-        }
+        activeObject.setSelectionStyles({
+          textBackgroundColor: backgroundColor,
+        });
+        canvasInstanceRef.current.renderAll();
+        setColorApplied(true);
       }
     };
 
     const removeBackgroundColor = () => {
       const activeObject = canvasInstanceRef.current.getActiveObject();
       if (activeObject && activeObject.type === "textbox") {
-        const selectedText = window.getSelection().toString();
-        if (activeObject.text.includes(selectedText)) {
-          const startPos = activeObject.text.indexOf(selectedText);
-          const endPos = startPos + selectedText.length;
-          activeObject.setSelectionStyles(
-            { textBackgroundColor: "transparent" },
-            startPos,
-            endPos
-          );
-          setBgColorApplied(true);
-          canvasInstanceRef.current.renderAll(); // Render only the canvas instance
-        }
+        activeObject.setSelectionStyles({ textBackgroundColor: "transparent" });
+        canvasInstanceRef.current.renderAll();
+        setColorApplied(true);
       }
     };
+
+    // const handleSelectionUpdated = () => {
+    //   const activeObject = canvasInstanceRef.current.getActiveObject();
+    //   if (activeObject && activeObject.type === "textbox") {
+    //     const selectedText = window.getSelection().toString();
+    //     if (activeObject.text.includes(selectedText)) {
+    //       const startPos = activeObject.text.indexOf(selectedText);
+    //       const endPos = startPos + selectedText.length ;
+    //       activeObject.setSelectionStyles(
+    //         { textBackgroundColor: backgroundColor },
+    //         startPos,
+    //         endPos
+    //       );
+    //       canvasInstanceRef.current.renderAll();
+    //       setBgColorApplied(true);
+    //     }
+    //   }
+    // };
+
+    // const removeBackgroundColor = () => {
+    //   const activeObject = canvasInstanceRef.current.getActiveObject();
+    //   if (activeObject && activeObject.type === "textbox") {
+    //     const selectedText = window.getSelection().toString();
+    //     if (activeObject.text.includes(selectedText)) {
+    //       const startPos = activeObject.text.indexOf(selectedText);
+    //       const endPos = startPos + selectedText.length;
+    //       activeObject.setSelectionStyles(
+    //         { textBackgroundColor: "transparent" },
+    //         startPos,
+    //         endPos
+    //       );
+    //       canvasInstanceRef.current.renderAll(); // Render only the canvas instance
+    //       setBgColorApplied(true);
+    //     }
+    //   }
+    // };
+
+    // const activeObject = canvasInstanceRef.current.getActiveObject();
+    //   if (activeObject && activeObject.type === "textbox") {
+    //     activeObject.setSelectionStyles({ backgroundColor: backgroundColor });
+    //     canvasInstanceRef.current.renderAll();
+    //     setColorApplied(true);
+    //   }
 
     // Define handleMouseDown function
     const handleMouseDown = (event) => {
@@ -362,15 +390,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
           );
           canvasInstanceRef.current.renderAll(); // Render only the selected object
         }
-      }
-    };
-
-    const applyBackgroundColor = () => {
-      const activeObject = canvasInstanceRef.current.getActiveObject();
-      if (activeObject && activeObject.type === "textbox") {
-        activeObject.setSelectionStyles({ backgroundColor: backgroundColor });
-        canvasInstanceRef.current.renderAll(); // Render only the canvas instance
-        setColorApplied(true);
       }
     };
 
@@ -1006,6 +1025,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
         console.log("Canvas not loaded yet");
         return;
       }
+
       const existingObject = getExistingObject("overlay");
 
       const canvasWidth: number | undefined = canvas.width;
@@ -1021,11 +1041,11 @@ const Canvas: React.FC<CanvasProps> = React.memo(
             onChange: canvas.renderAll.bind(canvas),
           }
         );
-        if (opacity === 0) {
-          setTimeout(() => {
-            canvas.remove(existingObject);
-          }, 100);
-        }
+        // if (opacity === 0) {
+        //   setTimeout(() => {
+        //     canvas.remove(existingObject);
+        //   }, 100);
+        // }
 
         return;
       } else {
@@ -1739,8 +1759,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                         }));
 
                         updateOverlayImage(filterValues.overlay.imgUrl, val);
-
-                        // }
                       }}
                       max={1}
                       step={0.02}
@@ -2246,7 +2264,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                         color="secondary"
                         defaultValue={overlayTextFiltersState.fontSize}
                         min={10}
-                        max={100}
+                        max={48}
                         onChange={(e: any) => {
                           const value = +e.target.value;
                           updateTextBox(canvas, { fontSize: value });
@@ -2878,6 +2896,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
                           marginBottom: "15px",
                           cursor: "pointer",
                           color: "#a19d9d",
+                          // border:"1px solid red"
                         }}
                       >
                         {text}
