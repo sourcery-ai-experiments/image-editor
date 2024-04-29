@@ -23,6 +23,7 @@ export function createTextBox(
     fontFamily: "Fira Sans",
     textAlign: "center",
     fontStyle: "normal",
+
     fill: "#000000",
     lineHeight: 1.16,
     strokeWidth: 1,
