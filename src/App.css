@@ -16,3 +16,7 @@ html {
   grid-row: 1 / span 10;
   grid-column: 1 / span 10;
 }
+/* Add this CSS to your global styles or a component-specific stylesheet */
+.slider-container {
+  user-select: auto !important; /* Override the user-select property */
+}

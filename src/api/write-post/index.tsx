@@ -24,7 +24,7 @@ export async function getSummary(scrapURL: string) {
   try {
     const response = await fetch(`${BaseURL}/api/get-summary`, requestOptions);
     const result = await response.json();
-    console.log(result);
+
     return result;
   } catch (error) {
     console.error(error);
