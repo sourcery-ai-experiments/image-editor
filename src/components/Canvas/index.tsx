@@ -209,7 +209,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
         charSpacing: 1,
         lineHeight: 1,
       });
-    console.log("🚀 ~ overlayTextFiltersState:", overlayTextFiltersState);
 
     const [overlayTextFiltersState1, setOverlayTextFiltersState1] =
       useState<FilterState>({
@@ -1034,6 +1033,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
       if (!canvasWidth || !canvasHeight) return;
 
       if (existingObject) {
+        existingObject.bringToFront();
         existingObject.animate(
           { opacity: opacity },
           {
@@ -1573,7 +1573,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
     const handleDrop = (e) => {
       // e.preventDefault();
-    
+
       const imageUrl = e.dataTransfer.getData("text/uri-list");
       if (dndBackground?.current) {
         updateBackgroundImage(imageUrl);
