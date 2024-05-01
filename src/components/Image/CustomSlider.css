@@ -1,88 +1,87 @@
 .custom-slider {
-    position: relative;
-    width: 100%;
-  }
-  
-  .prev-button-container,
-  .next-button-container {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-  }
-  
-  .prev-button {
-    background-color: transparent;
-    border: none;
-    outline: none;
-    cursor: pointer;
-    font-size: 1.5rem;
-    color: #fff;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-  }
-  
-  .next-button {
-    background-color: transparent;
-    border: none;
-    outline: none;
-    cursor: pointer;
-    font-size: 1.5rem;
-    color: #fff;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-  }
-  
-  .prev-button-container {
-    left: -50px;
-  }
-  
-  .next-button-container {
-    right: -50px;
-  }
-  
-  .slider-wrapper {
-    overflow: hidden;
-  }
-  
-  .slider {
-    display: flex;
-    transition: transform 0.5s ease;
-  }
-  
-  .slide {
-    flex: 0 0 150px;
-    width: 150px;
-    height: 150px;
-    margin-right: 20px;
-  }
-  
-  .slide img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 5px;
-  }
-  
-  .dots {
-    position: absolute;
-    bottom: -20px;
-    left: 50%;
-    transform: translateX(-50%);
-  }
-  
-  .dot {
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    background-color: #bbb;
-    border-radius: 50%;
-    margin: 0 5px;
-    cursor: pointer;
-  }
-  
-  .dot.active {
-    background-color: #333;
-  }
-  
+  position: relative;
+  width: 100%;
+}
+
+.prev-button-container,
+.next-button-container {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.prev-button {
+  background-color: transparent;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  font-size: 1.5rem;
+  color: #fff;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+}
+
+.next-button {
+  background-color: transparent;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  font-size: 1.5rem;
+  color: #fff;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+}
+
+.prev-button-container {
+  left: -50px;
+}
+
+.next-button-container {
+  right: -50px;
+}
+
+.slider-wrapper {
+  overflow: hidden;
+}
+
+.slider {
+  display: flex;
+  transition: transform 0.5s ease;
+}
+
+.slide {
+  flex: 0 0 150px;
+  width: 150px;
+  height: 150px;
+  margin-right: 20px;
+}
+
+.slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 5px;
+}
+
+.dots {
+  position: absolute;
+  bottom: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  background-color: #bbb;
+  border-radius: 50%;
+  margin: 0 5px;
+  cursor: pointer;
+}
+
+.dot.active {
+  background-color: #333;
+}
