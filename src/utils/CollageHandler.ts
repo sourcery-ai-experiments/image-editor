@@ -65,7 +65,8 @@ export const createVerticalCollage = (
 			clipPath: clipPath2,
 		});
 		img2.customType = 'bg-2';
-		canvas.insertAt(img2, 1, false);
+		canvas.insertAt(img2, 0, false);
+		// canvas.insertAt(img2, 1, false);
 		canvas.renderAll();
 	};
 
@@ -82,7 +83,6 @@ export const createVerticalCollage = (
 			stroke: 'none', // Set border color to red
 			strokeWidth: 0, //, // Adjust border width as needed
 			// visible: false, // Set border visibility to false
-			
 		},
 		1
 	) as fabric.Rect;
@@ -114,8 +114,6 @@ export const createHorizontalCollage = (
 		left: 0,
 		absolutePositioned: true,
 		evented: false,
-	
-
 	});
 	var clipPath2 = new fabric.Rect({
 		width: width / 2,
@@ -123,7 +121,6 @@ export const createHorizontalCollage = (
 		left,
 		absolutePositioned: true,
 		evented: false,
-		
 	});
 
 	var imageElement = document.createElement('img');
@@ -140,7 +137,6 @@ export const createHorizontalCollage = (
 			perPixelTargetFind: true,
 			originX: 'center',
 			clipPath: clipPath,
-			
 		});
 		img.customType = 'bg-1';
 		canvas.insertAt(img, 0, false);
@@ -162,11 +158,10 @@ export const createHorizontalCollage = (
 			originX: 'center',
 			left,
 			clipPath: clipPath2,
-		
-
 		});
 		img2.customType = 'bg-2';
-		canvas.insertAt(img2, 1, false);
+		canvas.insertAt(img2, 0, false);
+		// canvas.insertAt(img2, 1, false);
 		canvas.renderAll();
 	};
 
@@ -185,7 +180,6 @@ export const createHorizontalCollage = (
 			stroke: 'none', // Set border color to red
 			strokeWidth: 0, //, // Adjust border width as needed
 			// visible: false, // Set border visibility to false
-			
 		},
 		1
 	) as fabric.Rect;
@@ -249,7 +243,6 @@ export const updateVerticalCollageImage = (
 					centeredScaling: true,
 					top: activeObject.top,
 					perPixelTargetFind: true,
-					
 				});
 
 				img.filters = activeObject.filters || [];
