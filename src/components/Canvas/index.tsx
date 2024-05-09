@@ -123,6 +123,7 @@ import SwipeVerticalIcon from '@mui/icons-material/SwipeVertical';
 import SwipeRightIcon from '@mui/icons-material/SwipeRight';
 
 import { getSummary } from '../../api/write-post/index';
+import { textToImage } from '../../api/text-to-image/index';
 
 type TemplateJSON = any;
 interface PaginationStateItem {
@@ -1724,6 +1725,10 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 		}, [canvas]);
 		// here come
 
+		const [prompt, setPrompt] = useState('');
+		const [promptLoading, setPromptLoading] = useState(false);
+		const [generatedImage, setGeneratedImage] = useState('');
+
 		return (
 			<div
 				style={{
@@ -2927,104 +2932,122 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				<div>
 					<div style={{ width: '300px', height: '480px', padding: '10px' }}>
 						{activeTab == 'background' && (
-							<div>
-								<h4
+							<>
+								<div>
+									<h4
+										style={{
+											margin: '0px',
+											padding: '0px',
+										}}
+									>
+										From Article
+									</h4>
+
+									<ImageViewer
+										clickHandler={(img: string) => updateBackgroundImage(img)}
+										images={initialData.backgroundImages}
+										onDragStart={(e, imageUrl) => {
+											const background = true;
+											handleDragStart(e, imageUrl, background);
+										}}
+										// onDragStart={(e, imageUrl) => console.log('e, imageURl', e, imageUrl)}
+									>
+										{template?.diptych === 'vertical' ? (
+											<Box
+												sx={{
+													display: 'flex',
+													justifyContent: 'space-around',
+													py: 1,
+												}}
+											>
+												<div>Top Images</div>
+												<div>Bottom Images</div>
+											</Box>
+										) : template?.diptych === 'horizontal' ? (
+											<>
+												<Box
+													sx={{
+														display: 'flex',
+														justifyContent: 'space-around',
+														py: 1,
+													}}
+												>
+													<div>Left Images</div>
+													<div>Right Images</div>
+												</Box>
+											</>
+										) : null}
+									</ImageViewer>
+
+									<Box {...styles.uploadBox}>
+										<label style={styles.uploadLabel}>
+											<h4>IMAGE UPLOAD</h4>
+
+											<form method='post' encType='multipart/form-data'>
+												<input
+													type='file'
+													onChange={(event) =>
+														uploadImage(event, 'backgroundImages')
+													}
+													style={{ display: 'none' }}
+												/>
+											</form>
+											<IconButton color='primary' component='span'>
+												<CloudUploadIcon style={{ fontSize: '40px' }} />
+											</IconButton>
+										</label>
+									</Box>
+								</div>
+								<h4 style={{ margin: '0px', padding: '0px' }}>AI Images</h4>
+								<input
+									onChange={(e) => setPrompt(e.target.value)}
+									type='text'
+									placeholder='Prompt here'
 									style={{
-										margin: '0px',
-										padding: '0px',
+										paddingLeft: '5px',
+										width: '100%',
+										height: '30px',
+										marginTop: '20px',
+										border: 'none',
+										borderRadius: '4px',
 									}}
+								/>
+								<button
+									onClick={async () => {
+										setPromptLoading(true);
+										const response = await textToImage(prompt);
+										setGeneratedImage(response?.image_url);
+										setPromptLoading(false);
+									}}
+									style={{
+										marginTop: '10px',
+										width: '100%',
+										height: '42px',
+										borderRadius: '25px',
+										border: 'none',
+										backgroundColor: '#3b0e39',
+										color: 'white',
+										cursor: promptLoading ? 'wait' : 'pointer',
+									}}
+									disabled={promptLoading}
 								>
-									From Article
-								</h4>
-
-								<ImageViewer
-									clickHandler={(img: string) => updateBackgroundImage(img)}
-									images={initialData.backgroundImages}
-									onDragStart={(e, imageUrl) => {
+									Generate
+								</button>
+								<div
+									style={{ marginTop: '20px' }}
+									className='slide'
+									onClick={() => updateBackgroundImage(generatedImage)}
+									onDragStart={(e) => {
 										const background = true;
-										handleDragStart(e, imageUrl, background);
+										handleDragStart(e, generatedImage, background);
 									}}
-									// onDragStart={(e, imageUrl) => console.log('e, imageURl', e, imageUrl)}
+									draggable
 								>
-									{template?.diptych === 'vertical' ? (
-										<Box
-											sx={{
-												display: 'flex',
-												justifyContent: 'space-around',
-												py: 1,
-											}}
-										>
-											<div>Top Images</div>
-											<div>Bottom Images</div>
-										</Box>
-									) : template?.diptych === 'horizontal' ? (
-										<>
-											<Box
-												sx={{
-													display: 'flex',
-													justifyContent: 'space-around',
-													py: 1,
-												}}
-											>
-												<div>Left Images</div>
-												<div>Right Images</div>
-											</Box>
-										</>
-									) : null}
-								</ImageViewer>
-
-								{/* <h4 style={{ margin: '0px', padding: '0px' }}>AI Images</h4>  */}
-
-								{/* <ImageViewer
-									clickHandler={(img: string) => updateBackgroundImage(img)}
-									images={initialData.backgroundImages}
-								>
-									{template.diptych === 'vertical' ? (
-										<Box
-											sx={{
-												display: 'flex',
-												justifyContent: 'space-around',
-												py: 1,
-											}}
-										>
-											<div>Top Images</div>
-											<div>Bottom Images</div>
-										</Box>
-									) : template.diptych === 'horizontal' ? (
-										<>
-											<Box
-												sx={{
-													display: 'flex',
-													justifyContent: 'space-around',
-													py: 1,
-												}}
-											>
-												<div>Left Images</div>
-												<div>Right Images</div>
-											</Box>
-										</>
-									) : null}
-								</ImageViewer> */}
-
-								<Box {...styles.uploadBox}>
-									<label style={styles.uploadLabel}>
-										<h4>IMAGE UPLOAD</h4>
-
-										<form method='post' encType='multipart/form-data'>
-											<input
-												type='file'
-												onChange={(event) =>
-													uploadImage(event, 'backgroundImages')
-												}
-												style={{ display: 'none' }}
-											/>
-										</form>
-										<IconButton color='primary' component='span'>
-											<CloudUploadIcon style={{ fontSize: '40px' }} />
-										</IconButton>
-									</label>
-								</Box>
-							</div>
+									{generatedImage?.length > 0 && (
+										<img src={generatedImage} alt={`Slide`} />
+									)}
+								</div>
+							</>
 						)}
 
 						{activeTab == 'title' && (
