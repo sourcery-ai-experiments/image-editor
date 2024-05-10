@@ -3130,6 +3130,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 									clickHandler={(img: string) => updateBubbleImage(img)}
 									images={initialData.bubbles}
 								/> */}
+
 								<Box
 									sx={{
 										width: '100%',
@@ -3175,6 +3176,73 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 										</IconButton>
 									</label>
 								</Box>
+
+								<>
+									<h4
+										style={{
+											margin: '0px',
+											padding: '0px',
+
+											bottom: '10px',
+										}}
+									>
+										AI Images
+									</h4>
+									<input
+										onChange={(e) => setPrompt(e.target.value)}
+										type='text'
+										placeholder='Prompt here'
+										style={{
+											paddingLeft: '5px',
+											width: '100%',
+											height: '30px',
+											marginTop: '20px',
+											border: 'none',
+											borderRadius: '4px',
+										}}
+									/>
+									<button
+										onClick={async () => {
+											setPromptLoading(true);
+											const response = await textToImage(prompt);
+											setGeneratedImage(response?.image_url);
+											setPromptLoading(false);
+										}}
+										style={{
+											marginTop: '10px',
+											width: '100%',
+											height: '42px',
+											borderRadius: '25px',
+											border: 'none',
+											backgroundColor: '#3b0e39',
+											color: 'white',
+											cursor: promptLoading ? 'wait' : 'pointer',
+										}}
+										disabled={promptLoading}
+									>
+										Generate
+									</button>
+									<div
+										style={{ marginTop: '20px' }}
+										className='slide'
+										onClick={() => {
+											const activeBubble = canvas?.getActiveObject();
+
+											if (
+												isChecked &&
+												activeBubble?.customType === 'bubbleStroke'
+											) {
+												canvas.discardActiveObject();
+												canvas?.renderAll();
+											}
+											updateBubbleImage(generatedImage);
+										}}
+									>
+										{generatedImage?.length > 0 && (
+											<img src={generatedImage} alt={`Slide`} />
+										)}
+									</div>
+								</>
 							</div>
 						)}
 
@@ -4057,7 +4125,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 						)}
 					</div>
 
-					<div style={{ marginTop: '45%', position: 'relative' }}>
+					<div style={{ marginTop: '60%', position: 'relative' }}>
 						{!templateSaved ? (
 							<button
 								onClick={handleSaveTemplate}
