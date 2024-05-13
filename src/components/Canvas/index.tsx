@@ -1597,7 +1597,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				}
 				updateBubbleImage(imageUrl);
 				dndBubble.current = false;
-				return
+				return;
 			}
 			if (dndBackground?.current && !dndBubble.current) {
 				updateBackgroundImage(imageUrl);
@@ -3055,6 +3055,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 									onClick={generateTextToImageHanlder}
 									style={{
 										marginTop: '10px',
+										marginBottom: '10px',
 										width: '100%',
 										height: '42px',
 										borderRadius: '25px',
@@ -3264,6 +3265,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 										onClick={generateTextToImageHanlder}
 										style={{
 											marginTop: '10px',
+											marginBottom: '10px',
 											width: '100%',
 											height: '42px',
 											borderRadius: '25px',
@@ -3322,26 +3324,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 											</>
 										) : null}
 									</ImageViewer>
-									{/* <div
-										style={{ marginTop: '20px' }}
-										className='slide'
-										onClick={() => {
-											const activeBubble = canvas?.getActiveObject();
-
-											if (
-												isChecked &&
-												activeBubble?.customType === 'bubbleStroke'
-											) {
-												canvas.discardActiveObject();
-												canvas?.renderAll();
-											}
-											updateBubbleImage(generatedImage);
-										}}
-									>
-										{generatedImages?.length > 0 && (
-											<img src={generatedImage} alt={`Slide`} />
-										)}
-									</div> */}
 								</>
 							</div>
 						)}
