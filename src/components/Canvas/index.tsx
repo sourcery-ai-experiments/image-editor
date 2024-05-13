@@ -239,7 +239,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			},
 		});
 
-		console.log('filterValues.overlay.imgUrl', filterValues.overlay.imgUrl);
 		const availableFilters: { name: string; filter: fabric.IBaseFilter }[] = [
 			{
 				name: 'grayscale',
@@ -1583,20 +1582,33 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 		};
 
 		let dndBackground = useRef(false);
+		let dndBubble = useRef(false);
 
 		const handleDrop = (e) => {
 			// e.preventDefault();
 
 			const imageUrl = e.dataTransfer.getData('text/uri-list');
-			if (dndBackground?.current) {
+			if (dndBubble.current && !dndBackground.current) {
+				const activeBubble = canvas?.getActiveObject();
+
+				if (isChecked && activeBubble?.customType === 'bubbleStroke') {
+					canvas.discardActiveObject();
+					canvas?.renderAll();
+				}
+				updateBubbleImage(imageUrl);
+				dndBubble.current = false;
+				return
+			}
+			if (dndBackground?.current && !dndBubble.current) {
 				updateBackgroundImage(imageUrl);
+				dndBackground.current = false;
 				return;
 			}
 
 			const plainText = e.dataTransfer.getData('text/plain');
 			// if (!plainText || !imageUrl) return;
 
-			if (imageUrl) {
+			if (imageUrl && !dndBubble.current) {
 				const imageUrl = e.dataTransfer.getData('text/plain');
 
 				const color = userMetaData?.company?.color || '#909AE9';
@@ -1692,9 +1704,16 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 		const handleDragOver = (e) => {
 			e.preventDefault();
 		};
-		const handleDragStart = (e, imageUrl, background) => {
+		const handleDragStart = (e, imageUrl, background, bubble) => {
 			// e.preventDefault();
-			if (background) {
+
+			if (bubble) {
+				dndBubble.current = true;
+
+				const dt = e.dataTransfer;
+				dt.setData('text/plain', imageUrl);
+			}
+			if (background && !bubble) {
 				dndBackground.current = true;
 				const dt = e.dataTransfer;
 				dt.setData('text/plain', imageUrl);
@@ -1727,7 +1746,25 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
 		const [prompt, setPrompt] = useState('');
 		const [promptLoading, setPromptLoading] = useState(false);
-		const [generatedImage, setGeneratedImage] = useState('');
+		const [generatedImages, setGeneratedImages] = useState([]);
+
+		React.useEffect(() => {
+			if (updatedSeedData?.texts[0]) {
+				setPrompt(updatedSeedData.texts[0]);
+				generateTextToImageHanlder(updatedSeedData.texts[0]);
+			}
+		}, [updatedSeedData]);
+
+		const generateTextToImageHanlder = async (promptText) => {
+			setPromptLoading(true);
+
+			const response = await textToImage(
+				promptText?.length > 0 ? promptText : prompt
+			);
+			const newImageUrl = response?.image_url;
+			if (newImageUrl) setGeneratedImages((prev) => [...prev, newImageUrl]); // Append new image URL to the existing array
+			setPromptLoading(false);
+		};
 
 		return (
 			<div
@@ -2998,10 +3035,12 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 										</label>
 									</Box>
 								</div>
+								{/* bg prompt */}
 								<h4 style={{ margin: '0px', padding: '0px' }}>AI Images</h4>
 								<input
 									onChange={(e) => setPrompt(e.target.value)}
 									type='text'
+									value={prompt}
 									placeholder='Prompt here'
 									style={{
 										paddingLeft: '5px',
@@ -3013,12 +3052,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 									}}
 								/>
 								<button
-									onClick={async () => {
-										setPromptLoading(true);
-										const response = await textToImage(prompt);
-										setGeneratedImage(response?.image_url);
-										setPromptLoading(false);
-									}}
+									onClick={generateTextToImageHanlder}
 									style={{
 										marginTop: '10px',
 										width: '100%',
@@ -3033,20 +3067,43 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 								>
 									Generate
 								</button>
-								<div
-									style={{ marginTop: '20px' }}
-									className='slide'
-									onClick={() => updateBackgroundImage(generatedImage)}
-									onDragStart={(e) => {
-										const background = true;
-										handleDragStart(e, generatedImage, background);
-									}}
-									draggable
-								>
-									{generatedImage?.length > 0 && (
-										<img src={generatedImage} alt={`Slide`} />
-									)}
-								</div>
+								{generatedImages?.length > 0 && (
+									<ImageViewer
+										clickHandler={(img: string) => updateBackgroundImage(img)}
+										images={generatedImages}
+										onDragStart={(e, imageUrl) => {
+											const background = true;
+											handleDragStart(e, imageUrl, background);
+										}}
+										// onDragStart={(e, imageUrl) => console.log('e, imageURl', e, imageUrl)}
+									>
+										{template?.diptych === 'vertical' ? (
+											<Box
+												sx={{
+													display: 'flex',
+													justifyContent: 'space-around',
+													py: 1,
+												}}
+											>
+												<div>Top Images</div>
+												<div>Bottom Images</div>
+											</Box>
+										) : template?.diptych === 'horizontal' ? (
+											<>
+												<Box
+													sx={{
+														display: 'flex',
+														justifyContent: 'space-around',
+														py: 1,
+													}}
+												>
+													<div>Left Images</div>
+													<div>Right Images</div>
+												</Box>
+											</>
+										) : null}
+									</ImageViewer>
+								)}
 							</>
 						)}
 
@@ -3178,6 +3235,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 								</Box>
 
 								<>
+									{/* title prompt */}
 									<h4
 										style={{
 											margin: '0px',
@@ -3192,6 +3250,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 										onChange={(e) => setPrompt(e.target.value)}
 										type='text'
 										placeholder='Prompt here'
+										value={prompt}
 										style={{
 											paddingLeft: '5px',
 											width: '100%',
@@ -3202,12 +3261,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 										}}
 									/>
 									<button
-										onClick={async () => {
-											setPromptLoading(true);
-											const response = await textToImage(prompt);
-											setGeneratedImage(response?.image_url);
-											setPromptLoading(false);
-										}}
+										onClick={generateTextToImageHanlder}
 										style={{
 											marginTop: '10px',
 											width: '100%',
@@ -3222,7 +3276,53 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 									>
 										Generate
 									</button>
-									<div
+									<ImageViewer
+										clickHandler={(img: string) => {
+											const activeBubble = canvas?.getActiveObject();
+
+											if (
+												isChecked &&
+												activeBubble?.customType === 'bubbleStroke'
+											) {
+												canvas.discardActiveObject();
+												canvas?.renderAll();
+											}
+											updateBubbleImage(img);
+										}}
+										images={generatedImages}
+										onDragStart={(e, imageUrl) => {
+											const background = false;
+											const bubble = true;
+											handleDragStart(e, imageUrl, background, true);
+										}}
+									>
+										{template?.diptych === 'vertical' ? (
+											<Box
+												sx={{
+													display: 'flex',
+													justifyContent: 'space-around',
+													py: 1,
+												}}
+											>
+												<div>Top Images</div>
+												<div>Bottom Images</div>
+											</Box>
+										) : template?.diptych === 'horizontal' ? (
+											<>
+												<Box
+													sx={{
+														display: 'flex',
+														justifyContent: 'space-around',
+														py: 1,
+													}}
+												>
+													<div>Left Images</div>
+													<div>Right Images</div>
+												</Box>
+											</>
+										) : null}
+									</ImageViewer>
+									{/* <div
 										style={{ marginTop: '20px' }}
 										className='slide'
 										onClick={() => {
@@ -3238,10 +3338,10 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 											updateBubbleImage(generatedImage);
 										}}
 									>
-										{generatedImage?.length > 0 && (
+										{generatedImages?.length > 0 && (
 											<img src={generatedImage} alt={`Slide`} />
 										)}
-									</div>
+									</div> */}
 								</>
 							</div>
 						)}
