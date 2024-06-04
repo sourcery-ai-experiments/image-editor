@@ -7,7 +7,8 @@ export const AUTH0_AUDIENCE_ID = `${import.meta.env.VITE_AUTH0_AUDIENCE_ID}`;
 
 export const canvasDimension = {
 	width: 540,
-	height: 675,
+	height: 550,
+	// height: 675,
 };
 
 export const templateData: TemplateData = {

@@ -203,7 +203,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			useState<FilterState>({
 				overlay: 0.6,
 				text: updatedSeedData.texts[0],
-				fontSize: 16,
+				fontSize: 50,
 				color: '#fff',
 				fontFamily: 'Fira Sans',
 				fontWeight: 500,
@@ -278,6 +278,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			event: React.ChangeEvent<HTMLInputElement>
 		) => {
 			setIsChecked(event.target.checked);
+			deselectObj();
 		};
 
 		//--------------------
@@ -321,6 +322,62 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			}
 		};
 
+		// const handleSelectionUpdated = () => {
+		// 	const activeObject = canvasInstanceRef.current.getActiveObject();
+		// 	if (activeObject && activeObject.type === 'textbox') {
+		// 		const selectedText = window.getSelection().toString();
+
+		// 		if (activeObject.text.includes(selectedText)) {
+		// 			const startPos = activeObject.text.indexOf(selectedText);
+		// 			const endPos = startPos + selectedText.length;
+
+		// 			activeObject.setSelectionStyles(
+		// 				{ textBackgroundColor: backgroundColor },
+		// 				startPos,
+		// 				endPos
+		// 			);
+
+		// 			setBgColorApplied(true);
+		// 			canvasInstanceRef.current.renderAll();
+		// 		}
+		// 	}
+		// };
+
+		// const handleSelectionUpdated = () => {
+		// 	const activeObject = canvasInstanceRef.current.getActiveObject();
+		// 	if (activeObject && activeObject.type === 'textbox') {
+		// 		const selectedText = window.getSelection().toString();
+
+		// 		if (activeObject.text.includes(selectedText)) {
+		// 			const startPos = activeObject.text.indexOf(selectedText);
+		// 			const endPos = startPos + selectedText.length;
+
+		// 			// Define the new text to replace the selected text
+		// 			const newText = ' ' + `${selectedText}` + ' '; // Replace this with your desired new text
+
+		// 			// Replace the selected text with the new text
+		// 			const updatedText =
+		// 				activeObject.text.slice(0, startPos) +
+		// 				newText +
+		// 				activeObject.text.slice(endPos);
+		// 			activeObject.set('text', updatedText);
+
+		// 			// Clear existing styles
+		// 			activeObject.setSelectionStyles({}, 0, activeObject.text.length);
+
+		// 			// Apply background color to the new text
+		// 			activeObject.setSelectionStyles(
+		// 				{ textBackgroundColor: backgroundColor },
+		// 				startPos,
+		// 				startPos + newText.length
+		// 			);
+
+		// 			setBgColorApplied(true);
+		// 			canvasInstanceRef.current.renderAll();
+		// 		}
+		// 	}
+		// };
+
 		const removeBackgroundColor = () => {
 			const activeObject = canvasInstanceRef.current.getActiveObject();
 			if (activeObject && activeObject.type === 'textbox') {
@@ -329,24 +386,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				setColorApplied(true);
 			}
 		};
-
-		// const handleSelectionUpdated = () => {
-		//   const activeObject = canvasInstanceRef.current.getActiveObject();
-		//   if (activeObject && activeObject.type === "textbox") {
-		//     const selectedText = window.getSelection().toString();
-		//     if (activeObject.text.includes(selectedText)) {
-		//       const startPos = activeObject.text.indexOf(selectedText);
-		//       const endPos = startPos + selectedText.length ;
-		//       activeObject.setSelectionStyles(
-		//         { textBackgroundColor: backgroundColor },
-		//         startPos,
-		//         endPos
-		//       );
-		//       canvasInstanceRef.current.renderAll();
-		//       setBgColorApplied(true);
-		//     }
-		//   }
-		// };
 
 		// const removeBackgroundColor = () => {
 		//   const activeObject = canvasInstanceRef.current.getActiveObject();
@@ -654,7 +693,10 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				console.error('Canvas Not initialized');
 				return;
 			}
+
 			if (shadow) {
+				const activeBubble = canvas.getActiveObject();
+
 				const newOptions: fabric.ICircleOptions = {
 					shadow: {
 						color: shadow.color || 'rgba(0,0,0,0.5)',
@@ -663,8 +705,9 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 						blur: shadow.blur || 1,
 					},
 				};
-				updateBubbleElement(canvas, existingBubbleStroke, newOptions);
+				updateBubbleElement(canvas, activeBubble, newOptions);
 				canvas.renderAll();
+				return;
 			}
 
 			if (!isChecked) {
@@ -686,6 +729,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				};
 				requestAnimationFrame(() => {
 					createBubbleElement1(canvas!, imgUrl!, options);
+
 					canvas.renderAll();
 				});
 				return;
@@ -873,9 +917,17 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			ctx.clearRect(0, 0, currentCanvasWidth, currentCanvasHeight);
 		}
 
+		const [gridShow, setGridShow] = useState<boolean>(false);
+
 		const darw_Grid_btn = () => {
-			if (canvasEl.current) {
-				draw_grid(canvasEl, 15);
+			if (gridShow) {
+				setGridShow(false);
+				deselectObj();
+			} else {
+				setGridShow(true);
+				if (canvasEl.current) {
+					draw_grid(canvasEl, 15);
+				}
 			}
 		};
 
@@ -969,6 +1021,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 		//old code
 		const updateBackgroundImage = debounce((imageUrl: string) => {
 			if (!canvas) return;
+			deselectObj();
 
 			let activeObject: fabric.Object | undefined | null =
 				canvas.getActiveObject() || getExistingObject('bg-1');
@@ -1771,7 +1824,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				style={{
 					display: 'flex',
 					columnGap: '50px',
-					marginTop: 50,
+					marginTop: 20,
 					marginBottom: 50,
 					// border: '1px solid red',
 				}}
@@ -1814,7 +1867,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 							}}
 							onClick={() => flipImage('flipX')}
 						/>
-
 						<img
 							src='/icons/flipY.svg'
 							className={
@@ -1829,17 +1881,37 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 							}}
 							onClick={() => flipImage('flipY')}
 						/>
+
+						{
+							gridShow ? (
+								<GridOnIcon
+									color={
+										canvasToolbox.isDeselectDisabled ? 'disabled' : 'inherit'
+									}
+									aria-disabled={canvasToolbox.isDeselectDisabled}
+									onClick={darw_Grid_btn}
+									sx={{
+										cursor: 'pointer',
+										mx: 0.5,
+									}}
+								/>
+							) : (
+								<GridOffIcon
+									color={
+										canvasToolbox.isDeselectDisabled ? 'disabled' : 'inherit'
+									}
+									aria-disabled={canvasToolbox.isDeselectDisabled}
+									onClick={darw_Grid_btn}
+									sx={{
+										cursor: 'pointer',
+										mx: 0.5,
+									}}
+								/>
+							)
+
+							//GridOffIcon
+						}
 						{/* <GridOnIcon
-              color={isSelected ? "primary" : "disabled"}
-              // onClick={darw_Grid_btn}
-              onClick={toggleSelection}
-              sx={{
-                px: 1,
-                color: "white",
-                cursor: "pointer",
-              }}
-            /> */}
-						<GridOnIcon
 							color={canvasToolbox.isDeselectDisabled ? 'disabled' : 'inherit'}
 							aria-disabled={canvasToolbox.isDeselectDisabled}
 							onClick={darw_Grid_btn}
@@ -1847,8 +1919,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 								cursor: 'pointer',
 								mx: 0.5,
 							}}
-						/>
-
+						/> */}
 						{isSelected ? (
 							<SwipeVerticalIcon
 								color={
@@ -1875,19 +1946,24 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 						)}
 					</div>
 
-					<canvas width='1080' height='1350' ref={canvasEl} />
+					<canvas width='1080' height='500' ref={canvasEl} />
 
 					{/* Footer Panel  Start*/}
 					{activeTab == 'background' && dropDown && (
 						<div
 							style={{
 								width: '555px',
+								height: '90px',
 							}}
 						>
 							<Paper className={classes.root}>
 								<div
 									className={classes.optionsContainer}
-									style={{ display: 'flex', justifyContent: 'space-evenly' }}
+									style={{
+										display: 'flex',
+										justifyContent: 'space-evenly',
+										paddingTop: '4px',
+									}}
 								>
 									<Button
 										className={`${classes.button} ${
@@ -2093,7 +2169,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 							<div
 								style={{
 									width: '555px',
-									// border:"1px solid red"
 								}}
 							>
 								<Paper className={classes.root}>
@@ -2538,8 +2613,8 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 													aria-label='size'
 													color='secondary'
 													defaultValue={overlayTextFiltersState.lineHeight}
-													min={1}
-													max={100}
+													min={-25}
+													max={25}
 													onChange={(e: any) => {
 														const value = +e.target.value;
 														updateTextBox(canvas, { lineHeight: value });
@@ -2548,7 +2623,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 															lineHeight: value,
 														}));
 													}}
-													step={0.5}
+													step={0.1}
 													valueLabelDisplay='auto'
 												/>
 											</Box>
@@ -2823,7 +2898,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 							alignItems: 'center',
 							justifyContent: 'center',
 							borderRadius: 0,
-							width: '96%',
+							width: '537px',
 						}}
 						onClick={() => {
 							dropDown ? setDropDown(false) : setDropDown(true);
@@ -2834,8 +2909,11 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 					<div
 						style={{
 							display: 'flex',
-							marginTop: '16px',
+							// marginTop: '16px',
 							justifyContent: 'space-between',
+
+							height: '100px',
+							width: '535px',
 						}}
 					>
 						<button
@@ -2847,8 +2925,8 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 						>
 							<img
 								src='/Tab-Icons/background.png'
-								width='100'
-								height='100'
+								width='90'
+								height='90'
 								style={{
 									color: 'white',
 									fontSize: '30px',
@@ -2863,8 +2941,8 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 						>
 							<img
 								src='/Tab-Icons/Edit-Text.png'
-								width='100'
-								height='100'
+								width='90'
+								height='90'
 								style={{
 									color: 'white',
 									fontSize: '30px',
@@ -2879,8 +2957,8 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 						>
 							<img
 								src='/Tab-Icons/Add-Bubble.png'
-								width='100'
-								height='100'
+								width='90'
+								height='90'
 								style={{
 									color: 'white',
 									fontSize: '30px',
@@ -2895,8 +2973,8 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 						>
 							<img
 								src='/Tab-Icons/Add-Elements.png'
-								width='100'
-								height='100'
+								width='90'
+								height='90'
 								style={{
 									color: 'white',
 									fontSize: '30px',
@@ -2911,8 +2989,8 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 						>
 							<img
 								src='/Tab-Icons/Write-Post.png'
-								width='100'
-								height='100'
+								width='90'
+								height='90'
 								style={{
 									color: 'white',
 									fontSize: '30px',
@@ -3110,7 +3188,14 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
 						{activeTab == 'title' && (
 							<div>
-								<h4 style={{ margin: '0px', padding: '0px' }}>Titles</h4>
+								<h4
+									style={{
+										margin: '0px',
+										padding: '0px',
+									}}
+								>
+									Titles
+								</h4>
 								<div style={{ marginTop: '20px' }}>
 									{texts.map((text: string) => {
 										return (
@@ -3129,7 +3214,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 															fill: '#fff',
 															width: 303,
 															height: 39,
-															top: 504,
+															top: 400,
 															left: 34,
 															scaleX: 1.53,
 															scaleY: 1.53,
@@ -3137,6 +3222,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 														});
 
 													updateTextBox(canvas, { text });
+
 													setOverlayTextFiltersState((prev) => ({
 														...prev,
 														text,
@@ -3147,7 +3233,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 													marginBottom: '15px',
 													cursor: 'pointer',
 													color: '#a19d9d',
-													// border:"1px solid red"
 												}}
 											>
 												{text}
@@ -3158,6 +3243,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 							</div>
 						)}
 
+						{/* // --------------bubble ------------------- */}
 						{activeTab == 'bubble' && (
 							<div>
 								<h4 style={{ margin: '0px', padding: '0px' }}>From Article</h4>
@@ -3176,8 +3262,10 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 											activeBubble?.customType === 'bubbleStroke'
 										) {
 											canvas.discardActiveObject();
+											deselectObj();
 											canvas?.renderAll();
 										}
+
 										updateBubbleImage(img);
 									}}
 									images={initialData.bubbles}
