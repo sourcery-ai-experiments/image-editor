@@ -477,7 +477,7 @@ function MultiActionAreaCard({ feed, updateScrapURL }: any) {
                       color="primary"
                       onClick={async () => {
                         await updateScrapURL(item?.link);
-                        navigate("/");
+                        navigate("/?go=true");
                       }}
                     >
                       CREATE POST

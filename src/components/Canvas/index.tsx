@@ -6,7 +6,6 @@ import {
 	Box,
 	IconButton,
 	Stack,
-	Alert,
 	FormControlLabel,
 	Checkbox,
 } from '@mui/material';
@@ -21,9 +20,8 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { styles, useStyles } from './index.style';
 import ImageViewer from '../Image';
 import { IEvent, IRectOptions } from 'fabric/fabric-impl';
-import { canvasDimension, templateData } from '../../constants';
+import { BaseURL, canvasDimension, templateData } from '../../constants';
 import CustomColorPicker from '../colorPicker';
-import { Template } from '../../types';
 import DeselectIcon from '@mui/icons-material/Deselect';
 import JSZip from 'jszip';
 
@@ -34,13 +32,9 @@ import {
 	updateTextBox,
 } from '../../utils/TextHandler';
 import { updateRect } from '../../utils/RectHandler';
-import { saveImage, saveJSON, hexToRgbA } from '../../utils/ExportHandler';
+import { saveJSON, hexToRgbA } from '../../utils/ExportHandler';
 import DeleteIcon from '@mui/icons-material/Delete';
-import {
-	createImage,
-	createImageLogo,
-	updateImageSource,
-} from '../../utils/ImageHandler';
+import { createImage, updateImageSource } from '../../utils/ImageHandler';
 import { useCanvasContext } from '../../context/CanvasContext';
 import { usePaginationContext } from '../../context/MultiCanvasPaginationContext';
 
@@ -51,8 +45,7 @@ import {
 	updateHorizontalCollageImage,
 	updateVerticalCollageImage,
 } from '../../utils/CollageHandler';
-import { activeTabs } from '../../types/context';
-import FlipIcon from '@mui/icons-material/Flip';
+
 import {
 	createBubbleElement,
 	createBubbleElement1,
@@ -62,7 +55,7 @@ import { debounce } from 'lodash';
 
 import GridOnIcon from '@mui/icons-material/GridOn';
 import GridOffIcon from '@mui/icons-material/GridOff';
-import { ChromePicker } from 'react-color';
+
 import socialTag1 from '../../assets/socialTags/Verification-Tick-1.svg';
 import socialTag2 from '../../assets/socialTags/Verification-Tick-2.svg';
 import socialTag3 from '../../assets/socialTags/Verification-Tick-3.svg';
@@ -118,13 +111,11 @@ import dividers3 from '../../assets/dividers/Divider-3.svg';
 import dividers4 from '../../assets/dividers/Divider-4.svg';
 import dividers5 from '../../assets/dividers/Divider-5.svg';
 import dividers6 from '../../assets/dividers/Divider-6.svg';
-import tempJSON from './temp.json';
 
 import SwipeVerticalIcon from '@mui/icons-material/SwipeVertical';
 
 import SwipeRightIcon from '@mui/icons-material/SwipeRight';
 
-import { getSummary } from '../../api/write-post/index';
 import { textToImage } from '../../api/text-to-image/index';
 import toast from 'react-hot-toast';
 
@@ -156,7 +147,6 @@ interface FilterState {
 	charSpacing: number;
 }
 
-const toolbars = ['background', 'title', 'bubble', 'element', 'writePost'];
 const filter =
 	'brightness(0) saturate(100%) invert(80%) sepia(14%) saturate(1577%) hue-rotate(335deg) brightness(108%) contrast(88%)';
 
@@ -222,12 +212,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 		const { paginationState, selectedPage, setSelectedPage, addPage, update } =
 			usePaginationContext();
 
-		const {
-			userMetaData,
-			updateIsUserMetaExist,
-			updateUserMetaData,
-			scrapURL,
-		} = useCanvasContext();
+		const { userMetaData } = useCanvasContext();
 
 		const [canvasToolbox, setCanvasToolbox] = useState({
 			activeObject: null,
@@ -249,11 +234,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				fontWeight: 500,
 				charSpacing: 1,
 				lineHeight: 1,
-			});
-
-		const [overlayTextFiltersState1, setOverlayTextFiltersState1] =
-			useState<FilterState>({
-				color: '#909AE9',
 			});
 
 		const [filterValues, setFilterValues] = useState({
@@ -350,12 +330,12 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 		}, [canvasDimension, selectedPage, paginationState]);
 
 		const handleSelectionUpdated = () => {
-			const activeObject = canvasInstanceRef.current.getActiveObject();
+			const activeObject = canvasInstanceRef.current!.getActiveObject();
 			if (activeObject && activeObject.type === 'textbox') {
 				activeObject.setSelectionStyles({
 					textBackgroundColor: backgroundColor,
 				});
-				canvasInstanceRef.current.renderAll();
+				canvasInstanceRef.current!.renderAll();
 				setColorApplied(true);
 			}
 		};
@@ -366,26 +346,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				activeObject.setSelectionStyles({ textBackgroundColor: 'transparent' });
 				canvasInstanceRef.current.renderAll();
 				setColorApplied(true);
-			}
-		};
-
-		// Define handleMouseDown function
-		const handleMouseDown = (event) => {
-			const selectedObject = event.target;
-
-			if (selectedObject && selectedObject.type === 'textbox') {
-				const selectionStart = selectedObject.selectionStart;
-				const selectionEnd = selectedObject.selectionEnd;
-
-				if (selectionStart !== selectionEnd) {
-					selectedObject.setSelectionStyles(
-						{ fill: color },
-
-						selectionStart,
-						selectionEnd
-					);
-					canvasInstanceRef.current.renderAll(); // Render only the selected object
-				}
 			}
 		};
 
@@ -410,35 +370,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				// setColor('#FD3232');
 				// setColorApplied(false);
 				// canvas.discardActiveObject().renderAll();
-			}
-		};
-
-		const applyFontWeight = () => {
-			const activeObject = canvasInstanceRef.current.getActiveObject();
-			if (activeObject && activeObject.type === 'textbox') {
-				activeObject.setSelectionStyles({
-					fontWeight: fontWeightApplied ? '' : 'bold',
-				});
-				canvasInstanceRef.current.renderAll(); // Render only the selected object
-				setFontWeightApplied(!fontWeightApplied);
-			}
-		};
-
-		const applyFontSize = (size) => {
-			const activeObject = canvasInstanceRef.current.getActiveObject();
-			if (activeObject && activeObject.type === 'textbox') {
-				activeObject.setSelectionStyles({ fontSize: size });
-				canvasInstanceRef.current.renderAll(); // Render only the selected object
-				setFontSize(size);
-			}
-		};
-
-		const applyFontFamily = (family) => {
-			const activeObject = canvasInstanceRef.current.getActiveObject();
-			if (activeObject && activeObject.type === 'textbox') {
-				activeObject.setSelectionStyles({ fontFamily: family });
-				canvasInstanceRef.current.renderAll(); // Render only the selected object
-				setFontFamily(family);
 			}
 		};
 
@@ -563,9 +494,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				canvas?.off('selection:cleared', handleCanvasUpdate);
 			};
 		}, [loadCanvas]);
-
-		// Define an array to store references to created bubbles
-		const createdBubbles: fabric.Object[] = [];
 
 		const updateBubbleImageContrast = () => {
 			const activeObject = canvas?.getActiveObject();
@@ -907,12 +835,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				}
 			}
 		};
-
-		//-------------chose element color change
-		const [selectedColor, setSelectedColor] = useState(
-			userMetaData?.company?.color || '#ffffff'
-		);
-
 		//------------------------------------------------------------------------------------
 
 		//old code
@@ -1132,9 +1054,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				});
 			}
 		}, 100);
-
-		//---------------------Sharpen --------------------------
-		const [sharpenApplied, setSharpenApplied] = useState(false);
 
 		const shapeData = [
 			{ imgShape: shape1 },
@@ -1475,20 +1394,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			content: '',
 		});
 
-		useEffect(() => {
-			(async () => {
-				const response = await getSummary(scrapURL);
-
-				if (response?.success)
-					setSummaryContent(response?.data?.data?.response);
-			})();
-		}, []);
-
-		const [bubbleObjectState, setBubbleObjectState] = useState({});
-
-		const handleSelectionChanged = () => {
-			const activeObject = canvas?.getActiveObject();
-		};
+		const handleSelectionChanged = () => {};
 
 		let dndBackground = useRef(false);
 		let dndBubble = useRef(false);
@@ -1577,39 +1483,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			}
 		};
 
-		// const handleDrop = (e) => {
-		//   e.preventDefault();
-		//   console.log("e", e);
-		//   const imageUrl = e.dataTransfer.getData("text/plain");
-
-		//   const color = userMetaData?.company?.color || "#909AE9";
-
-		//   var filter = new fabric.Image.filters.BlendColor({
-		//     color,
-		//     mode: "tint",
-		//     alpha: 1,
-		//   });
-
-		//   const left = Math.random() * (450 - 100) + 100;
-		//   const top = Math.random() * (500 - 100) + 100;
-
-		//   fabric.Image.fromURL(
-		//     imageUrl,
-		//     function (img) {
-		//       img.set({ left: left, top: top }).scale(0.2);
-		//       // img.filters.push(filter);
-		//       // img.applyFilters();
-		//       canvas.add(img);
-		//       requestAnimationFrame(() => {
-		//         canvas.renderAll();
-		//       });
-		//     },
-		//     {
-		//       crossOrigin: "anonymous",
-		//     }
-		//   );
-		// };
-
 		const handleDragOver = (e) => {
 			e.preventDefault();
 		};
@@ -1660,7 +1533,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 		React.useEffect(() => {
 			if (updatedSeedData?.texts[0]) {
 				setPrompt(updatedSeedData.texts[0]);
-				generateTextToImageHanlder(updatedSeedData.texts[0]);
 			}
 		}, [updatedSeedData]);
 
@@ -1671,47 +1543,23 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				promptText?.length > 0 ? promptText : prompt
 			);
 			// const newImageUrl = response?.image_url;
-			const newImageUrl = `https://api-posticle.maxenius.com/${response?.image_url}`;
+			const newImageUrl = `${BaseURL}/${response?.image_url}`;
 
 			if (newImageUrl) setGeneratedImages((prev) => [...prev, newImageUrl]);
 			setPromptLoading(false);
 		};
 
 		// 	// Add event listeners
-		// const canvasRef = useRef(null);
-		// const handleClickOutside = () => {
-		// 	console.log('clicked outside');
-		// };
-
-		// useOnClickOutside(canvasRef, handleClickOutside);
-		const useCanvasClickOutside = (
-			ref: React.RefObject<HTMLCanvasElement>,
-			handler: (event: MouseEvent) => void
-		) => {
-			useEffect(() => {
-				const listener = (event: MouseEvent) => {
-					// Do nothing if clicking ref's element or descendant elements
-					if (!ref.current || ref.current === event.target) {
-						return;
-					}
-					handler(event);
-				};
-
-				document.addEventListener('mousedown', listener);
-				document.addEventListener('touchstart', listener);
-
-				return () => {
-					document.removeEventListener('mousedown', listener);
-					document.removeEventListener('touchstart', listener);
-				};
-			}, [ref, handler]);
+		const canvasRef = useRef(null);
+		const handleClickOutside = () => {
+			if (!canvas) {
+				return;
+			}
+			canvas.discardActiveObject();
+			canvas?.renderAll();
 		};
 
-		const handleClickOutside = (event: MouseEvent) => {
-			console.log('clicked outside');
-		};
-
-		useCanvasClickOutside(canvasEl, handleClickOutside);
+		useOnClickOutside(canvasRef, handleClickOutside);
 		return (
 			<div
 				style={{
@@ -1826,7 +1674,9 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 						)}
 					</div>
 
-					<canvas width='1080' height='500' ref={canvasEl} />
+					<div ref={canvasRef}>
+						<canvas width='1080' height='500' ref={canvasEl} />
+					</div>
 
 					{/* Footer Panel  Start*/}
 					{activeTab == 'background' && dropDown && (
