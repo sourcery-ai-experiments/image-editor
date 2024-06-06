@@ -118,6 +118,7 @@ import SwipeRightIcon from '@mui/icons-material/SwipeRight';
 
 import { textToImage } from '../../api/text-to-image/index';
 import toast from 'react-hot-toast';
+import SummaryForm from '../Tabs/WritePost/SummaryForm';
 
 type TemplateJSON = any;
 interface PaginationStateItem {
@@ -3690,10 +3691,9 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 																);
 															else
 																createTextBox(canvas, {
-																	// fill: overlayTextFiltersState.color,
 																	fill: userMetaData?.company?.color,
 																	customType: 'hashtag',
-																	name: userMetaData?.company?.name,
+																	name: `@${userMetaData?.company?.name}`,
 																});
 														}}
 														style={{
@@ -3844,7 +3844,8 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 						{activeTab == 'writePost' && (
 							<div>
 								<h2>Write post</h2>
-								{summaryContent && summaryContent.content && (
+
+								{summaryContent && summaryContent.content ? (
 									<h5
 										onClick={() => {
 											const text = summaryContent.content;
@@ -3878,6 +3879,8 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 									>
 										{summaryContent?.content}
 									</h5>
+								) : (
+									<SummaryForm setSummaryContent={setSummaryContent} />
 								)}
 							</div>
 						)}
@@ -3917,89 +3920,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 							</button>
 						)}
 					</div>
-					{/* <div style={{ marginTop: "40%", position: "relative" }}>
-            <button
-              onClick={async () => {
-                const currentTemplateJSON = await saveJSON(canvas, true);
-                update(selectedPage, { templateJSON: currentTemplateJSON });
-                loadCanvas(selectedPage);
-              }}
-              // onClick={() => saveImage(canvas)}
-              style={{
-                width: "100%",
-                height: "42px",
-                borderRadius: "25px",
-                border: "none",
-                backgroundColor: "#3b0e39",
-                color: "white",
-                marginBottom: "15px",
-              }}
-            >
-              Save All Templates
-            </button>
-
-            <button
-          
-              onClick={ async() => exportMultiCanvases()}
-              // onClick={() => saveImage(canvas)}
-
-              style={{
-                width: "100%",
-                height: "42px",
-                borderRadius: "25px",
-                border: "none",
-                backgroundColor: "#3b0e39",
-                color: "white",
-              }}
-            >
-              Export
-            </button>
-          </div> */}
-					{/* <div style={{ marginTop: '5%', position: 'relative' }}>
-							<button
-								onClick={() => saveJSON(canvas)}
-								style={{
-									width: '100%',
-									height: '42px',
-									borderRadius: '25px',
-									border: 'none',
-									backgroundColor: '#3b0e39',
-									color: 'white',
-									cursor: 'pointer',
-								}}
-							>
-								JSON
-							</button>
-						</div> */}
-					{/* {activeTab !== 'writePost' && (
-						<div
-							style={{
-								marginTop: '5%',
-								position: 'relative',
-								cursor: 'pointer',
-							}}
-						>
-							<button
-								onClick={() => {
-									const index = toolbars.findIndex((itm) => itm === activeTab);
-									if (index === -1) return;
-									const nextItem = toolbars[index + 1] as activeTabs;
-									if (nextItem) updateActiveTab(nextItem);
-								}}
-								style={{
-									width: '100%',
-									height: '42px',
-									borderRadius: '25px',
-									border: 'none',
-									backgroundColor: '#3b0e39',
-									color: 'white',
-									cursor: 'pointer',
-								}}
-							>
-								Next
-							</button>
-						</div>
-					)} */}
 				</div>
 			</div>
 		);
