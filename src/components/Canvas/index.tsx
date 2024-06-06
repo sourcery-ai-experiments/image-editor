@@ -182,24 +182,27 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				canvas.getObjects().forEach((obj) => {
 					if (
 						activeTab === 'background' &&
-						!background.includes(obj.customType)
+						!background.includes(obj?.customType)
 					) {
 						obj.selectable = false;
-					} else if (activeTab === 'title' && !title.includes(obj.customType)) {
+					} else if (
+						activeTab === 'title' &&
+						!title.includes(obj?.customType)
+					) {
 						obj.selectable = false;
 					} else if (
 						activeTab === 'bubble' &&
-						!bubble.includes(obj.customType)
+						!bubble.includes(obj?.customType)
 					) {
 						obj.selectable = false;
 					} else if (
 						activeTab === 'element' &&
-						!element.includes(obj.customType)
+						!element.includes(obj?.customType)
 					) {
 						obj.selectable = false;
 					} else if (
 						activeTab === 'writePost' &&
-						!writePost.includes(obj.customType)
+						!writePost.includes(obj?.customType)
 					) {
 						obj.selectable = false;
 					} else {
@@ -310,10 +313,8 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				preserveObjectStacking: true,
 				selection: true,
 			};
-
 			const canvas = new fabric.Canvas(canvasEl.current, options);
 			canvasInstanceRef.current = canvas;
-
 			updateCanvasContext(canvas);
 
 			// Attach the event listener with the separated function
@@ -1571,332 +1572,786 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				}}
 			>
 				<div>
-					<div
-						style={{
-							background:
-								'repeating-linear-gradient(transparent, transparent 10px, rgba(0, 0, 0, 0.1) 11px), repeating-linear-gradient(90deg, transparent, transparent 10px, rgba(0, 0, 0, 0.1) 11px);',
-						}}
-					>
-						<DeselectIcon
-							color={canvasToolbox.isDeselectDisabled ? 'disabled' : 'inherit'}
-							aria-disabled={canvasToolbox.isDeselectDisabled}
-							onClick={deselectObj}
-							sx={{
-								cursor: 'pointer',
-							}}
-						/>
-
-						<DeleteIcon
-							color={canvasToolbox.isDeselectDisabled ? 'disabled' : 'inherit'}
-							aria-disabled={canvasToolbox.isDeselectDisabled}
-							onClick={deleteActiveSelection}
-							sx={{
-								cursor: 'pointer',
-								mx: 0.5,
-							}}
-						/>
-						<img
-							src='/icons/flipX.svg'
-							className={
-								!canvasToolbox.isDeselectDisabled ? 'filter-white' : ''
-							}
-							style={{
-								width: 25,
-								height: 25,
-								margin: '0 0.3rem',
-								cursor: 'pointer',
-							}}
-							onClick={() => flipImage('flipX')}
-						/>
-						<img
-							src='/icons/flipY.svg'
-							className={
-								!canvasToolbox.isDeselectDisabled ? 'filter-white' : ''
-							}
-							style={{
-								width: 25,
-								height: 25,
-								cursor: 'pointer',
-								marginLeft: 1.5,
-								marginRight: 1.5,
-							}}
-							onClick={() => flipImage('flipY')}
-						/>
-
-						{gridShow ? (
-							<GridOnIcon
-								color={
-									canvasToolbox.isDeselectDisabled ? 'disabled' : 'inherit'
-								}
-								aria-disabled={canvasToolbox.isDeselectDisabled}
-								onClick={darw_Grid_btn}
-								sx={{
-									cursor: 'pointer',
-									mx: 0.5,
-								}}
-							/>
-						) : (
-							<GridOffIcon
-								color={
-									canvasToolbox.isDeselectDisabled ? 'disabled' : 'inherit'
-								}
-								aria-disabled={canvasToolbox.isDeselectDisabled}
-								onClick={darw_Grid_btn}
-								sx={{
-									cursor: 'pointer',
-									mx: 0.5,
-								}}
-							/>
-						)}
-
-						{isSelected ? (
-							<SwipeVerticalIcon
-								color={
-									canvasToolbox.isDeselectDisabled ? 'disabled' : 'inherit'
-								}
-								aria-disabled={canvasToolbox.isDeselectDisabled}
-								onClick={toggleSelection}
-								sx={{
-									cursor: 'pointer',
-									ml: 0.5,
-								}}
-							/>
-						) : (
-							<SwipeRightIcon
-								color={
-									canvasToolbox.isDeselectDisabled ? 'disabled' : 'inherit'
-								}
-								aria-disabled={canvasToolbox.isDeselectDisabled}
-								onClick={toggleSelection}
-								sx={{
-									cursor: 'pointer',
-								}}
-							/>
-						)}
-					</div>
-
 					<div ref={canvasRef}>
-						<canvas width='1080' height='500' ref={canvasEl} />
-					</div>
-
-					{/* Footer Panel  Start*/}
-					{activeTab == 'background' && dropDown && (
 						<div
 							style={{
-								width: '555px',
-								height: '90px',
+								background:
+									'repeating-linear-gradient(transparent, transparent 10px, rgba(0, 0, 0, 0.1) 11px), repeating-linear-gradient(90deg, transparent, transparent 10px, rgba(0, 0, 0, 0.1) 11px);',
 							}}
 						>
-							<Paper className={classes.root}>
-								<div
-									className={classes.optionsContainer}
-									style={{
-										display: 'flex',
-										justifyContent: 'space-evenly',
-										paddingTop: '4px',
-									}}
-								>
-									<Button
-										className={`${classes.button} ${
-											activeButton === 'Overlay' && classes.buttonActive
-										}`}
-										variant='text'
-										color='primary'
-										onClick={() => handleButtonClick('Overlay')}
-									>
-										Overlay
-									</Button>
-									<Button
-										className={`${classes.button} ${
-											activeButton === 'Brightness' && classes.buttonActive
-										}`}
-										variant='text'
-										color='primary'
-										onClick={() => handleButtonClick('Brightness')}
-									>
-										Brightness
-									</Button>
-									<Button
-										className={`${classes.button} ${
-											activeButton === 'Contrast' && classes.buttonActive
-										}`}
-										variant='text'
-										color='primary'
-										onClick={() => handleButtonClick('Contrast')}
-									>
-										Contrast
-									</Button>
-									<Button
-										className={`${classes.button} ${
-											activeButton === 'Filters' && classes.buttonActive
-										}`}
-										variant='text'
-										color='primary'
-										onClick={() => handleButtonClick('Filters')}
-									>
-										Filter
-									</Button>
+							<DeselectIcon
+								color={
+									canvasToolbox.isDeselectDisabled ? 'disabled' : 'inherit'
+								}
+								aria-disabled={canvasToolbox.isDeselectDisabled}
+								onClick={deselectObj}
+								sx={{
+									cursor: 'pointer',
+								}}
+							/>
 
-									{template?.diptych && !template?.backgroundImage ? (
+							<DeleteIcon
+								color={
+									canvasToolbox.isDeselectDisabled ? 'disabled' : 'inherit'
+								}
+								aria-disabled={canvasToolbox.isDeselectDisabled}
+								onClick={deleteActiveSelection}
+								sx={{
+									cursor: 'pointer',
+									mx: 0.5,
+								}}
+							/>
+							<img
+								src='/icons/flipX.svg'
+								className={
+									!canvasToolbox.isDeselectDisabled ? 'filter-white' : ''
+								}
+								style={{
+									width: 25,
+									height: 25,
+									margin: '0 0.3rem',
+									cursor: 'pointer',
+								}}
+								onClick={() => flipImage('flipX')}
+							/>
+							<img
+								src='/icons/flipY.svg'
+								className={
+									!canvasToolbox.isDeselectDisabled ? 'filter-white' : ''
+								}
+								style={{
+									width: 25,
+									height: 25,
+									cursor: 'pointer',
+									marginLeft: 1.5,
+									marginRight: 1.5,
+								}}
+								onClick={() => flipImage('flipY')}
+							/>
+
+							{gridShow ? (
+								<GridOnIcon
+									color={
+										canvasToolbox.isDeselectDisabled ? 'disabled' : 'inherit'
+									}
+									aria-disabled={canvasToolbox.isDeselectDisabled}
+									onClick={darw_Grid_btn}
+									sx={{
+										cursor: 'pointer',
+										mx: 0.5,
+									}}
+								/>
+							) : (
+								<GridOffIcon
+									color={
+										canvasToolbox.isDeselectDisabled ? 'disabled' : 'inherit'
+									}
+									aria-disabled={canvasToolbox.isDeselectDisabled}
+									onClick={darw_Grid_btn}
+									sx={{
+										cursor: 'pointer',
+										mx: 0.5,
+									}}
+								/>
+							)}
+
+							{isSelected ? (
+								<SwipeVerticalIcon
+									color={
+										canvasToolbox.isDeselectDisabled ? 'disabled' : 'inherit'
+									}
+									aria-disabled={canvasToolbox.isDeselectDisabled}
+									onClick={toggleSelection}
+									sx={{
+										cursor: 'pointer',
+										ml: 0.5,
+									}}
+								/>
+							) : (
+								<SwipeRightIcon
+									color={
+										canvasToolbox.isDeselectDisabled ? 'disabled' : 'inherit'
+									}
+									aria-disabled={canvasToolbox.isDeselectDisabled}
+									onClick={toggleSelection}
+									sx={{
+										cursor: 'pointer',
+									}}
+								/>
+							)}
+						</div>
+
+						<canvas width='1080' height='500' ref={canvasEl} />
+						{/* Footer Panel  Start*/}
+						{activeTab == 'background' && dropDown && (
+							<div
+								style={{
+									width: '555px',
+									height: '90px',
+								}}
+							>
+								<Paper className={classes.root}>
+									<div
+										className={classes.optionsContainer}
+										style={{
+											display: 'flex',
+											justifyContent: 'space-evenly',
+											paddingTop: '4px',
+										}}
+									>
 										<Button
 											className={`${classes.button} ${
-												activeButton === 'border' && classes.buttonActive
+												activeButton === 'Overlay' && classes.buttonActive
 											}`}
 											variant='text'
 											color='primary'
-											onClick={() => handleButtonClick('border')}
+											onClick={() => handleButtonClick('Overlay')}
 										>
-											Border
+											Overlay
 										</Button>
-									) : null}
-								</div>
-								{activeButton === 'Overlay' && (
-									<div className={classes.sliderContainer}>
-										<Slider
-											className={classes.slider}
-											aria-label='Overlay, Brightness, Contrast'
-											color='secondary'
-											value={filterValues.overlay.opacity ?? 0.6}
-											min={0}
-											onChange={(e: any) => {
-												// if (val !== 0) {
-												const val = +(+e.target.value).toFixed(2);
+										<Button
+											className={`${classes.button} ${
+												activeButton === 'Brightness' && classes.buttonActive
+											}`}
+											variant='text'
+											color='primary'
+											onClick={() => handleButtonClick('Brightness')}
+										>
+											Brightness
+										</Button>
+										<Button
+											className={`${classes.button} ${
+												activeButton === 'Contrast' && classes.buttonActive
+											}`}
+											variant='text'
+											color='primary'
+											onClick={() => handleButtonClick('Contrast')}
+										>
+											Contrast
+										</Button>
+										<Button
+											className={`${classes.button} ${
+												activeButton === 'Filters' && classes.buttonActive
+											}`}
+											variant='text'
+											color='primary'
+											onClick={() => handleButtonClick('Filters')}
+										>
+											Filter
+										</Button>
 
-												setFilterValues((prev) => ({
-													...prev,
-													overlay: {
-														...prev.overlay,
-														opacity: +e.target.value,
-													},
-												}));
-
-												updateOverlayImage(filterValues.overlay.imgUrl, val);
-											}}
-											max={1}
-											step={0.02}
-											valueLabelDisplay='auto'
-										/>
-									</div>
-								)}
-
-								{activeButton === 'Contrast' && (
-									<div className={classes.sliderContainer}>
-										<Slider
-											className={classes.slider}
-											aria-label='Overlay, Brightness, Contrast'
-											color='secondary'
-											defaultValue={0}
-											min={-1}
-											value={filtersRange.contrast}
-											max={1}
-											step={0.01}
-											valueLabelDisplay='auto'
-											//eslint-disable-next-line
-											onChange={(e: any) => {
-												let value = +e.target.value;
-												setFiltersRange({ ...filtersRange, contrast: value });
-												var filter = new fabric.Image.filters.Contrast({
-													contrast: value,
-												});
-												updateBackgroundFilters(filter, 'contrast');
-											}}
-										/>
-									</div>
-								)}
-								{activeButton === 'Brightness' && (
-									<div className={classes.sliderContainer}>
-										<Slider
-											className={classes.slider}
-											aria-label='Overlay, Brightness, Contrast'
-											color='secondary'
-											defaultValue={0}
-											min={-1}
-											max={1}
-											step={0.01}
-											value={filtersRange.brightness}
-											valueLabelDisplay='auto'
-											onChange={(e: any) => {
-												let value = +e.target.value;
-												setFiltersRange({ ...filtersRange, brightness: value });
-												var filter = new fabric.Image.filters.Brightness({
-													brightness: value,
-												});
-
-												updateBackgroundFilters(filter, 'brightness');
-											}}
-										/>
-									</div>
-								)}
-								{activeButton === 'Filters' && (
-									<div className={classes.sliderContainer}>
-										{availableFilters.map((filter) => (
+										{template?.diptych && !template?.backgroundImage ? (
 											<Button
-												key={filter.name}
 												className={`${classes.button} ${
-													selectedFilter === filter.name && classes.buttonActive
+													activeButton === 'border' && classes.buttonActive
 												}`}
 												variant='text'
 												color='primary'
-												onClick={() =>
-													updateBackgroundFilters(filter.filter, filter.name)
-												}
+												onClick={() => handleButtonClick('border')}
 											>
-												{filter.name}
+												Border
 											</Button>
-										))}
+										) : null}
 									</div>
-								)}
+									{activeButton === 'Overlay' && (
+										<div className={classes.sliderContainer}>
+											<Slider
+												className={classes.slider}
+												aria-label='Overlay, Brightness, Contrast'
+												color='secondary'
+												value={filterValues.overlay.opacity ?? 0.6}
+												min={0}
+												onChange={(e: any) => {
+													// if (val !== 0) {
+													const val = +(+e.target.value).toFixed(2);
 
-								{activeButton === 'border' && (
-									<Stack
-										width='inherit'
-										mx={10}
-										spacing={2}
-										direction='row'
-										sx={{ mb: 1 }}
-										alignItems='center'
-									>
-										<Box sx={{ display: 'flex', alignItems: 'center' }}>
-											<CustomColorPicker
-												value={overlayTextFiltersState.color}
-												changeHandler={(color: string) => {
-													updateRectangle({
-														...filterValues.collage,
-														stroke: color,
-													});
 													setFilterValues((prev) => ({
 														...prev,
-														collage: { ...prev.collage, stroke: color },
+														overlay: {
+															...prev.overlay,
+															opacity: +e.target.value,
+														},
 													}));
+
+													updateOverlayImage(filterValues.overlay.imgUrl, val);
+												}}
+												max={1}
+												step={0.02}
+												valueLabelDisplay='auto'
+											/>
+										</div>
+									)}
+
+									{activeButton === 'Contrast' && (
+										<div className={classes.sliderContainer}>
+											<Slider
+												className={classes.slider}
+												aria-label='Overlay, Brightness, Contrast'
+												color='secondary'
+												defaultValue={0}
+												min={-1}
+												value={filtersRange.contrast}
+												max={1}
+												step={0.01}
+												valueLabelDisplay='auto'
+												//eslint-disable-next-line
+												onChange={(e: any) => {
+													let value = +e.target.value;
+													setFiltersRange({ ...filtersRange, contrast: value });
+													var filter = new fabric.Image.filters.Contrast({
+														contrast: value,
+													});
+													updateBackgroundFilters(filter, 'contrast');
 												}}
 											/>
-										</Box>
-										<Slider
-											valueLabelDisplay='auto'
-											className={classes.slider}
-											min={0}
-											max={20}
-											aria-label='Volume'
-											// value={filterValues.collage.strokeWidth}
-											onChange={(_e: any, value) => {
-												// const value = +e.target.value;
-												setFilterValues((prev) => ({
-													...prev,
-													collage: { ...prev.collage, strokeWidth: value },
-												}));
+										</div>
+									)}
+									{activeButton === 'Brightness' && (
+										<div className={classes.sliderContainer}>
+											<Slider
+												className={classes.slider}
+												aria-label='Overlay, Brightness, Contrast'
+												color='secondary'
+												defaultValue={0}
+												min={-1}
+												max={1}
+												step={0.01}
+												value={filtersRange.brightness}
+												valueLabelDisplay='auto'
+												onChange={(e: any) => {
+													let value = +e.target.value;
+													setFiltersRange({
+														...filtersRange,
+														brightness: value,
+													});
+													var filter = new fabric.Image.filters.Brightness({
+														brightness: value,
+													});
 
-												debouncedUpdateRectangle(value);
+													updateBackgroundFilters(filter, 'brightness');
+												}}
+											/>
+										</div>
+									)}
+									{activeButton === 'Filters' && (
+										<div className={classes.sliderContainer}>
+											{availableFilters.map((filter) => (
+												<Button
+													key={filter.name}
+													className={`${classes.button} ${
+														selectedFilter === filter.name &&
+														classes.buttonActive
+													}`}
+													variant='text'
+													color='primary'
+													onClick={() =>
+														updateBackgroundFilters(filter.filter, filter.name)
+													}
+												>
+													{filter.name}
+												</Button>
+											))}
+										</div>
+									)}
+
+									{activeButton === 'border' && (
+										<Stack
+											width='inherit'
+											mx={10}
+											spacing={2}
+											direction='row'
+											sx={{ mb: 1 }}
+											alignItems='center'
+										>
+											<Box sx={{ display: 'flex', alignItems: 'center' }}>
+												<CustomColorPicker
+													value={overlayTextFiltersState.color}
+													changeHandler={(color: string) => {
+														updateRectangle({
+															...filterValues.collage,
+															stroke: color,
+														});
+														setFilterValues((prev) => ({
+															...prev,
+															collage: { ...prev.collage, stroke: color },
+														}));
+													}}
+												/>
+											</Box>
+											<Slider
+												valueLabelDisplay='auto'
+												className={classes.slider}
+												min={0}
+												max={20}
+												aria-label='Volume'
+												// value={filterValues.collage.strokeWidth}
+												onChange={(_e: any, value) => {
+													// const value = +e.target.value;
+													setFilterValues((prev) => ({
+														...prev,
+														collage: { ...prev.collage, strokeWidth: value },
+													}));
+
+													debouncedUpdateRectangle(value);
+												}}
+											/>
+										</Stack>
+									)}
+								</Paper>
+							</div>
+						)}
+						{(activeTab == 'writePost' ||
+							activeTab === 'element' ||
+							activeTab === 'title') &&
+							dropDown && (
+								<div
+									style={{
+										width: '555px',
+									}}
+								>
+									<Paper className={classes.root}>
+										<Box
+											className={classes.optionsContainer}
+											sx={{
+												display: 'flex',
+												justifyContent: 'space-evenly',
+												textTransform: 'capitalize',
+												width: '100%',
 											}}
-										/>
-									</Stack>
-								)}
-							</Paper>
-						</div>
-					)}
-					{(activeTab == 'writePost' ||
-						activeTab === 'element' ||
-						activeTab === 'title') &&
-						dropDown && (
+										>
+											<Typography
+												className={classes.heading}
+												onClick={() => setShow('font')}
+												sx={{
+													ml: 1,
+												}}
+											>
+												FONT
+											</Typography>
+											<Typography
+												className={classes.heading}
+												onClick={() => setShow('fontWeight')}
+											>
+												FONTWEIGHT
+											</Typography>
+											<Typography
+												className={classes.heading}
+												onClick={() => setShow('charSpacing')}
+											>
+												SPACING
+											</Typography>
+											<Typography
+												className={classes.heading}
+												onClick={() => setShow('colors')}
+											>
+												COLORS
+											</Typography>
+											<Typography
+												className={classes.heading}
+												onClick={() => setShow('size')}
+											>
+												SIZE
+											</Typography>
+											{activeTab === 'element' && (
+												<>
+													{/* <Typography
+													className={classes.heading}
+													onClick={() => setShow('opacity')}
+												>
+													OPACITY
+												</Typography> */}
+													<Typography
+														className={classes.heading}
+														onClick={() => setShow('element-shadow')}
+													>
+														SHADOW
+													</Typography>
+												</>
+											)}
+										</Box>
+
+										{show === 'colors' && (
+											<Box
+												className={classes.optionsContainer}
+												sx={{
+													display: 'flex',
+													alignItems: 'center',
+													justifyContent: 'center',
+												}}
+											>
+												<CustomColorPicker
+													value={overlayTextFiltersState.color}
+													changeHandler={(color: string) => {
+														updateTextBox(canvas, { fill: color });
+														setOverlayTextFiltersState((prev) => ({
+															...prev,
+															color,
+														}));
+													}}
+												/>
+												<Typography
+													sx={{
+														color: 'white',
+														px: 1,
+													}}
+												>
+													Text Color
+												</Typography>
+
+												<Box
+													sx={{
+														display: 'flex',
+														justifyContent: 'center',
+														alignItems: 'center',
+													}}
+												>
+													<CustomColorPicker
+														type='color'
+														value={color}
+														changeHandler={(color: string) => {
+															setColor(color);
+															applyColor();
+														}}
+													/>
+
+													<Button
+														onClick={applyColor}
+														sx={{
+															color: 'white',
+															textTransform: 'none',
+															backgroundColor: colorApplied ? 'gray' : '',
+															mx: 1,
+														}}
+													>
+														<Typography
+															sx={{
+																color: 'white',
+															}}
+														>
+															Text Highlight
+														</Typography>
+													</Button>
+													<Button
+														onClick={removeColor}
+														sx={{
+															textTransform: 'none',
+															minWidth: '10px',
+														}}
+													>
+														<DeleteIcon />
+													</Button>
+												</Box>
+												<CustomColorPicker
+													type='color'
+													value={backgroundColor}
+													changeHandler={(color: string) => {
+														setBackgroundColor(color);
+														handleSelectionUpdated();
+													}}
+												/>
+												<Button
+													onClick={handleSelectionUpdated}
+													sx={{
+														color: 'white',
+														textTransform: 'none',
+														backgroundColor: bgColorApplied ? 'gray' : '',
+														mx: 1,
+													}}
+												>
+													Bg Color
+												</Button>
+												<Button
+													onClick={removeBackgroundColor}
+													sx={{
+														// color: 'white',
+														textTransform: 'none',
+														minWidth: '10px',
+													}}
+												>
+													<DeleteIcon />
+												</Button>
+											</Box>
+										)}
+
+										{activeTab === 'element' && show === 'opacity' && (
+											<div className={classes.sliderContainer}>
+												<Slider
+													className={classes.slider}
+													aria-label='size'
+													color='secondary'
+													value={elementOpacity}
+													min={-1}
+													max={1}
+													onChange={(e: any) => {
+														const value = +e.target.value;
+														setElementOpacity(value);
+														updateElementOpacity();
+													}}
+													step={0.01}
+													valueLabelDisplay='auto'
+												/>
+											</div>
+										)}
+
+										{show === 'element-shadow' && (
+											<div>
+												{/* setHexConversionForElement */}
+
+												<Box className={classes.optionsContainer}>
+													<Typography id='opacity-slider' gutterBottom>
+														Color
+													</Typography>
+													<CustomColorPicker
+														value={
+															!hexConversionForElement
+																? overlayTextFiltersState.color
+																: 'rgba(0,0,0,1)'
+														}
+														changeHandler={(color: string) => {
+															const rgbaColorCode = hexToRgbA(color);
+															setHexConversionForElement(rgbaColorCode);
+															const splitHexConvertion =
+																rgbaColorCode?.split(',');
+															updateElementShadow(undefined, undefined, {
+																color: `${splitHexConvertion[0]},${splitHexConvertion[1]},${splitHexConvertion[2]},${elementShadowValues.opacity})`,
+																offsetX: elementShadowValues.distance,
+																offsetY: elementShadowValues.distance,
+																blur: elementShadowValues.opacity,
+															});
+														}}
+													/>
+												</Box>
+
+												<Typography id='opacity-slider' gutterBottom>
+													Opacity
+												</Typography>
+												<Slider
+													aria-labelledby='opacity-slider'
+													value={elementShadowValues?.opacity}
+													onChange={(event, newValue) => {
+														setElementShadowValues((prev) => ({
+															...prev,
+															opacity: newValue,
+														}));
+
+														const splitHexConvertion =
+															hexConversionForElement?.split(',');
+
+														updateElementShadow(undefined, undefined, {
+															color: hexConversionForElement
+																? `${splitHexConvertion[0]},${splitHexConvertion[1]},${splitHexConvertion[2]},${newValue})`
+																: `rgba(0,0,0,${newValue})`,
+															offsetX: elementShadowValues?.distance,
+															offsetY: elementShadowValues?.distance,
+															blur: elementShadowValues?.blur,
+														});
+													}}
+													valueLabelDisplay='auto'
+													step={0.1}
+													min={0}
+													max={1}
+												/>
+												<Typography id='distance-slider' gutterBottom>
+													Distance
+												</Typography>
+												<Slider
+													aria-labelledby='distance-slider'
+													value={elementShadowValues.distance}
+													onChange={(event, newValue) => {
+														setElementShadowValues((prev) => ({
+															...prev,
+															distance: newValue,
+														}));
+
+														const splitHexConvertion =
+															hexConversionForElement?.split(',');
+														updateElementShadow(undefined, undefined, {
+															color: hexConversionForElement
+																? `${splitHexConvertion[0]},${splitHexConvertion[1]},${splitHexConvertion[2]},${elementShadowValues.opacity})`
+																: `rgba(0,0,0,${elementShadowValues.opacity}})`,
+															offsetX: newValue,
+															offsetY: newValue,
+															blur: elementShadowValues.blur,
+														});
+													}}
+													valueLabelDisplay='auto'
+													step={1}
+													min={-50}
+													max={50}
+												/>
+												<Typography id='blur-slider' gutterBottom>
+													Blur
+												</Typography>
+												<Slider
+													aria-labelledby='blur-slider'
+													value={elementShadowValues?.blur}
+													onChange={(event, newValue) => {
+														setElementShadowValues((prev) => ({
+															...prev,
+															blur: newValue,
+														}));
+														const splitHexConvertion =
+															hexConversionForElement?.split(',');
+														updateElementShadow(undefined, undefined, {
+															color: hexConversionForElement
+																? `${splitHexConvertion[0]},${splitHexConvertion[1]},${splitHexConvertion[2]},${elementShadowValues.opacity})`
+																: `rgba(0,0,0,${elementShadowValues?.opacity}})`,
+															offsetX: elementShadowValues?.distance,
+															offsetY: elementShadowValues?.distance,
+															blur: newValue,
+														});
+													}}
+													valueLabelDisplay='auto'
+													step={1}
+													min={0}
+													max={20}
+												/>
+											</div>
+										)}
+										{show === 'elementShadow' && (
+											<div className={classes.sliderContainer}>
+												<Slider
+													className={classes.slider}
+													aria-label='size'
+													color='secondary'
+													value={elementOpacity}
+													min={-1}
+													max={1}
+													onChange={(e: any) => {
+														const value = +e.target.value;
+														setElementOpacity(value);
+														updateElementOpacity();
+													}}
+													step={0.01}
+													valueLabelDisplay='auto'
+												/>
+											</div>
+										)}
+
+										{show === 'fontWeight' && (
+											<Box my={2} className={classes.sliderContainer}>
+												<Slider
+													className={classes.slider}
+													aria-label='size'
+													color='secondary'
+													defaultValue={400}
+													value={overlayTextFiltersState.fontWeight}
+													min={100}
+													max={900}
+													onChange={(e: any) => {
+														const value = +e.target.value;
+														updateTextBox(canvas, { fontWeight: value });
+														setOverlayTextFiltersState((prev) => ({
+															...prev,
+															fontWeight: value,
+														}));
+													}}
+													step={100}
+													valueLabelDisplay='auto'
+												/>
+											</Box>
+										)}
+
+										{show === 'size' && (
+											<Box my={2} className={classes.sliderContainer}>
+												<Slider
+													className={classes.slider}
+													aria-label='size'
+													color='secondary'
+													defaultValue={overlayTextFiltersState.fontSize}
+													min={10}
+													max={48}
+													onChange={(e: any) => {
+														const value = +e.target.value;
+														updateTextBox(canvas, { fontSize: value });
+														setOverlayTextFiltersState((prev) => ({
+															...prev,
+															fontSize: value,
+														}));
+													}}
+													step={1}
+													valueLabelDisplay='auto'
+												/>
+											</Box>
+										)}
+
+										{show === 'charSpacing' && (
+											<Box
+												my={2}
+												// className={classes.sliderContainer}
+												sx={{
+													display: 'flex',
+													justifyContent: 'center',
+													flexDirection: 'column',
+
+													width: '90%',
+												}}
+											>
+												<Box>
+													<Typography
+														sx={{
+															fontWeight: 600,
+															fontSize: '16px',
+															textAlign: 'center',
+														}}
+													>
+														Spacing
+													</Typography>
+													<Slider
+														className={classes.slider}
+														aria-label='size'
+														color='secondary'
+														value={overlayTextFiltersState.charSpacing}
+														min={-200}
+														max={800}
+														onChange={(e: any) => {
+															const charSpacing = +e.target.value;
+															updateTextBox(canvas, { charSpacing });
+															setOverlayTextFiltersState((prev) => ({
+																...prev,
+																charSpacing,
+															}));
+														}}
+														step={1}
+														valueLabelDisplay='auto'
+													/>
+													<Typography
+														sx={{
+															fontWeight: 600,
+															fontSize: '16px',
+															textAlign: 'center',
+														}}
+													>
+														Line Height
+													</Typography>
+													<Slider
+														className={classes.slider}
+														aria-label='size'
+														color='secondary'
+														defaultValue={overlayTextFiltersState.lineHeight}
+														min={-25}
+														max={25}
+														onChange={(e: any) => {
+															const value = +e.target.value;
+															updateTextBox(canvas, { lineHeight: value });
+															setOverlayTextFiltersState((prev) => ({
+																...prev,
+																lineHeight: value,
+															}));
+														}}
+														step={0.1}
+														valueLabelDisplay='auto'
+													/>
+												</Box>
+											</Box>
+										)}
+										{show === 'font' && (
+											<FontsTab value={value} handleChange={handleChange} />
+										)}
+									</Paper>
+								</div>
+							)}
+						{activeTab == 'bubble' && dropDown && (
 							<div
 								style={{
 									width: '555px',
@@ -1907,32 +2362,10 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 										className={classes.optionsContainer}
 										sx={{
 											display: 'flex',
-											justifyContent: 'space-evenly',
-											textTransform: 'capitalize',
-											width: '100%',
+											justifyContent: 'space-around',
+											pb: 1.5,
 										}}
 									>
-										<Typography
-											className={classes.heading}
-											onClick={() => setShow('font')}
-											sx={{
-												ml: 1,
-											}}
-										>
-											FONT
-										</Typography>
-										<Typography
-											className={classes.heading}
-											onClick={() => setShow('fontWeight')}
-										>
-											FONTWEIGHT
-										</Typography>
-										<Typography
-											className={classes.heading}
-											onClick={() => setShow('charSpacing')}
-										>
-											SPACING
-										</Typography>
 										<Typography
 											className={classes.heading}
 											onClick={() => setShow('colors')}
@@ -1945,198 +2378,124 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 										>
 											SIZE
 										</Typography>
-										{activeTab === 'element' && (
-											<>
-												<Typography
-													className={classes.heading}
-													onClick={() => setShow('opacity')}
-												>
-													OPACITY
-												</Typography>
-												<Typography
-													className={classes.heading}
-													onClick={() => setShow('element-shadow')}
-												>
-													SHADOW
-												</Typography>
-											</>
-										)}
+
+										<Typography
+											className={classes.heading}
+											onClick={() => setShow('shadow')}
+										>
+											SHADOW
+										</Typography>
+										<Typography
+											className={classes.heading}
+											onClick={() => setShow('contrast')}
+											// onClick={() => handleButtonClick("Contrast")}
+										>
+											CONTRAST
+										</Typography>
+										<Typography
+											className={classes.heading}
+											onClick={() => setShow('brightness')}
+											// onClick={() => handleButtonClick("Contrast")}
+										>
+											BRIGHTNESS
+										</Typography>
 									</Box>
 
 									{show === 'colors' && (
-										<Box
-											className={classes.optionsContainer}
-											sx={{
-												display: 'flex',
-												alignItems: 'center',
-												justifyContent: 'center',
-											}}
-										>
+										<Box className={classes.optionsContainer}>
 											<CustomColorPicker
 												value={overlayTextFiltersState.color}
 												changeHandler={(color: string) => {
-													updateTextBox(canvas, { fill: color });
-													setOverlayTextFiltersState((prev) => ({
+													updateBubbleImage(undefined, {
+														stroke: color,
+														strokeWidth: filterValues.bubble.strokeWidth,
+													});
+													setFilterValues((prev) => ({
 														...prev,
-														color,
+														bubble: { ...prev.bubble, stroke: color },
 													}));
 												}}
 											/>
-											<Typography
-												sx={{
-													color: 'white',
-													px: 1,
-												}}
-											>
-												Text Color
-											</Typography>
-
-											<Box
-												sx={{
-													display: 'flex',
-													justifyContent: 'center',
-													alignItems: 'center',
-												}}
-											>
-												<CustomColorPicker
-													type='color'
-													value={color}
-													changeHandler={(color: string) => {
-														setColor(color);
-														applyColor();
-													}}
-												/>
-
-												<Button
-													onClick={applyColor}
-													sx={{
-														color: 'white',
-														textTransform: 'none',
-														backgroundColor: colorApplied ? 'gray' : '',
-														mx: 1,
-													}}
-												>
-													<Typography
-														sx={{
-															color: 'white',
-														}}
-													>
-														Text Highlight
-													</Typography>
-												</Button>
-												<Button
-													onClick={removeColor}
-													sx={{
-														textTransform: 'none',
-														minWidth: '10px',
-													}}
-												>
-													<DeleteIcon />
-												</Button>
-											</Box>
-											<CustomColorPicker
-												type='color'
-												value={backgroundColor}
-												changeHandler={(color: string) => {
-													setBackgroundColor(color);
-													handleSelectionUpdated();
-												}}
-											/>
-											<Button
-												onClick={handleSelectionUpdated}
-												sx={{
-													color: 'white',
-													textTransform: 'none',
-													backgroundColor: bgColorApplied ? 'gray' : '',
-													mx: 1,
-												}}
-											>
-												Bg Color
-											</Button>
-											<Button
-												onClick={removeBackgroundColor}
-												sx={{
-													// color: 'white',
-													textTransform: 'none',
-													minWidth: '10px',
-												}}
-											>
-												<DeleteIcon />
-											</Button>
 										</Box>
 									)}
 
-									{activeTab === 'element' && show === 'opacity' && (
+									{show === 'size' && (
 										<div className={classes.sliderContainer}>
 											<Slider
 												className={classes.slider}
 												aria-label='size'
 												color='secondary'
-												value={elementOpacity}
-												min={-1}
-												max={1}
+												value={filterValues.bubble.strokeWidth}
+												min={1}
+												max={40}
 												onChange={(e: any) => {
 													const value = +e.target.value;
-													setElementOpacity(value);
-													updateElementOpacity();
+													updateBubbleImage(undefined, {
+														stroke: filterValues.bubble.stroke,
+														strokeWidth: value,
+													});
+													setFilterValues((prev) => ({
+														...prev,
+														bubble: { ...prev.bubble, strokeWidth: value },
+													}));
 												}}
-												step={0.01}
+												step={1}
 												valueLabelDisplay='auto'
 											/>
 										</div>
 									)}
 
-									{show === 'element-shadow' && (
+									{show === 'shadow' && (
 										<div>
-											{/* setHexConversionForElement */}
+											<div className={classes.colorPicker}>
+												<Box className={classes.optionsContainer}>
+													<Typography id='opacity-slider' gutterBottom>
+														Color
+													</Typography>
+													<CustomColorPicker
+														value={
+															hexConvertion
+																? overlayTextFiltersState.color
+																: 'rgba(0,0,0,1)'
+														}
+														changeHandler={(color: string) => {
+															const rgbaColorCode = hexToRgbA(color);
+															setHexConversion(rgbaColorCode);
+															const splitHexConvertion =
+																rgbaColorCode?.split(',');
 
-											<Box className={classes.optionsContainer}>
-												<Typography id='opacity-slider' gutterBottom>
-													Color
-												</Typography>
-												<CustomColorPicker
-													value={
-														!hexConversionForElement
-															? overlayTextFiltersState.color
-															: 'rgba(0,0,0,1)'
-													}
-													changeHandler={(color: string) => {
-														const rgbaColorCode = hexToRgbA(color);
-														setHexConversionForElement(rgbaColorCode);
-														const splitHexConvertion =
-															rgbaColorCode?.split(',');
-														updateElementShadow(undefined, undefined, {
-															color: `${splitHexConvertion[0]},${splitHexConvertion[1]},${splitHexConvertion[2]},${elementShadowValues.opacity})`,
-															offsetX: elementShadowValues.distance,
-															offsetY: elementShadowValues.distance,
-															blur: elementShadowValues.opacity,
-														});
-													}}
-												/>
-											</Box>
+															updateBubbleImage(undefined, undefined, {
+																color: `${splitHexConvertion[0]},${splitHexConvertion[1]},${splitHexConvertion[2]},${shadowValues.opacity})`,
+																offsetX: shadowValues.distance,
+																offsetY: shadowValues.distance,
+																blur: shadowValues.opacity,
+															});
+														}}
+													/>
+												</Box>
+											</div>
 
 											<Typography id='opacity-slider' gutterBottom>
 												Opacity
 											</Typography>
 											<Slider
 												aria-labelledby='opacity-slider'
-												value={elementShadowValues?.opacity}
+												value={shadowValues.opacity}
 												onChange={(event, newValue) => {
-													setElementShadowValues((prev) => ({
+													setShadowValues((prev) => ({
 														...prev,
 														opacity: newValue,
 													}));
 
-													const splitHexConvertion =
-														hexConversionForElement?.split(',');
+													const splitHexConvertion = hexConvertion?.split(',');
 
-													updateElementShadow(undefined, undefined, {
-														color: hexConversionForElement
+													updateBubbleImage(undefined, undefined, {
+														color: hexConvertion
 															? `${splitHexConvertion[0]},${splitHexConvertion[1]},${splitHexConvertion[2]},${newValue})`
 															: `rgba(0,0,0,${newValue})`,
-														offsetX: elementShadowValues?.distance,
-														offsetY: elementShadowValues?.distance,
-														blur: elementShadowValues?.blur,
+														offsetX: shadowValues.distance,
+														offsetY: shadowValues.distance,
+														blur: shadowValues.blur,
 													});
 												}}
 												valueLabelDisplay='auto'
@@ -2144,27 +2503,26 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 												min={0}
 												max={1}
 											/>
+
 											<Typography id='distance-slider' gutterBottom>
 												Distance
 											</Typography>
 											<Slider
 												aria-labelledby='distance-slider'
-												value={elementShadowValues.distance}
+												value={shadowValues.distance}
 												onChange={(event, newValue) => {
-													setElementShadowValues((prev) => ({
+													setShadowValues((prev) => ({
 														...prev,
 														distance: newValue,
 													}));
-
-													const splitHexConvertion =
-														hexConversionForElement?.split(',');
-													updateElementShadow(undefined, undefined, {
-														color: hexConversionForElement
-															? `${splitHexConvertion[0]},${splitHexConvertion[1]},${splitHexConvertion[2]},${elementShadowValues.opacity})`
-															: `rgba(0,0,0,${elementShadowValues.opacity}})`,
+													const splitHexConvertion = hexConvertion?.split(',');
+													updateBubbleImage(undefined, undefined, {
+														color: hexConvertion
+															? `${splitHexConvertion[0]},${splitHexConvertion[1]},${splitHexConvertion[2]},${shadowValues.opacity})`
+															: `rgba(0,0,0,${shadowValues.opacity})`,
 														offsetX: newValue,
 														offsetY: newValue,
-														blur: elementShadowValues.blur,
+														blur: shadowValues.blur,
 													});
 												}}
 												valueLabelDisplay='auto'
@@ -2177,20 +2535,20 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 											</Typography>
 											<Slider
 												aria-labelledby='blur-slider'
-												value={elementShadowValues?.blur}
+												value={shadowValues.blur}
 												onChange={(event, newValue) => {
-													setElementShadowValues((prev) => ({
+													setShadowValues((prev) => ({
 														...prev,
 														blur: newValue,
 													}));
-													const splitHexConvertion =
-														hexConversionForElement?.split(',');
-													updateElementShadow(undefined, undefined, {
-														color: hexConversionForElement
-															? `${splitHexConvertion[0]},${splitHexConvertion[1]},${splitHexConvertion[2]},${elementShadowValues.opacity})`
-															: `rgba(0,0,0,${elementShadowValues?.opacity}})`,
-														offsetX: elementShadowValues?.distance,
-														offsetY: elementShadowValues?.distance,
+													const splitHexConvertion = hexConvertion?.split(',');
+
+													updateBubbleImage(undefined, undefined, {
+														color: hexConvertion
+															? `${splitHexConvertion[0]},${splitHexConvertion[1]},${splitHexConvertion[2]},${shadowValues.opacity})`
+															: `rgba(0,0,0,${shadowValues.opacity})`,
+														offsetX: shadowValues.distance,
+														offsetY: shadowValues.distance,
 														blur: newValue,
 													});
 												}}
@@ -2201,19 +2559,23 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 											/>
 										</div>
 									)}
-									{show === 'elementShadow' && (
+
+									{show === 'contrast' && (
 										<div className={classes.sliderContainer}>
 											<Slider
 												className={classes.slider}
 												aria-label='size'
 												color='secondary'
-												value={elementOpacity}
+												value={bubbleFilter.contrast}
 												min={-1}
 												max={1}
 												onChange={(e: any) => {
 													const value = +e.target.value;
-													setElementOpacity(value);
-													updateElementOpacity();
+													setBubbleFilter((prev) => ({
+														...prev,
+														contrast: value,
+													}));
+													updateBubbleImageContrast();
 												}}
 												step={0.01}
 												valueLabelDisplay='auto'
@@ -2221,513 +2583,160 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 										</div>
 									)}
 
-									{show === 'fontWeight' && (
-										<Box my={2} className={classes.sliderContainer}>
+									{show === 'brightness' && (
+										<div className={classes.sliderContainer}>
 											<Slider
 												className={classes.slider}
 												aria-label='size'
 												color='secondary'
-												defaultValue={400}
-												value={overlayTextFiltersState.fontWeight}
-												min={100}
-												max={900}
+												value={bubbleFilter.brightness}
+												min={-1}
+												max={1}
 												onChange={(e: any) => {
 													const value = +e.target.value;
-													updateTextBox(canvas, { fontWeight: value });
-													setOverlayTextFiltersState((prev) => ({
+													setBubbleFilter((prev) => ({
 														...prev,
-														fontWeight: value,
+														brightness: value,
 													}));
+													updateBubbleImageBrightness();
 												}}
-												step={100}
+												step={0.01}
 												valueLabelDisplay='auto'
 											/>
-										</Box>
-									)}
-
-									{show === 'size' && (
-										<Box my={2} className={classes.sliderContainer}>
-											<Slider
-												className={classes.slider}
-												aria-label='size'
-												color='secondary'
-												defaultValue={overlayTextFiltersState.fontSize}
-												min={10}
-												max={48}
-												onChange={(e: any) => {
-													const value = +e.target.value;
-													updateTextBox(canvas, { fontSize: value });
-													setOverlayTextFiltersState((prev) => ({
-														...prev,
-														fontSize: value,
-													}));
-												}}
-												step={1}
-												valueLabelDisplay='auto'
-											/>
-										</Box>
-									)}
-
-									{show === 'charSpacing' && (
-										<Box
-											my={2}
-											// className={classes.sliderContainer}
-											sx={{
-												display: 'flex',
-												justifyContent: 'center',
-												flexDirection: 'column',
-
-												width: '90%',
-											}}
-										>
-											<Box>
-												<Typography
-													sx={{
-														fontWeight: 600,
-														fontSize: '16px',
-														textAlign: 'center',
-													}}
-												>
-													Spacing
-												</Typography>
-												<Slider
-													className={classes.slider}
-													aria-label='size'
-													color='secondary'
-													value={overlayTextFiltersState.charSpacing}
-													min={-200}
-													max={800}
-													onChange={(e: any) => {
-														const charSpacing = +e.target.value;
-														updateTextBox(canvas, { charSpacing });
-														setOverlayTextFiltersState((prev) => ({
-															...prev,
-															charSpacing,
-														}));
-													}}
-													step={1}
-													valueLabelDisplay='auto'
-												/>
-												<Typography
-													sx={{
-														fontWeight: 600,
-														fontSize: '16px',
-														textAlign: 'center',
-													}}
-												>
-													Line Height
-												</Typography>
-												<Slider
-													className={classes.slider}
-													aria-label='size'
-													color='secondary'
-													defaultValue={overlayTextFiltersState.lineHeight}
-													min={-25}
-													max={25}
-													onChange={(e: any) => {
-														const value = +e.target.value;
-														updateTextBox(canvas, { lineHeight: value });
-														setOverlayTextFiltersState((prev) => ({
-															...prev,
-															lineHeight: value,
-														}));
-													}}
-													step={0.1}
-													valueLabelDisplay='auto'
-												/>
-											</Box>
-										</Box>
-									)}
-									{show === 'font' && (
-										<FontsTab value={value} handleChange={handleChange} />
+										</div>
 									)}
 								</Paper>
 							</div>
 						)}
-					{activeTab == 'bubble' && dropDown && (
+						<Paper
+							sx={{
+								display: 'flex',
+								alignItems: 'center',
+								justifyContent: 'center',
+								borderRadius: 0,
+								width: '537px',
+							}}
+							onClick={() => {
+								dropDown ? setDropDown(false) : setDropDown(true);
+							}}
+						>
+							{dropDown ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
+						</Paper>
 						<div
 							style={{
-								width: '555px',
+								display: 'flex',
+								// marginTop: '16px',
+								justifyContent: 'space-between',
+
+								height: '100px',
+								width: '535px',
 							}}
 						>
-							<Paper className={classes.root}>
-								<Box
-									className={classes.optionsContainer}
-									sx={{
-										display: 'flex',
-										justifyContent: 'space-around',
-										pb: 1.5,
+							<button
+								style={{
+									backgroundColor: 'transparent',
+									border: 'none',
+								}}
+								// onClick={() => updateActiveTab('background')}
+								onClick={() => {
+									updateActiveTab('background');
+									deselectObj();
+								}}
+							>
+								<img
+									src='/Tab-Icons/background.png'
+									width='90'
+									height='90'
+									style={{
+										color: 'white',
+										fontSize: '30px',
+										filter: activeTab === 'background' ? filter : undefined,
 									}}
-								>
-									<Typography
-										className={classes.heading}
-										onClick={() => setShow('colors')}
-									>
-										COLORS
-									</Typography>
-									<Typography
-										className={classes.heading}
-										onClick={() => setShow('size')}
-									>
-										SIZE
-									</Typography>
+								/>
+							</button>
 
-									<Typography
-										className={classes.heading}
-										onClick={() => setShow('shadow')}
-									>
-										SHADOW
-									</Typography>
-									<Typography
-										className={classes.heading}
-										onClick={() => setShow('contrast')}
-										// onClick={() => handleButtonClick("Contrast")}
-									>
-										CONTRAST
-									</Typography>
-									<Typography
-										className={classes.heading}
-										onClick={() => setShow('brightness')}
-										// onClick={() => handleButtonClick("Contrast")}
-									>
-										BRIGHTNESS
-									</Typography>
-								</Box>
+							<button
+								style={{ backgroundColor: 'transparent', border: 'none' }}
+								// onClick={() => updateActiveTab('title')}
+								onClick={() => {
+									updateActiveTab('title');
+									deselectObj();
+								}}
+							>
+								<img
+									src='/Tab-Icons/Edit-Text.png'
+									width='90'
+									height='90'
+									style={{
+										color: 'white',
+										fontSize: '30px',
+										filter: activeTab === 'title' ? filter : undefined,
+									}}
+								/>
+							</button>
 
-								{show === 'colors' && (
-									<Box className={classes.optionsContainer}>
-										<CustomColorPicker
-											value={overlayTextFiltersState.color}
-											changeHandler={(color: string) => {
-												updateBubbleImage(undefined, {
-													stroke: color,
-													strokeWidth: filterValues.bubble.strokeWidth,
-												});
-												setFilterValues((prev) => ({
-													...prev,
-													bubble: { ...prev.bubble, stroke: color },
-												}));
-											}}
-										/>
-									</Box>
-								)}
+							<button
+								// onClick={() => updateActiveTab('bubble')}
+								onClick={() => {
+									updateActiveTab('bubble');
+									deselectObj();
+								}}
+								style={{ backgroundColor: 'transparent', border: 'none' }}
+							>
+								<img
+									src='/Tab-Icons/Add-Bubble.png'
+									width='90'
+									height='90'
+									style={{
+										color: 'white',
+										fontSize: '30px',
+										filter: activeTab === 'bubble' ? filter : undefined,
+									}}
+								/>
+							</button>
 
-								{show === 'size' && (
-									<div className={classes.sliderContainer}>
-										<Slider
-											className={classes.slider}
-											aria-label='size'
-											color='secondary'
-											value={filterValues.bubble.strokeWidth}
-											min={1}
-											max={40}
-											onChange={(e: any) => {
-												const value = +e.target.value;
-												updateBubbleImage(undefined, {
-													stroke: filterValues.bubble.stroke,
-													strokeWidth: value,
-												});
-												setFilterValues((prev) => ({
-													...prev,
-													bubble: { ...prev.bubble, strokeWidth: value },
-												}));
-											}}
-											step={1}
-											valueLabelDisplay='auto'
-										/>
-									</div>
-								)}
+							<button
+								// onClick={() => updateActiveTab('element')}
+								onClick={() => {
+									updateActiveTab('element');
+									deselectObj();
+								}}
+								style={{ backgroundColor: 'transparent', border: 'none' }}
+							>
+								<img
+									src='/Tab-Icons/Add-Elements.png'
+									width='90'
+									height='90'
+									style={{
+										color: 'white',
+										fontSize: '30px',
+										filter: activeTab === 'element' ? filter : undefined,
+									}}
+								/>
+							</button>
 
-								{show === 'shadow' && (
-									<div>
-										<div className={classes.colorPicker}>
-											<Box className={classes.optionsContainer}>
-												<Typography id='opacity-slider' gutterBottom>
-													Color
-												</Typography>
-												<CustomColorPicker
-													value={
-														hexConvertion
-															? overlayTextFiltersState.color
-															: 'rgba(0,0,0,1)'
-													}
-													changeHandler={(color: string) => {
-														const rgbaColorCode = hexToRgbA(color);
-														setHexConversion(rgbaColorCode);
-														const splitHexConvertion =
-															rgbaColorCode?.split(',');
-
-														updateBubbleImage(undefined, undefined, {
-															color: `${splitHexConvertion[0]},${splitHexConvertion[1]},${splitHexConvertion[2]},${shadowValues.opacity})`,
-															offsetX: shadowValues.distance,
-															offsetY: shadowValues.distance,
-															blur: shadowValues.opacity,
-														});
-													}}
-												/>
-											</Box>
-										</div>
-
-										<Typography id='opacity-slider' gutterBottom>
-											Opacity
-										</Typography>
-										<Slider
-											aria-labelledby='opacity-slider'
-											value={shadowValues.opacity}
-											onChange={(event, newValue) => {
-												setShadowValues((prev) => ({
-													...prev,
-													opacity: newValue,
-												}));
-
-												const splitHexConvertion = hexConvertion?.split(',');
-
-												updateBubbleImage(undefined, undefined, {
-													color: hexConvertion
-														? `${splitHexConvertion[0]},${splitHexConvertion[1]},${splitHexConvertion[2]},${newValue})`
-														: `rgba(0,0,0,${newValue})`,
-													offsetX: shadowValues.distance,
-													offsetY: shadowValues.distance,
-													blur: shadowValues.blur,
-												});
-											}}
-											valueLabelDisplay='auto'
-											step={0.1}
-											min={0}
-											max={1}
-										/>
-
-										<Typography id='distance-slider' gutterBottom>
-											Distance
-										</Typography>
-										<Slider
-											aria-labelledby='distance-slider'
-											value={shadowValues.distance}
-											onChange={(event, newValue) => {
-												setShadowValues((prev) => ({
-													...prev,
-													distance: newValue,
-												}));
-												const splitHexConvertion = hexConvertion?.split(',');
-												updateBubbleImage(undefined, undefined, {
-													color: hexConvertion
-														? `${splitHexConvertion[0]},${splitHexConvertion[1]},${splitHexConvertion[2]},${shadowValues.opacity})`
-														: `rgba(0,0,0,${shadowValues.opacity})`,
-													offsetX: newValue,
-													offsetY: newValue,
-													blur: shadowValues.blur,
-												});
-											}}
-											valueLabelDisplay='auto'
-											step={1}
-											min={-50}
-											max={50}
-										/>
-										<Typography id='blur-slider' gutterBottom>
-											Blur
-										</Typography>
-										<Slider
-											aria-labelledby='blur-slider'
-											value={shadowValues.blur}
-											onChange={(event, newValue) => {
-												setShadowValues((prev) => ({
-													...prev,
-													blur: newValue,
-												}));
-												const splitHexConvertion = hexConvertion?.split(',');
-
-												updateBubbleImage(undefined, undefined, {
-													color: hexConvertion
-														? `${splitHexConvertion[0]},${splitHexConvertion[1]},${splitHexConvertion[2]},${shadowValues.opacity})`
-														: `rgba(0,0,0,${shadowValues.opacity})`,
-													offsetX: shadowValues.distance,
-													offsetY: shadowValues.distance,
-													blur: newValue,
-												});
-											}}
-											valueLabelDisplay='auto'
-											step={1}
-											min={0}
-											max={20}
-										/>
-									</div>
-								)}
-
-								{show === 'contrast' && (
-									<div className={classes.sliderContainer}>
-										<Slider
-											className={classes.slider}
-											aria-label='size'
-											color='secondary'
-											value={bubbleFilter.contrast}
-											min={-1}
-											max={1}
-											onChange={(e: any) => {
-												const value = +e.target.value;
-												setBubbleFilter((prev) => ({
-													...prev,
-													contrast: value,
-												}));
-												updateBubbleImageContrast();
-											}}
-											step={0.01}
-											valueLabelDisplay='auto'
-										/>
-									</div>
-								)}
-
-								{show === 'brightness' && (
-									<div className={classes.sliderContainer}>
-										<Slider
-											className={classes.slider}
-											aria-label='size'
-											color='secondary'
-											value={bubbleFilter.brightness}
-											min={-1}
-											max={1}
-											onChange={(e: any) => {
-												const value = +e.target.value;
-												setBubbleFilter((prev) => ({
-													...prev,
-													brightness: value,
-												}));
-												updateBubbleImageBrightness();
-											}}
-											step={0.01}
-											valueLabelDisplay='auto'
-										/>
-									</div>
-								)}
-							</Paper>
+							<button
+								// onClick={() => updateActiveTab('writePost')}
+								onClick={() => {
+									updateActiveTab('writePost');
+									deselectObj();
+								}}
+								style={{ backgroundColor: 'transparent', border: 'none' }}
+							>
+								<img
+									src='/Tab-Icons/Write-Post.png'
+									width='90'
+									height='90'
+									style={{
+										color: 'white',
+										fontSize: '30px',
+										filter: activeTab === 'writePost' ? filter : undefined,
+									}}
+								/>
+							</button>
 						</div>
-					)}
-					<Paper
-						sx={{
-							display: 'flex',
-							alignItems: 'center',
-							justifyContent: 'center',
-							borderRadius: 0,
-							width: '537px',
-						}}
-						onClick={() => {
-							dropDown ? setDropDown(false) : setDropDown(true);
-						}}
-					>
-						{dropDown ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
-					</Paper>
-					<div
-						style={{
-							display: 'flex',
-							// marginTop: '16px',
-							justifyContent: 'space-between',
-
-							height: '100px',
-							width: '535px',
-						}}
-					>
-						<button
-							style={{
-								backgroundColor: 'transparent',
-								border: 'none',
-							}}
-							// onClick={() => updateActiveTab('background')}
-							onClick={() => {
-								updateActiveTab('background');
-								deselectObj();
-							}}
-						>
-							<img
-								src='/Tab-Icons/background.png'
-								width='90'
-								height='90'
-								style={{
-									color: 'white',
-									fontSize: '30px',
-									filter: activeTab === 'background' ? filter : undefined,
-								}}
-							/>
-						</button>
-
-						<button
-							style={{ backgroundColor: 'transparent', border: 'none' }}
-							// onClick={() => updateActiveTab('title')}
-							onClick={() => {
-								updateActiveTab('title');
-								deselectObj();
-							}}
-						>
-							<img
-								src='/Tab-Icons/Edit-Text.png'
-								width='90'
-								height='90'
-								style={{
-									color: 'white',
-									fontSize: '30px',
-									filter: activeTab === 'title' ? filter : undefined,
-								}}
-							/>
-						</button>
-
-						<button
-							// onClick={() => updateActiveTab('bubble')}
-							onClick={() => {
-								updateActiveTab('bubble');
-								deselectObj();
-							}}
-							style={{ backgroundColor: 'transparent', border: 'none' }}
-						>
-							<img
-								src='/Tab-Icons/Add-Bubble.png'
-								width='90'
-								height='90'
-								style={{
-									color: 'white',
-									fontSize: '30px',
-									filter: activeTab === 'bubble' ? filter : undefined,
-								}}
-							/>
-						</button>
-
-						<button
-							// onClick={() => updateActiveTab('element')}
-							onClick={() => {
-								updateActiveTab('element');
-								deselectObj();
-							}}
-							style={{ backgroundColor: 'transparent', border: 'none' }}
-						>
-							<img
-								src='/Tab-Icons/Add-Elements.png'
-								width='90'
-								height='90'
-								style={{
-									color: 'white',
-									fontSize: '30px',
-									filter: activeTab === 'element' ? filter : undefined,
-								}}
-							/>
-						</button>
-
-						<button
-							// onClick={() => updateActiveTab('writePost')}
-							onClick={() => {
-								updateActiveTab('writePost');
-								deselectObj();
-							}}
-							style={{ backgroundColor: 'transparent', border: 'none' }}
-						>
-							<img
-								src='/Tab-Icons/Write-Post.png'
-								width='90'
-								height='90'
-								style={{
-									color: 'white',
-									fontSize: '30px',
-									filter: activeTab === 'writePost' ? filter : undefined,
-								}}
-							/>
-						</button>
 					</div>
+
 					{/* pagination */}
 					<div className={classes.paginationContainer}>
 						{paginationState.map((item) => {
