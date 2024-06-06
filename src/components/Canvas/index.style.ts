@@ -27,6 +27,7 @@ export const useStyles = makeStyles((theme: Theme) => ({
 		marginBottom: '20px',
 	},
 	button: {
+		// fontSize: '18px',
 		height: '30px',
 		margin: theme.spacing(0.8),
 		padding: theme.spacing(1),

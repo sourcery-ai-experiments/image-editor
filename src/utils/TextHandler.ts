@@ -211,7 +211,7 @@ export function updateTextBox(
 			...options,
 			visible: true,
 			// fill: 'red',
-			top: 400,
+			top: 500,
 		});
 		canvas?.requestRenderAll();
 	};
