@@ -10,6 +10,8 @@ import {
 	FormControlLabel,
 	Checkbox,
 } from '@mui/material';
+import { useOnClickOutside } from 'usehooks-ts';
+
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import Paper from '@mui/material/Paper';
 import Button from '@mui/material/Button';
@@ -124,6 +126,7 @@ import SwipeRightIcon from '@mui/icons-material/SwipeRight';
 
 import { getSummary } from '../../api/write-post/index';
 import { textToImage } from '../../api/text-to-image/index';
+import toast from 'react-hot-toast';
 
 type TemplateJSON = any;
 interface PaginationStateItem {
@@ -137,7 +140,6 @@ interface PaginationStateItem {
 	overlayImage: string;
 	placeholderImage: string;
 }
-import toast from 'react-hot-toast';
 
 interface CanvasProps {
 	template: PaginationStateItem | undefined;
@@ -178,6 +180,44 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			brightness: 0,
 			contrast: 0,
 		});
+
+		const background = ['bg-1', 'bg-2'];
+		const title = ['title'];
+		const bubble = ['bubble'];
+		const element = ['element'];
+		const writePost = ['writePost'];
+		useEffect(() => {
+			if (canvas) {
+				canvas.getObjects().forEach((obj) => {
+					if (
+						activeTab === 'background' &&
+						!background.includes(obj.customType)
+					) {
+						obj.selectable = false;
+					} else if (activeTab === 'title' && !title.includes(obj.customType)) {
+						obj.selectable = false;
+					} else if (
+						activeTab === 'bubble' &&
+						!bubble.includes(obj.customType)
+					) {
+						obj.selectable = false;
+					} else if (
+						activeTab === 'element' &&
+						!element.includes(obj.customType)
+					) {
+						obj.selectable = false;
+					} else if (
+						activeTab === 'writePost' &&
+						!writePost.includes(obj.customType)
+					) {
+						obj.selectable = false;
+					} else {
+						obj.selectable = true;
+					}
+				});
+				canvas.renderAll();
+			}
+		}, [activeTab, canvas]);
 
 		const { paginationState, selectedPage, setSelectedPage, addPage, update } =
 			usePaginationContext();
@@ -255,8 +295,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 					matrix: [0, -1, 0, -1, 5, -1, 0, -1, 0],
 				}),
 			},
-
-			// Add more filters as needed
 		];
 
 		const classes = useStyles();
@@ -322,62 +360,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			}
 		};
 
-		// const handleSelectionUpdated = () => {
-		// 	const activeObject = canvasInstanceRef.current.getActiveObject();
-		// 	if (activeObject && activeObject.type === 'textbox') {
-		// 		const selectedText = window.getSelection().toString();
-
-		// 		if (activeObject.text.includes(selectedText)) {
-		// 			const startPos = activeObject.text.indexOf(selectedText);
-		// 			const endPos = startPos + selectedText.length;
-
-		// 			activeObject.setSelectionStyles(
-		// 				{ textBackgroundColor: backgroundColor },
-		// 				startPos,
-		// 				endPos
-		// 			);
-
-		// 			setBgColorApplied(true);
-		// 			canvasInstanceRef.current.renderAll();
-		// 		}
-		// 	}
-		// };
-
-		// const handleSelectionUpdated = () => {
-		// 	const activeObject = canvasInstanceRef.current.getActiveObject();
-		// 	if (activeObject && activeObject.type === 'textbox') {
-		// 		const selectedText = window.getSelection().toString();
-
-		// 		if (activeObject.text.includes(selectedText)) {
-		// 			const startPos = activeObject.text.indexOf(selectedText);
-		// 			const endPos = startPos + selectedText.length;
-
-		// 			// Define the new text to replace the selected text
-		// 			const newText = ' ' + `${selectedText}` + ' '; // Replace this with your desired new text
-
-		// 			// Replace the selected text with the new text
-		// 			const updatedText =
-		// 				activeObject.text.slice(0, startPos) +
-		// 				newText +
-		// 				activeObject.text.slice(endPos);
-		// 			activeObject.set('text', updatedText);
-
-		// 			// Clear existing styles
-		// 			activeObject.setSelectionStyles({}, 0, activeObject.text.length);
-
-		// 			// Apply background color to the new text
-		// 			activeObject.setSelectionStyles(
-		// 				{ textBackgroundColor: backgroundColor },
-		// 				startPos,
-		// 				startPos + newText.length
-		// 			);
-
-		// 			setBgColorApplied(true);
-		// 			canvasInstanceRef.current.renderAll();
-		// 		}
-		// 	}
-		// };
-
 		const removeBackgroundColor = () => {
 			const activeObject = canvasInstanceRef.current.getActiveObject();
 			if (activeObject && activeObject.type === 'textbox') {
@@ -386,31 +368,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				setColorApplied(true);
 			}
 		};
-
-		// const removeBackgroundColor = () => {
-		//   const activeObject = canvasInstanceRef.current.getActiveObject();
-		//   if (activeObject && activeObject.type === "textbox") {
-		//     const selectedText = window.getSelection().toString();
-		//     if (activeObject.text.includes(selectedText)) {
-		//       const startPos = activeObject.text.indexOf(selectedText);
-		//       const endPos = startPos + selectedText.length;
-		//       activeObject.setSelectionStyles(
-		//         { textBackgroundColor: "transparent" },
-		//         startPos,
-		//         endPos
-		//       );
-		//       canvasInstanceRef.current.renderAll(); // Render only the canvas instance
-		//       setBgColorApplied(true);
-		//     }
-		//   }
-		// };
-
-		// const activeObject = canvasInstanceRef.current.getActiveObject();
-		//   if (activeObject && activeObject.type === "textbox") {
-		//     activeObject.setSelectionStyles({ backgroundColor: backgroundColor });
-		//     canvasInstanceRef.current.renderAll();
-		//     setColorApplied(true);
-		//   }
 
 		// Define handleMouseDown function
 		const handleMouseDown = (event) => {
@@ -502,22 +459,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			},
 			[canvas, template, paginationState, selectedPage]
 		);
-
-		// const loadCanvas = async (pageNumber?: number) => {
-
-		//   const templateFound = paginationState?.find(
-		//     (item) => item.page === pageNumber || item.page === selectedPage
-		//   );
-		//   console.log("templateFound", templateFound);
-
-		//   if (canvas && templateFound) {
-		//     await new Promise((resolve) => {
-		//       canvas.loadFromJSON(templateFound.templateJSON, () => {
-		//         resolve(null);
-		//       });
-		//     });
-		//   }
-		// };
 
 		useEffect(() => {
 			loadCanvas();
@@ -775,50 +716,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				});
 			}
 		};
-
-		//-----------------------------------------------
-		// const [bubbleObjectState, setBubbleObjectState] = useState({});
-		// console.log("bubbleObjectState", bubbleObjectState);
-		// useEffect(() => {
-		//   const handleSelectionChanged = () => {
-		//     const activeObject = canvas?.getActiveObject();
-		//     console.log(
-		//       "🚀 ~ handleSelectionChanged ~ activeObject:",
-		//       activeObject
-		//     );
-		//     if (activeObject?.customType === "bubble") {
-		//       fabric.Image.fromURL("image_1713875134.007559.png", function (img) {
-		//         img.set({
-		//           left: activeObject.left,
-		//           top: activeObject.top,
-		//           scaleX: activeObject.scaleX,
-		//           scaleY: activeObject.scaleY,
-		//           angle: activeObject.angle,
-		//           flipX: activeObject.flipX,
-		//           flipY: activeObject.flipY,
-		//           opacity: activeObject.opacity,
-		//           selectable: activeObject.selectable,
-		//           hoverCursor: activeObject.hoverCursor,
-		//           customType: activeObject.customType,
-		//         });
-		//         canvas.remove(activeObject);
-		//         canvas.add(img);
-		//         canvas.setActiveObject(img);
-		//         canvas.renderAll();
-		//       });
-		//     }
-		//   };
-
-		//   canvas?.on("selection:created", handleSelectionChanged);
-		//   canvas?.on("selection:updated", handleSelectionChanged);
-		//   canvas?.on("selection:cleared", handleSelectionChanged);
-
-		//   return () => {
-		//     canvas?.off("selection:created", handleSelectionChanged);
-		//     canvas?.off("selection:updated", handleSelectionChanged);
-		//     canvas?.off("selection:cleared", handleSelectionChanged);
-		//   };
-		// }, [canvas]);
 
 		//---------------------------------------------
 		/**
@@ -1081,6 +978,9 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			else updateHorizontalCollageImage(canvas, imageUrl, activeObject);
 		}, 100);
 
+		//--------------------out Selected or Disselected-----------------
+
+		//-------------------------------------------------------------
 		const updateOverlayImage = debounce((image: string, opacity: number) => {
 			if (!canvas) {
 				console.log('Canvas not loaded yet');
@@ -1488,9 +1388,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			distance: 10, // Initial distance value
 			blur: 5, // Initial blur radius value
 		});
-		// const [hexConversionForElement, setHexConversionForElement] = useState<
-		//   string | null
-		// >(null);
 
 		const [hexConversionForElement, setHexConversionForElement] =
 			useState<'rgba(0,0,0,1)'>('rgba(0,0,0,1)');
@@ -1553,47 +1450,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			}
 		};
 		const [hexConvertion, setHexConversion] = useState<string | null>(null);
-		// const [bubbleObjectState, setBubbleObjectState] = useState({});
-		// console.log("bubbleObjectState", bubbleObjectState);
-
-		// useEffect(() => {
-		//   const handleSelectionChanged = () => {
-		//     const activeObject = canvas?.getActiveObject();
-		//     console.log("activeObject", activeObject);
-		//     if (activeObject && activeObject.customType === "bubbleStroke") {
-		//       const groupObjects = canvas
-		//         ?.getObjects()
-		//         .filter((obj) => obj.group && obj.group === activeObject.id);
-		//       if (groupObjects && groupObjects.length > 0) {
-		//         const bubbleObject = groupObjects.find(
-		//           (obj) => obj.type === "image" && obj.customType === "bubble"
-		//         );
-		//         if (bubbleObject) {
-		//           const outerCircle = activeObject;
-		//           const relativePosition = {
-		//             left: bubbleObject.left - outerCircle.left,
-		//             top: bubbleObject.top - outerCircle.top,
-		//           };
-		//           setBubbleObjectState({
-		//             position: relativePosition,
-		//             id: bubbleObject.id,
-		//             parent: outerCircle.id,
-		//           });
-		//         }
-		//       }
-		//     }
-		//   };
-
-		//   canvas?.on("selection:created", handleSelectionChanged);
-		//   canvas?.on("selection:updated", handleSelectionChanged);
-		//   canvas?.on("selection:cleared", handleSelectionChanged);
-
-		//   return () => {
-		//     canvas?.off("selection:created", handleSelectionChanged);
-		//     canvas?.off("selection:updated", handleSelectionChanged);
-		//     canvas?.off("selection:cleared", handleSelectionChanged);
-		//   };
-		// }, [canvas]);
 
 		// ------------------------save all templates--------------------------------
 		const [templateSaved, setTemplateSaved] = useState(false);
@@ -1814,11 +1670,48 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			const response = await textToImage(
 				promptText?.length > 0 ? promptText : prompt
 			);
-			const newImageUrl = response?.image_url;
-			if (newImageUrl) setGeneratedImages((prev) => [...prev, newImageUrl]); // Append new image URL to the existing array
+			// const newImageUrl = response?.image_url;
+			const newImageUrl = `https://api-posticle.maxenius.com/${response?.image_url}`;
+
+			if (newImageUrl) setGeneratedImages((prev) => [...prev, newImageUrl]);
 			setPromptLoading(false);
 		};
 
+		// 	// Add event listeners
+		// const canvasRef = useRef(null);
+		// const handleClickOutside = () => {
+		// 	console.log('clicked outside');
+		// };
+
+		// useOnClickOutside(canvasRef, handleClickOutside);
+		const useCanvasClickOutside = (
+			ref: React.RefObject<HTMLCanvasElement>,
+			handler: (event: MouseEvent) => void
+		) => {
+			useEffect(() => {
+				const listener = (event: MouseEvent) => {
+					// Do nothing if clicking ref's element or descendant elements
+					if (!ref.current || ref.current === event.target) {
+						return;
+					}
+					handler(event);
+				};
+
+				document.addEventListener('mousedown', listener);
+				document.addEventListener('touchstart', listener);
+
+				return () => {
+					document.removeEventListener('mousedown', listener);
+					document.removeEventListener('touchstart', listener);
+				};
+			}, [ref, handler]);
+		};
+
+		const handleClickOutside = (event: MouseEvent) => {
+			console.log('clicked outside');
+		};
+
+		useCanvasClickOutside(canvasEl, handleClickOutside);
 		return (
 			<div
 				style={{
@@ -1826,7 +1719,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 					columnGap: '50px',
 					marginTop: 20,
 					marginBottom: 50,
-					// border: '1px solid red',
 				}}
 			>
 				<div>
@@ -1882,44 +1774,32 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 							onClick={() => flipImage('flipY')}
 						/>
 
-						{
-							gridShow ? (
-								<GridOnIcon
-									color={
-										canvasToolbox.isDeselectDisabled ? 'disabled' : 'inherit'
-									}
-									aria-disabled={canvasToolbox.isDeselectDisabled}
-									onClick={darw_Grid_btn}
-									sx={{
-										cursor: 'pointer',
-										mx: 0.5,
-									}}
-								/>
-							) : (
-								<GridOffIcon
-									color={
-										canvasToolbox.isDeselectDisabled ? 'disabled' : 'inherit'
-									}
-									aria-disabled={canvasToolbox.isDeselectDisabled}
-									onClick={darw_Grid_btn}
-									sx={{
-										cursor: 'pointer',
-										mx: 0.5,
-									}}
-								/>
-							)
+						{gridShow ? (
+							<GridOnIcon
+								color={
+									canvasToolbox.isDeselectDisabled ? 'disabled' : 'inherit'
+								}
+								aria-disabled={canvasToolbox.isDeselectDisabled}
+								onClick={darw_Grid_btn}
+								sx={{
+									cursor: 'pointer',
+									mx: 0.5,
+								}}
+							/>
+						) : (
+							<GridOffIcon
+								color={
+									canvasToolbox.isDeselectDisabled ? 'disabled' : 'inherit'
+								}
+								aria-disabled={canvasToolbox.isDeselectDisabled}
+								onClick={darw_Grid_btn}
+								sx={{
+									cursor: 'pointer',
+									mx: 0.5,
+								}}
+							/>
+						)}
 
-							//GridOffIcon
-						}
-						{/* <GridOnIcon
-							color={canvasToolbox.isDeselectDisabled ? 'disabled' : 'inherit'}
-							aria-disabled={canvasToolbox.isDeselectDisabled}
-							onClick={darw_Grid_btn}
-							sx={{
-								cursor: 'pointer',
-								mx: 0.5,
-							}}
-						/> */}
 						{isSelected ? (
 							<SwipeVerticalIcon
 								color={
@@ -2231,29 +2111,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 											</>
 										)}
 									</Box>
-									{/* <Box
-                  sx={{
-                    display: "flex",
-                    width: "81%",
-                  }}
-                >
-                  {activeTab === "element" && (
-                    <>
-                      <Typography
-                        className={classes.heading}
-                        onClick={() => setShow("opacity")}
-                      >
-                        OPACITY
-                      </Typography>
-                      <Typography
-                        className={classes.heading}
-                        onClick={() => setShow("element-shadow")}
-                      >
-                        SHADOW
-                      </Typography>
-                    </>
-                  )}
-                </Box> */}
+
 									{show === 'colors' && (
 										<Box
 											className={classes.optionsContainer}
@@ -2921,7 +2779,11 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 								backgroundColor: 'transparent',
 								border: 'none',
 							}}
-							onClick={() => updateActiveTab('background')}
+							// onClick={() => updateActiveTab('background')}
+							onClick={() => {
+								updateActiveTab('background');
+								deselectObj();
+							}}
 						>
 							<img
 								src='/Tab-Icons/background.png'
@@ -2937,7 +2799,11 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
 						<button
 							style={{ backgroundColor: 'transparent', border: 'none' }}
-							onClick={() => updateActiveTab('title')}
+							// onClick={() => updateActiveTab('title')}
+							onClick={() => {
+								updateActiveTab('title');
+								deselectObj();
+							}}
 						>
 							<img
 								src='/Tab-Icons/Edit-Text.png'
@@ -2952,7 +2818,11 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 						</button>
 
 						<button
-							onClick={() => updateActiveTab('bubble')}
+							// onClick={() => updateActiveTab('bubble')}
+							onClick={() => {
+								updateActiveTab('bubble');
+								deselectObj();
+							}}
 							style={{ backgroundColor: 'transparent', border: 'none' }}
 						>
 							<img
@@ -2968,7 +2838,11 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 						</button>
 
 						<button
-							onClick={() => updateActiveTab('element')}
+							// onClick={() => updateActiveTab('element')}
+							onClick={() => {
+								updateActiveTab('element');
+								deselectObj();
+							}}
 							style={{ backgroundColor: 'transparent', border: 'none' }}
 						>
 							<img
@@ -2984,7 +2858,11 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 						</button>
 
 						<button
-							onClick={() => updateActiveTab('writePost')}
+							// onClick={() => updateActiveTab('writePost')}
+							onClick={() => {
+								updateActiveTab('writePost');
+								deselectObj();
+							}}
 							style={{ backgroundColor: 'transparent', border: 'none' }}
 						>
 							<img
@@ -3041,9 +2919,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 					</div>
 				</div>
 
-				{/* Footer Panel  End*/}
-				{/* Sidebar Tools Panel */}
-				{/* <Sidebar /> */}
 				<div>
 					<div style={{ width: '300px', height: '480px', padding: '10px' }}>
 						{activeTab == 'background' && (
@@ -3248,11 +3123,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 							<div>
 								<h4 style={{ margin: '0px', padding: '0px' }}>From Article</h4>
 
-								{/* <ImageViewer
-                  clickHandler={(img: string) => updateBubbleImage(img)}
-                  images={initialData.bubbles}
-                /> */}
-
 								<ImageViewer
 									clickHandler={(img: string) => {
 										const activeBubble = canvas?.getActiveObject();
@@ -3270,12 +3140,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 									}}
 									images={initialData.bubbles}
 								/>
-
-								{/* <h4 style={{ margin: '0px', padding: '0px' }}>AI Images</h4>
-								<ImageViewer
-									clickHandler={(img: string) => updateBubbleImage(img)}
-									images={initialData.bubbles}
-								/> */}
 
 								<Box
 									sx={{
@@ -3462,65 +3326,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 													</Box>
 												);
 											})}
-
-											{/* <CustomColorPicker
-                        value={userMetaData?.company?.color}
-                        changeHandler={(color: string) => {
-                          const type = "borders";
-                          let existingObject = getExistingObject(type) as
-                            | fabric.Image
-                            | undefined;
-
-                          if (
-                            canvas?._activeObject &&
-                            canvas?._activeObject?.type === "image"
-                          )
-                            existingObject =
-                              canvas?._activeObject as fabric.Image;
-
-                          if (!existingObject) {
-                            console.log("existing Border object not founded");
-                            return;
-                          }
-                          const blendColorFilter1 =
-                            new fabric.Image.filters.BlendColor({
-                              color,
-                              mode: "tint",
-                              alpha: 1,
-                            });
-                          //---------------
-                          const swipeGroup = getExistingObject("swipeGroup");
-                          const activeObj = canvas?.getActiveObject();
-                          if (activeObj?.customType === "swipeGroup") {
-                            if (swipeGroup) {
-                              swipeGroup.visible = true;
-
-                              swipeGroup?._objects?.forEach((obj) => {
-                                if (obj.customType === "swipeText") {
-                                  obj.fill = color;
-                                } else {
-                                  var filter =
-                                    new fabric.Image.filters.BlendColor({
-                                      color,
-                                      mode: "tint",
-                                      alpha: 1,
-                                    });
-                                  obj.filters.push(filter);
-                                  obj.applyFilters();
-                                }
-                                //   canvas.renderAll();
-                              });
-                            }
-                          }
-                          //-------------------
-
-                          existingObject.filters?.push(blendColorFilter1);
-                          existingObject.applyFilters();
-                          requestAnimationFrame(() => {
-                            canvas?.renderAll();
-                          });
-                        }}
-                      /> */}
 										</Box>
 
 										<Box
@@ -3591,18 +3396,8 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 															canvas?.renderAll();
 														});
 													}
-													//-------------------
 												}}
 											/>
-											{/* <CustomColorPicker
-                        value={userMetaData?.company?.color}
-                        // value={overlayTextFiltersState.color}
-                        changeHandler={(color: string) => {
-                          updateSwipeColor(canvas, color);
-                        }}
-                      /> */}
-
-											{/* //new */}
 										</Box>
 									</Box>
 									<Box>
@@ -3859,21 +3654,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 									</Box>
 
 									<Box>
-										{/* <input
-											type='text'
-											style={{
-												lineHeight: 1.5,
-												marginTop: '0.5rem',
-												fontSize: '16px',
-												background: 'transparent',
-												outline: 'none',
-												color: '#fff',
-												border: 'none',
-											}}
-											placeholder='Social Tags '
-											defaultValue='Social Tags'
-										/> */}
-
 										<h4>Social Tags</h4>
 										<Box
 											sx={{
@@ -4079,48 +3859,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 												);
 											})}
 
-											{/* {logos?.map((logo: string, i) => {
-                        console.log("logo--",logo)
-                        const logoFillColor =
-                          userMetaData?.company?.color || "black";
-                        return (
-                          <img
-                            key={i}
-                            src={logo}
-                            alt="logo"
-                            onClick={() => {
-                              const existingTextObject = getExistingObject(
-                                "hashtag"
-                              ) as fabric.Textbox | undefined;
-
-                              if (
-                                existingTextObject &&
-                                !existingTextObject?.visible
-                              )
-                                updateTextBox(
-                                  canvas,
-                                  {
-                                    visible: !existingTextObject.visible,
-                                    fill: userMetaData?.company?.color,
-                                  },
-                                  "hashtag"
-                                );
-                              else
-                                createTextBox(canvas, {
-                                  // fill: overlayTextFiltersState.color,
-                                  fill: userMetaData?.company?.color,
-                                  customType: "hashtag",
-                                  name: userMetaData?.company?.name,
-                                });
-                            }}
-                            style={{
-                              cursor: "pointer",
-                              paddingBottom: "0.5rem",
-                            }}
-                            width="90px"
-                          />
-                        );
-                      })} */}
 											<CustomColorPicker
 												value={userMetaData?.company?.color || '#909AE9'}
 												// value={overlayTextFiltersState.color}
@@ -4325,7 +4063,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 									cursor: 'pointer',
 								}}
 							>
-								Export
+								Share
 							</button>
 						)}
 					</div>
@@ -4367,23 +4105,23 @@ const Canvas: React.FC<CanvasProps> = React.memo(
               Export
             </button>
           </div> */}
-					<div style={{ marginTop: '5%', position: 'relative' }}>
-						<button
-							onClick={() => saveJSON(canvas)}
-							style={{
-								width: '100%',
-								height: '42px',
-								borderRadius: '25px',
-								border: 'none',
-								backgroundColor: '#3b0e39',
-								color: 'white',
-								cursor: 'pointer',
-							}}
-						>
-							JSON
-						</button>
-					</div>
-					{activeTab !== 'writePost' && (
+					{/* <div style={{ marginTop: '5%', position: 'relative' }}>
+							<button
+								onClick={() => saveJSON(canvas)}
+								style={{
+									width: '100%',
+									height: '42px',
+									borderRadius: '25px',
+									border: 'none',
+									backgroundColor: '#3b0e39',
+									color: 'white',
+									cursor: 'pointer',
+								}}
+							>
+								JSON
+							</button>
+						</div> */}
+					{/* {activeTab !== 'writePost' && (
 						<div
 							style={{
 								marginTop: '5%',
@@ -4411,7 +4149,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 								Next
 							</button>
 						</div>
-					)}
+					)} */}
 				</div>
 			</div>
 		);

@@ -1,4 +1,4 @@
-import toast from 'react-hot-toast';
+// import toast from 'react-hot-toast';
 import { BaseURL } from '../../constants';
 
 export async function textToImage(prompt: string) {
@@ -21,9 +21,9 @@ export async function textToImage(prompt: string) {
 		const response = await fetch(`${BaseURL}/api/get-images`, requestOptions);
 		const result = await response.json();
 		if (!result.success) {
-			toast.error(`${result.error}`);
+			// toast.error(`${result.error}`);
+			console.log(`${result.error}`);
 		}
-
 		return result;
 	} catch (error) {
 		console.error(error);

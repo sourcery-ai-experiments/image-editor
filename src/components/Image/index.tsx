@@ -39,17 +39,22 @@ const CustomSlider = ({ images, clickHandler, onDragStart }) => {
 			</div>
 			<div className='slider-wrapper'>
 				<div className='slider' ref={sliderRef}>
-					{images.map((img, index) => (
-						<div
-							key={index}
-							className='slide'
-							onClick={() => clickHandler(img)}
-							onDragStart={(e) => onDragStart(e, img)}
-							draggable
-						>
-							<img src={img} alt={`Slide ${index}`} />
-						</div>
-					))}
+					{images?.map((img, index) => {
+						if (img !== 'https://api-posticle.maxenius.com/undefined') {
+							return (
+								<div
+									key={index}
+									className='slide'
+									onClick={() => clickHandler(img)}
+									onDragStart={(e) => onDragStart(e, img)}
+									draggable
+								>
+									<img src={img} alt={`Slide ${index}`} />
+								</div>
+							);
+						}
+						return null;
+					})}
 				</div>
 			</div>
 			<div className='next-button-container'>
@@ -58,7 +63,7 @@ const CustomSlider = ({ images, clickHandler, onDragStart }) => {
 				</button>
 			</div>
 			<div className='dots'>
-				{images.map((_, index) => (
+				{images?.map((_, index) => (
 					<span
 						key={index}
 						className={
