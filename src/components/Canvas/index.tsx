@@ -31,7 +31,7 @@ import {
 	updateSwipeColor,
 	updateTextBox,
 } from '../../utils/TextHandler';
-import { updateRect } from '../../utils/RectHandler';
+import { createRect, updateRect } from '../../utils/RectHandler';
 import { saveJSON, hexToRgbA } from '../../utils/ExportHandler';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { createImage, updateImageSource } from '../../utils/ImageHandler';
@@ -119,6 +119,13 @@ import SwipeRightIcon from '@mui/icons-material/SwipeRight';
 import { textToImage } from '../../api/text-to-image/index';
 import toast from 'react-hot-toast';
 import SummaryForm from '../Tabs/WritePost/SummaryForm';
+import {
+	clearAllGuides,
+	onObjectAdded,
+	onObjectMoved,
+	onObjectMoving,
+} from './fabric-smart-object';
+import { FabricGuide } from '../../utils/fabricGuide';
 
 type TemplateJSON = any;
 interface PaginationStateItem {
@@ -171,6 +178,26 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			brightness: 0,
 			contrast: 0,
 		});
+		var events = {
+			object: ['added', 'moving', 'moved', 'scaled', 'selected', 'over'],
+			mouse: ['down', 'up', 'moving', 'over', 'out'],
+		};
+
+		const bindEvents = useCallback(() => {
+			if (!canvas) return;
+			console.log(events.object);
+			events.object.forEach((event) => {
+				if (event === 'moving') {
+					canvas.on(`object:${event}`, (e) => onObjectMoving(e, canvas));
+				} else if (event === 'mouseover') {
+					canvas.on(`object:${event}`, (e) => onObjectMouseOver(e, canvas));
+				} else if (event === 'moved') {
+					canvas.on(`object:${event}`, (e) => onObjectMoved(e, canvas));
+				}
+			});
+
+			canvas.renderAll();
+		}, [canvas]);
 
 		const background = ['bg-1', 'bg-2'];
 		const title = ['title'];
@@ -313,7 +340,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 		//--------------------
 
 		useEffect(() => {
-			const options = {
+			const options: fabric.ICanvasOptions = {
 				width: canvasDimension.width,
 				height: canvasDimension.height,
 				renderOnAddRemove: false,
@@ -328,9 +355,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			canvas.on('selection:created', handleSelectionUpdated);
 			canvas.on('selection:updated', handleSelectionUpdated);
 
-			// Register event listener
-			// canvas.on('mouse:down', handleMouseDown);
-
 			return () => {
 				// Cleanup
 				updateCanvasContext(null);
@@ -338,7 +362,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			};
 		}, [canvasDimension, selectedPage, paginationState]);
 
-		const handleSelectionUpdated = () => {
+		const handleSelectionUpdated = (e) => {
 			const activeObject = canvasInstanceRef.current!.getActiveObject();
 			if (activeObject && activeObject.type === 'textbox') {
 				activeObject.setSelectionStyles({
@@ -396,6 +420,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 						resolve(null);
 					});
 				});
+				bindEvents();
 			},
 			[canvas, template, paginationState, selectedPage]
 		);
@@ -1128,15 +1153,37 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			const left = Math.random() * (450 - 100) + 100;
 			const top = Math.random() * (500 - 100) + 100;
 
+			// fabric.Image.fromURL(
+			// 	swipeImg,
+			// 	function (img) {
+			// 		img.set({ left: left, top: top }).scale(0.2);
+			// 		img.filters.push(filter);
+			// 		img.applyFilters();
+			// 		canvas.add(img);
+			// 		requestAnimationFrame(() => {
+			// 			canvas.renderAll();
+			// 		});
+			// 	},
+			// 	{
+			// 		crossOrigin: 'anonymous',
+			// 	}
+			// );
+
 			fabric.Image.fromURL(
 				swipeImg,
 				function (img) {
-					img
-						.set({ left: left, top: top, customType: 'swipeGroup' })
-						.scale(0.2);
-					img.filters.push(filter);
-					img.applyFilters();
-					canvas.add(img);
+					const snappyImg = new fabric.SnappyImage(img.getElement(), {
+						left: left,
+						top: top,
+						scaleX: 0.2,
+						scaleY: 0.2,
+					});
+					snappyImg.customType = 'swipeGroup';
+					snappyImg.filters.push(filter);
+					snappyImg.applyFilters();
+
+					canvas.add(snappyImg);
+
 					requestAnimationFrame(() => {
 						canvas.renderAll();
 					});
@@ -1236,7 +1283,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 		const addTemplate = async () => {
 			const currentTemplateJSON = await saveJSON(canvas, true);
 
-			update(selectedPage, { templateJSON: currentTemplateJSON });
+			await update(selectedPage, { templateJSON: currentTemplateJSON });
 
 			const highestPageNumber = findHighestPageNumber(paginationState);
 
@@ -1390,10 +1437,22 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
 		const handleSaveTemplate = async (event) => {
 			const currentTemplateJSON = await saveJSON(canvas, true);
-			await update(selectedPage, { templateJSON: currentTemplateJSON });
+
+			await update(selectedPage, {
+				templateJSON: currentTemplateJSON,
+			});
+
 			await loadCanvas(selectedPage);
 			await setTemplateSaved(true);
 		};
+
+		useEffect(() => {
+			if (templateSaved) {
+				setTimeout(async () => {
+					await handleExport();
+				}, 2000);
+			}
+		}, [templateSaved]);
 
 		const handleExport = async () => {
 			if (templateSaved) {
@@ -1409,7 +1468,9 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			content: '',
 		});
 
-		const handleSelectionChanged = () => {};
+		const handleSelectionChanged = () => {
+			clearAllGuides(canvas);
+		};
 
 		let dndBackground = useRef(false);
 		let dndBubble = useRef(false);
