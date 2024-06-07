@@ -665,13 +665,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			}
 
 			if (!activeBubble && isChecked) {
-				// let options: fabric.ICircleOptions = {
-				// 	...existingBubbleStroke,
-				// 	...(!existingBubbleStroke &&
-				// 		template.diptych === 'horizontal' && { top: 150 }),
-				// 	...(!existingBubbleStroke &&
-				// 		template.diptych === 'horizontal' && { left: 150, radius: 80 }),
-				// };
 				requestAnimationFrame(() => {
 					createBubbleElement(canvas!, imgUrl!);
 					canvas.renderAll();
@@ -834,16 +827,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 						// Step 2: Join the characters together
 						let originalText = characters.join('');
 
-						// Update the textbox properties
-						// textbox.set({
-						//   // ...options,
-						//   text: originalText,
-						//   visible: true,
-						//   width: 305,
-						//   top: 50,
-						//   left: 50,
-						//   fontSize: 16,
-						// });
 						textbox.set({
 							// ...other options,
 							text: originalText,
@@ -887,14 +870,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 					currentImageIndex % 2 === 0 ? 'bg-1' : 'bg-2'
 				);
 			}
-
-			// setFilterValues((prevState) => ({
-			// 	...prevState,
-			// 	overlay: {
-			// 		...prevState.overlay,
-			// 		imgUrl: imageUrl,
-			// 	},
-			// }));
 
 			let currentImageIndex = initialData.backgroundImages?.findIndex(
 				(bgImage: string) => bgImage === imageUrl
@@ -1115,12 +1090,17 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			fabric.Image.fromURL(
 				imgShape,
 				function (img) {
-					img
-						.set({ left: left, top: top, customType: 'elementImg' })
-						.scale(0.2);
-					img.filters.push(filter);
-					img.applyFilters();
-					canvas.add(img);
+					const snappyImg = new fabric.SnappyImage(img.getElement(), {
+						left: left,
+						top: top,
+						scaleX: 0.2,
+						scaleY: 0.2,
+					});
+					snappyImg.customType = 'elementImg';
+					snappyImg.filters.push(filter);
+					snappyImg.applyFilters();
+					canvas.add(snappyImg);
+
 					requestAnimationFrame(() => {
 						canvas.renderAll();
 					});
@@ -1152,22 +1132,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
 			const left = Math.random() * (450 - 100) + 100;
 			const top = Math.random() * (500 - 100) + 100;
-
-			// fabric.Image.fromURL(
-			// 	swipeImg,
-			// 	function (img) {
-			// 		img.set({ left: left, top: top }).scale(0.2);
-			// 		img.filters.push(filter);
-			// 		img.applyFilters();
-			// 		canvas.add(img);
-			// 		requestAnimationFrame(() => {
-			// 			canvas.renderAll();
-			// 		});
-			// 	},
-			// 	{
-			// 		crossOrigin: 'anonymous',
-			// 	}
-			// );
 
 			fabric.Image.fromURL(
 				swipeImg,
@@ -1250,12 +1214,17 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			fabric.Image.fromURL(
 				imgShape,
 				function (img) {
-					img
-						.set({ left: left, top: top, customType: 'elementImg' })
-						.scale(0.2);
-					img.filters.push(filter);
-					img.applyFilters();
-					canvas.add(img);
+					const snappyImg = new fabric.SnappyImage(img.getElement(), {
+						left: left,
+						top: top,
+						scaleX: 0.2,
+						scaleY: 0.2,
+					});
+					snappyImg.customType = 'elementImg';
+					snappyImg.filters.push(filter);
+					snappyImg.applyFilters();
+					canvas.add(snappyImg);
+
 					requestAnimationFrame(() => {
 						canvas.renderAll();
 					});
@@ -1264,6 +1233,24 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 					crossOrigin: 'anonymous',
 				}
 			);
+
+			// fabric.Image.fromURL(
+			// 	imgShape,
+			// 	function (img) {
+			// 		img
+			// 			.set({ left: left, top: top, customType: 'elementImg' })
+			// 			.scale(0.2);
+			// 		img.filters.push(filter);
+			// 		img.applyFilters();
+			// 		canvas.add(img);
+			// 		requestAnimationFrame(() => {
+			// 			canvas.renderAll();
+			// 		});
+			// 	},
+			// 	{
+			// 		crossOrigin: 'anonymous',
+			// 	}
+			// );
 		};
 
 		const findHighestPageNumber = (
@@ -3368,60 +3355,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 													}
 												}}
 											/>
-											{/* <CustomColorPicker
-												value={userMetaData?.company?.color || '#909AE9'}
-												changeHandler={(color: string) => {
-													const type = 'swipeGroup';
-													let existingObject = getExistingObject(type) as
-														| fabric.Image
-														| undefined;
-
-													if (
-														canvas?._activeObject &&
-														canvas?._activeObject?.type === 'image'
-													) {
-														existingObject =
-															canvas?._activeObject as fabric.Image;
-													}
-
-													if (!existingObject) {
-														console.log('existing Border object not found');
-														return;
-													}
-
-													// Check if the object is a fabric.Image and has the applyFilters method
-													if (
-														existingObject instanceof fabric.Image &&
-														typeof existingObject.applyFilters === 'function'
-													) {
-														const blendColorFilter1 =
-															new fabric.Image.filters.BlendColor({
-																color,
-																mode: 'tint',
-																alpha: 1,
-															});
-
-														const swipeGroup = getExistingObject('swipeGroup');
-
-														const activeObj = canvas?.getActiveObject();
-
-														if (activeObj?.customType === 'swipeGroup') {
-															updateSwipeColor(canvas, color);
-														} else {
-															existingObject.filters?.push(blendColorFilter1);
-															existingObject.applyFilters();
-															requestAnimationFrame(() => {
-																canvas?.renderAll();
-															});
-														}
-													} else {
-														console.error(
-															'existingObject is not a fabric.Image or does not have applyFilters method'
-														);
-														console.log('existingObject:', existingObject);
-													}
-												}}
-											/> */}
 										</div>
 									</Box>
 								</Box>
@@ -3455,21 +3388,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 														src={imgShape}
 														onClick={() => borderColorChangeHandler(imgShape)}
 														onDragStart={(e) => handleDragStart(e, imgShape)}
-														// onClick={() => {
-														// 	fabric.Image.fromURL(
-														// 		imgShape,
-														// 		function (img) {
-														// 			img.set({ left: 230, top: 250 }).scale(0.2);
-														// 			canvas.add(img);
-														// 			requestAnimationFrame(() => {
-														// 				canvas.renderAll();
-														// 			});
-														// 		},
-														// 		{
-														// 			crossOrigin: 'anonymous',
-														// 		}
-														// 	);
-														// }}
 														alt=''
 														// width='90px'
 														style={{
@@ -3564,21 +3482,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 														onClick={() =>
 															dividerColorChangeHandler(dividerImg)
 														}
-														// onClick={() => {
-														// 	fabric.Image.fromURL(
-														// 		dividerImg,
-														// 		function (img) {
-														// 			img.set({ left: 200, top: 250 }).scale(0.2);
-														// 			canvas.add(img);
-														// 			requestAnimationFrame(() => {
-														// 				canvas.renderAll();
-														// 			});
-														// 		},
-														// 		{
-														// 			crossOrigin: 'anonymous',
-														// 		}
-														// 	);
-														// }}
 														alt=''
 														// width='90px'
 														style={{
@@ -3702,14 +3605,18 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 															fabric.Image.fromURL(
 																spImg,
 																function (img) {
-																	img
-																		.set({
+																	const snappyImg = new fabric.SnappyImage(
+																		img.getElement(),
+																		{
 																			left: left,
 																			top: top,
-																			customType: 'elementImg',
-																		})
-																		.scale(0.2);
-																	canvas.add(img);
+																			scaleX: 0.2,
+																			scaleY: 0.2,
+																		}
+																	);
+																	snappyImg.customType = 'elementImg';
+																	canvas.add(snappyImg);
+
 																	requestAnimationFrame(() => {
 																		canvas.renderAll();
 																	});
@@ -3894,7 +3801,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
 										<CustomColorPicker
 											value={userMetaData?.company?.color || '#909AE9'}
-											// value={overlayTextFiltersState.color}
 											changeHandler={(color: string) => {
 												const type = 'hashtag';
 
@@ -3922,104 +3828,37 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 												mt: 2,
 											}}
 										>
-											{userMetaData?.company?.logo && (
-												<img
-													src={userMetaData?.company?.logo}
-													onClick={() => {
-														fabric.Image.fromURL(
-															userMetaData?.company?.logo,
-															function (img) {
-																img.set({
-																	width: 400,
-																	height: 400,
+											{userMetaData?.company &&
+												[
+													userMetaData?.company?.logo,
+													userMetaData?.company?.logo2,
+													userMetaData?.company?.logo3,
+												]
+													?.filter((itm) => itm !== undefined || itm !== null)
+													.map((itm, i) => (
+														<img
+															key={i}
+															src={itm}
+															onClick={() => {
+																console.log({ itm });
+																createImage(canvas, itm, {
 																	customType: 'elementImg',
+																	scaleX: 0.2,
+																	scaleY: 0.2,
+																	top: 0,
+																	left: 100,
 																});
-																canvas.add(img);
-																requestAnimationFrame(() => {
-																	canvas.renderAll();
-																});
-															},
-															{
-																crossOrigin: 'anonymous',
-															}
-														);
-													}}
-													alt=''
-													// width='90px'
-													style={{
-														cursor: 'pointer',
-														paddingBottom: '0.5rem',
-														width: '80px',
-														height: '60px',
-													}}
-												/>
-											)}
-
-											{userMetaData?.company?.logo2 && (
-												<img
-													src={userMetaData?.company?.logo2}
-													onClick={() => {
-														fabric.Image.fromURL(
-															userMetaData?.company?.logo2,
-															function (img) {
-																img.set({
-																	width: 400,
-																	height: 400,
-																	customType: 'elementImg',
-																});
-																canvas.add(img);
-																requestAnimationFrame(() => {
-																	canvas.renderAll();
-																});
-															},
-															{
-																crossOrigin: 'anonymous',
-															}
-														);
-													}}
-													alt=''
-													// width='90px'
-													style={{
-														cursor: 'pointer',
-														paddingBottom: '0.5rem',
-														width: '80px',
-														height: '60px',
-													}}
-												/>
-											)}
-
-											{userMetaData?.company?.logo3 && (
-												<img
-													src={userMetaData?.company?.logo3}
-													onClick={() => {
-														fabric.Image.fromURL(
-															userMetaData?.company?.logo3,
-															function (img) {
-																img.set({
-																	width: 400,
-																	height: 400,
-																	customType: 'elementImg',
-																});
-																canvas.add(img);
-																requestAnimationFrame(() => {
-																	canvas.renderAll();
-																});
-															},
-															{
-																crossOrigin: 'anonymous',
-															}
-														);
-													}}
-													alt=''
-													// width='90px'
-													style={{
-														cursor: 'pointer',
-														paddingBottom: '0.5rem',
-														width: '80px',
-														height: '60px',
-													}}
-												/>
-											)}
+															}}
+															alt=''
+															// width='90px'
+															style={{
+																cursor: 'pointer',
+																paddingBottom: '0.5rem',
+																width: '80px',
+																height: '60px',
+															}}
+														/>
+													))}
 										</Box>
 									</Box>
 								</Box>
@@ -4050,9 +3889,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 											});
 
 											updateTextBox(canvas, { text });
-
-											// canvas && canvas.add("text", summaryContent.content);
-											// canvas && canvas.renderAll();
 										}}
 										style={{
 											margin: '0px',
