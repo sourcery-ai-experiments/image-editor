@@ -174,9 +174,16 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
 		const background = ['bg-1', 'bg-2'];
 		const title = ['title'];
-		const bubble = ['bubble'];
-		const element = ['element'];
-		const writePost = ['writePost'];
+		const bubble = ['bubble', 'bubbleStroke'];
+		const element = [
+			'element',
+			'swipeGroup',
+			'borders',
+			'hashtag',
+			'elementImg',
+		];
+		const writePost = ['writePost', 'coustomTypeText'];
+
 		useEffect(() => {
 			if (canvas) {
 				canvas.getObjects().forEach((obj) => {
@@ -1083,7 +1090,9 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			fabric.Image.fromURL(
 				imgShape,
 				function (img) {
-					img.set({ left: left, top: top }).scale(0.2);
+					img
+						.set({ left: left, top: top, customType: 'elementImg' })
+						.scale(0.2);
 					img.filters.push(filter);
 					img.applyFilters();
 					canvas.add(img);
@@ -1122,7 +1131,9 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			fabric.Image.fromURL(
 				swipeImg,
 				function (img) {
-					img.set({ left: left, top: top }).scale(0.2);
+					img
+						.set({ left: left, top: top, customType: 'swipeGroup' })
+						.scale(0.2);
 					img.filters.push(filter);
 					img.applyFilters();
 					canvas.add(img);
@@ -1192,7 +1203,9 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			fabric.Image.fromURL(
 				imgShape,
 				function (img) {
-					img.set({ left: left, top: top }).scale(0.2);
+					img
+						.set({ left: left, top: top, customType: 'elementImg' })
+						.scale(0.2);
 					img.filters.push(filter);
 					img.applyFilters();
 					canvas.add(img);
@@ -1377,9 +1390,9 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
 		const handleSaveTemplate = async (event) => {
 			const currentTemplateJSON = await saveJSON(canvas, true);
-			update(selectedPage, { templateJSON: currentTemplateJSON });
-			loadCanvas(selectedPage);
-			setTemplateSaved(true);
+			await update(selectedPage, { templateJSON: currentTemplateJSON });
+			await loadCanvas(selectedPage);
+			await setTemplateSaved(true);
 		};
 
 		const handleExport = async () => {
@@ -1553,14 +1566,29 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
 		// 	// Add event listeners
 		const canvasRef = useRef(null);
-		const handleClickOutside = () => {
+		const handleClickOutside = (event) => {
 			if (!canvas) {
 				return;
 			}
-			canvas.discardActiveObject();
-			canvas?.renderAll();
+			const targetElement = document.getElementById('element');
+			const targetElement2 = document.getElementById('canvasID');
+			const targetElement3 = document.getElementById('CustomColorPicker');
+			if (targetElement && !targetElement.contains(event.target)) {
+				// console.log('event --element', event);
+				canvas.discardActiveObject();
+				canvas?.renderAll();
+			} else if (targetElement2 && !targetElement2.contains(event.target)) {
+				// console.log('event-- canvas', event);
+				canvas.discardActiveObject();
+				canvas?.renderAll();
+			} else if (targetElement3 && !targetElement3.contains(event.target)) {
+				// console.log('CustomColorPicker', event);
+				canvas.discardActiveObject();
+				canvas?.renderAll();
+			}
 		};
-
+		// canvas.discardActiveObject();
+		// canvas?.renderAll();
 		useOnClickOutside(canvasRef, handleClickOutside);
 		return (
 			<div
@@ -1569,341 +1597,806 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 					columnGap: '50px',
 					marginTop: 20,
 					marginBottom: 50,
+					// border: '2px solid red',
 				}}
 			>
 				<div>
-					<div ref={canvasRef}>
-						<div
-							style={{
-								background:
-									'repeating-linear-gradient(transparent, transparent 10px, rgba(0, 0, 0, 0.1) 11px), repeating-linear-gradient(90deg, transparent, transparent 10px, rgba(0, 0, 0, 0.1) 11px);',
-							}}
-						>
-							<DeselectIcon
-								color={
-									canvasToolbox.isDeselectDisabled ? 'disabled' : 'inherit'
-								}
-								aria-disabled={canvasToolbox.isDeselectDisabled}
-								onClick={deselectObj}
-								sx={{
-									cursor: 'pointer',
-								}}
-							/>
-
-							<DeleteIcon
-								color={
-									canvasToolbox.isDeselectDisabled ? 'disabled' : 'inherit'
-								}
-								aria-disabled={canvasToolbox.isDeselectDisabled}
-								onClick={deleteActiveSelection}
-								sx={{
-									cursor: 'pointer',
-									mx: 0.5,
-								}}
-							/>
-							<img
-								src='/icons/flipX.svg'
-								className={
-									!canvasToolbox.isDeselectDisabled ? 'filter-white' : ''
-								}
-								style={{
-									width: 25,
-									height: 25,
-									margin: '0 0.3rem',
-									cursor: 'pointer',
-								}}
-								onClick={() => flipImage('flipX')}
-							/>
-							<img
-								src='/icons/flipY.svg'
-								className={
-									!canvasToolbox.isDeselectDisabled ? 'filter-white' : ''
-								}
-								style={{
-									width: 25,
-									height: 25,
-									cursor: 'pointer',
-									marginLeft: 1.5,
-									marginRight: 1.5,
-								}}
-								onClick={() => flipImage('flipY')}
-							/>
-
-							{gridShow ? (
-								<GridOnIcon
-									color={
-										canvasToolbox.isDeselectDisabled ? 'disabled' : 'inherit'
-									}
-									aria-disabled={canvasToolbox.isDeselectDisabled}
-									onClick={darw_Grid_btn}
-									sx={{
-										cursor: 'pointer',
-										mx: 0.5,
-									}}
-								/>
-							) : (
-								<GridOffIcon
-									color={
-										canvasToolbox.isDeselectDisabled ? 'disabled' : 'inherit'
-									}
-									aria-disabled={canvasToolbox.isDeselectDisabled}
-									onClick={darw_Grid_btn}
-									sx={{
-										cursor: 'pointer',
-										mx: 0.5,
-									}}
-								/>
-							)}
-
-							{isSelected ? (
-								<SwipeVerticalIcon
-									color={
-										canvasToolbox.isDeselectDisabled ? 'disabled' : 'inherit'
-									}
-									aria-disabled={canvasToolbox.isDeselectDisabled}
-									onClick={toggleSelection}
-									sx={{
-										cursor: 'pointer',
-										ml: 0.5,
-									}}
-								/>
-							) : (
-								<SwipeRightIcon
-									color={
-										canvasToolbox.isDeselectDisabled ? 'disabled' : 'inherit'
-									}
-									aria-disabled={canvasToolbox.isDeselectDisabled}
-									onClick={toggleSelection}
-									sx={{
-										cursor: 'pointer',
-									}}
-								/>
-							)}
-						</div>
-
-						<canvas width='1080' height='500' ref={canvasEl} />
-						{/* Footer Panel  Start*/}
-						{activeTab == 'background' && dropDown && (
+					<div
+						ref={canvasRef}
+						style={
+							{
+								// border: '2px solid yellow',
+							}
+						}
+					>
+						<div id='canvasID'>
 							<div
 								style={{
-									width: '555px',
-									height: '90px',
+									background:
+										'repeating-linear-gradient(transparent, transparent 10px, rgba(0, 0, 0, 0.1) 11px), repeating-linear-gradient(90deg, transparent, transparent 10px, rgba(0, 0, 0, 0.1) 11px);',
 								}}
 							>
-								<Paper className={classes.root}>
-									<div
-										className={classes.optionsContainer}
-										style={{
-											display: 'flex',
-											justifyContent: 'space-evenly',
-											paddingTop: '4px',
-										}}
-									>
-										<Button
-											className={`${classes.button} ${
-												activeButton === 'Overlay' && classes.buttonActive
-											}`}
-											variant='text'
-											color='primary'
-											onClick={() => handleButtonClick('Overlay')}
-										>
-											Overlay
-										</Button>
-										<Button
-											className={`${classes.button} ${
-												activeButton === 'Brightness' && classes.buttonActive
-											}`}
-											variant='text'
-											color='primary'
-											onClick={() => handleButtonClick('Brightness')}
-										>
-											Brightness
-										</Button>
-										<Button
-											className={`${classes.button} ${
-												activeButton === 'Contrast' && classes.buttonActive
-											}`}
-											variant='text'
-											color='primary'
-											onClick={() => handleButtonClick('Contrast')}
-										>
-											Contrast
-										</Button>
-										<Button
-											className={`${classes.button} ${
-												activeButton === 'Filters' && classes.buttonActive
-											}`}
-											variant='text'
-											color='primary'
-											onClick={() => handleButtonClick('Filters')}
-										>
-											Filter
-										</Button>
+								<DeselectIcon
+									color={
+										canvasToolbox.isDeselectDisabled ? 'disabled' : 'inherit'
+									}
+									aria-disabled={canvasToolbox.isDeselectDisabled}
+									onClick={deselectObj}
+									sx={{
+										cursor: 'pointer',
+									}}
+								/>
 
-										{template?.diptych && !template?.backgroundImage ? (
+								<DeleteIcon
+									color={
+										canvasToolbox.isDeselectDisabled ? 'disabled' : 'inherit'
+									}
+									aria-disabled={canvasToolbox.isDeselectDisabled}
+									onClick={deleteActiveSelection}
+									sx={{
+										cursor: 'pointer',
+										mx: 0.5,
+									}}
+								/>
+								<img
+									src='/icons/flipX.svg'
+									className={
+										!canvasToolbox.isDeselectDisabled ? 'filter-white' : ''
+									}
+									style={{
+										width: 25,
+										height: 25,
+										margin: '0 0.3rem',
+										cursor: 'pointer',
+									}}
+									onClick={() => flipImage('flipX')}
+								/>
+								<img
+									src='/icons/flipY.svg'
+									className={
+										!canvasToolbox.isDeselectDisabled ? 'filter-white' : ''
+									}
+									style={{
+										width: 25,
+										height: 25,
+										cursor: 'pointer',
+										marginLeft: 1.5,
+										marginRight: 1.5,
+									}}
+									onClick={() => flipImage('flipY')}
+								/>
+
+								{gridShow ? (
+									<GridOnIcon
+										color={
+											canvasToolbox.isDeselectDisabled ? 'disabled' : 'inherit'
+										}
+										aria-disabled={canvasToolbox.isDeselectDisabled}
+										onClick={darw_Grid_btn}
+										sx={{
+											cursor: 'pointer',
+											mx: 0.5,
+										}}
+									/>
+								) : (
+									<GridOffIcon
+										color={
+											canvasToolbox.isDeselectDisabled ? 'disabled' : 'inherit'
+										}
+										aria-disabled={canvasToolbox.isDeselectDisabled}
+										onClick={darw_Grid_btn}
+										sx={{
+											cursor: 'pointer',
+											mx: 0.5,
+										}}
+									/>
+								)}
+
+								{isSelected ? (
+									<SwipeVerticalIcon
+										color={
+											canvasToolbox.isDeselectDisabled ? 'disabled' : 'inherit'
+										}
+										aria-disabled={canvasToolbox.isDeselectDisabled}
+										onClick={toggleSelection}
+										sx={{
+											cursor: 'pointer',
+											ml: 0.5,
+										}}
+									/>
+								) : (
+									<SwipeRightIcon
+										color={
+											canvasToolbox.isDeselectDisabled ? 'disabled' : 'inherit'
+										}
+										aria-disabled={canvasToolbox.isDeselectDisabled}
+										onClick={toggleSelection}
+										sx={{
+											cursor: 'pointer',
+										}}
+									/>
+								)}
+							</div>
+
+							<canvas width='1080' height='500' ref={canvasEl} />
+							{/* Footer Panel  Start*/}
+							{activeTab == 'background' && dropDown && (
+								<div
+									style={{
+										width: '555px',
+										height: '90px',
+									}}
+								>
+									<Paper className={classes.root}>
+										<div
+											className={classes.optionsContainer}
+											style={{
+												display: 'flex',
+												justifyContent: 'space-evenly',
+												paddingTop: '4px',
+											}}
+										>
 											<Button
 												className={`${classes.button} ${
-													activeButton === 'border' && classes.buttonActive
+													activeButton === 'Overlay' && classes.buttonActive
 												}`}
 												variant='text'
 												color='primary'
-												onClick={() => handleButtonClick('border')}
+												onClick={() => handleButtonClick('Overlay')}
 											>
-												Border
+												Overlay
 											</Button>
-										) : null}
-									</div>
-									{activeButton === 'Overlay' && (
-										<div className={classes.sliderContainer}>
-											<Slider
-												className={classes.slider}
-												aria-label='Overlay, Brightness, Contrast'
-												color='secondary'
-												value={filterValues.overlay.opacity ?? 0.6}
-												min={0}
-												onChange={(e: any) => {
-													// if (val !== 0) {
-													const val = +(+e.target.value).toFixed(2);
+											<Button
+												className={`${classes.button} ${
+													activeButton === 'Brightness' && classes.buttonActive
+												}`}
+												variant='text'
+												color='primary'
+												onClick={() => handleButtonClick('Brightness')}
+											>
+												Brightness
+											</Button>
+											<Button
+												className={`${classes.button} ${
+													activeButton === 'Contrast' && classes.buttonActive
+												}`}
+												variant='text'
+												color='primary'
+												onClick={() => handleButtonClick('Contrast')}
+											>
+												Contrast
+											</Button>
+											<Button
+												className={`${classes.button} ${
+													activeButton === 'Filters' && classes.buttonActive
+												}`}
+												variant='text'
+												color='primary'
+												onClick={() => handleButtonClick('Filters')}
+											>
+												Filter
+											</Button>
 
-													setFilterValues((prev) => ({
-														...prev,
-														overlay: {
-															...prev.overlay,
-															opacity: +e.target.value,
-														},
-													}));
-
-													updateOverlayImage(filterValues.overlay.imgUrl, val);
-												}}
-												max={1}
-												step={0.02}
-												valueLabelDisplay='auto'
-											/>
-										</div>
-									)}
-
-									{activeButton === 'Contrast' && (
-										<div className={classes.sliderContainer}>
-											<Slider
-												className={classes.slider}
-												aria-label='Overlay, Brightness, Contrast'
-												color='secondary'
-												defaultValue={0}
-												min={-1}
-												value={filtersRange.contrast}
-												max={1}
-												step={0.01}
-												valueLabelDisplay='auto'
-												//eslint-disable-next-line
-												onChange={(e: any) => {
-													let value = +e.target.value;
-													setFiltersRange({ ...filtersRange, contrast: value });
-													var filter = new fabric.Image.filters.Contrast({
-														contrast: value,
-													});
-													updateBackgroundFilters(filter, 'contrast');
-												}}
-											/>
-										</div>
-									)}
-									{activeButton === 'Brightness' && (
-										<div className={classes.sliderContainer}>
-											<Slider
-												className={classes.slider}
-												aria-label='Overlay, Brightness, Contrast'
-												color='secondary'
-												defaultValue={0}
-												min={-1}
-												max={1}
-												step={0.01}
-												value={filtersRange.brightness}
-												valueLabelDisplay='auto'
-												onChange={(e: any) => {
-													let value = +e.target.value;
-													setFiltersRange({
-														...filtersRange,
-														brightness: value,
-													});
-													var filter = new fabric.Image.filters.Brightness({
-														brightness: value,
-													});
-
-													updateBackgroundFilters(filter, 'brightness');
-												}}
-											/>
-										</div>
-									)}
-									{activeButton === 'Filters' && (
-										<div className={classes.sliderContainer}>
-											{availableFilters.map((filter) => (
+											{template?.diptych && !template?.backgroundImage ? (
 												<Button
-													key={filter.name}
 													className={`${classes.button} ${
-														selectedFilter === filter.name &&
-														classes.buttonActive
+														activeButton === 'border' && classes.buttonActive
 													}`}
 													variant='text'
 													color='primary'
-													onClick={() =>
-														updateBackgroundFilters(filter.filter, filter.name)
-													}
+													onClick={() => handleButtonClick('border')}
 												>
-													{filter.name}
+													Border
 												</Button>
-											))}
+											) : null}
 										</div>
-									)}
+										{activeButton === 'Overlay' && (
+											<div className={classes.sliderContainer}>
+												<Slider
+													className={classes.slider}
+													aria-label='Overlay, Brightness, Contrast'
+													color='secondary'
+													value={filterValues.overlay.opacity ?? 0.6}
+													min={0}
+													onChange={(e: any) => {
+														// if (val !== 0) {
+														const val = +(+e.target.value).toFixed(2);
 
-									{activeButton === 'border' && (
-										<Stack
-											width='inherit'
-											mx={10}
-											spacing={2}
-											direction='row'
-											sx={{ mb: 1 }}
-											alignItems='center'
-										>
-											<Box sx={{ display: 'flex', alignItems: 'center' }}>
-												<CustomColorPicker
-													value={overlayTextFiltersState.color}
-													changeHandler={(color: string) => {
-														updateRectangle({
-															...filterValues.collage,
-															stroke: color,
-														});
 														setFilterValues((prev) => ({
 															...prev,
-															collage: { ...prev.collage, stroke: color },
+															overlay: {
+																...prev.overlay,
+																opacity: +e.target.value,
+															},
 														}));
+
+														updateOverlayImage(
+															filterValues.overlay.imgUrl,
+															val
+														);
+													}}
+													max={1}
+													step={0.02}
+													valueLabelDisplay='auto'
+												/>
+											</div>
+										)}
+
+										{activeButton === 'Contrast' && (
+											<div className={classes.sliderContainer}>
+												<Slider
+													className={classes.slider}
+													aria-label='Overlay, Brightness, Contrast'
+													color='secondary'
+													defaultValue={0}
+													min={-1}
+													value={filtersRange.contrast}
+													max={1}
+													step={0.01}
+													valueLabelDisplay='auto'
+													//eslint-disable-next-line
+													onChange={(e: any) => {
+														let value = +e.target.value;
+														setFiltersRange({
+															...filtersRange,
+															contrast: value,
+														});
+														var filter = new fabric.Image.filters.Contrast({
+															contrast: value,
+														});
+														updateBackgroundFilters(filter, 'contrast');
 													}}
 												/>
-											</Box>
-											<Slider
-												valueLabelDisplay='auto'
-												className={classes.slider}
-												min={0}
-												max={20}
-												aria-label='Volume'
-												// value={filterValues.collage.strokeWidth}
-												onChange={(_e: any, value) => {
-													// const value = +e.target.value;
-													setFilterValues((prev) => ({
-														...prev,
-														collage: { ...prev.collage, strokeWidth: value },
-													}));
+											</div>
+										)}
+										{activeButton === 'Brightness' && (
+											<div className={classes.sliderContainer}>
+												<Slider
+													className={classes.slider}
+													aria-label='Overlay, Brightness, Contrast'
+													color='secondary'
+													defaultValue={0}
+													min={-1}
+													max={1}
+													step={0.01}
+													value={filtersRange.brightness}
+													valueLabelDisplay='auto'
+													onChange={(e: any) => {
+														let value = +e.target.value;
+														setFiltersRange({
+															...filtersRange,
+															brightness: value,
+														});
+														var filter = new fabric.Image.filters.Brightness({
+															brightness: value,
+														});
 
-													debouncedUpdateRectangle(value);
+														updateBackgroundFilters(filter, 'brightness');
+													}}
+												/>
+											</div>
+										)}
+										{activeButton === 'Filters' && (
+											<div className={classes.sliderContainer}>
+												{availableFilters.map((filter) => (
+													<Button
+														key={filter.name}
+														className={`${classes.button} ${
+															selectedFilter === filter.name &&
+															classes.buttonActive
+														}`}
+														variant='text'
+														color='primary'
+														onClick={() =>
+															updateBackgroundFilters(
+																filter.filter,
+																filter.name
+															)
+														}
+													>
+														{filter.name}
+													</Button>
+												))}
+											</div>
+										)}
+
+										{activeButton === 'border' && (
+											<Stack
+												width='inherit'
+												mx={10}
+												spacing={2}
+												direction='row'
+												sx={{ mb: 1 }}
+												alignItems='center'
+											>
+												<Box sx={{ display: 'flex', alignItems: 'center' }}>
+													<CustomColorPicker
+														value={overlayTextFiltersState.color}
+														changeHandler={(color: string) => {
+															updateRectangle({
+																...filterValues.collage,
+																stroke: color,
+															});
+															setFilterValues((prev) => ({
+																...prev,
+																collage: { ...prev.collage, stroke: color },
+															}));
+														}}
+													/>
+												</Box>
+												<Slider
+													valueLabelDisplay='auto'
+													className={classes.slider}
+													min={0}
+													max={20}
+													aria-label='Volume'
+													// value={filterValues.collage.strokeWidth}
+													onChange={(_e: any, value) => {
+														// const value = +e.target.value;
+														setFilterValues((prev) => ({
+															...prev,
+															collage: { ...prev.collage, strokeWidth: value },
+														}));
+
+														debouncedUpdateRectangle(value);
+													}}
+												/>
+											</Stack>
+										)}
+									</Paper>
+								</div>
+							)}
+							{(activeTab == 'writePost' ||
+								activeTab === 'element' ||
+								activeTab === 'title') &&
+								dropDown && (
+									<div
+										style={{
+											width: '555px',
+										}}
+									>
+										<Paper className={classes.root}>
+											<Box
+												className={classes.optionsContainer}
+												sx={{
+													display: 'flex',
+													justifyContent: 'space-evenly',
+													textTransform: 'capitalize',
+													width: '100%',
 												}}
-											/>
-										</Stack>
-									)}
-								</Paper>
-							</div>
-						)}
-						{(activeTab == 'writePost' ||
-							activeTab === 'element' ||
-							activeTab === 'title') &&
-							dropDown && (
+											>
+												<Typography
+													className={classes.heading}
+													onClick={() => setShow('font')}
+													sx={{
+														ml: 1,
+													}}
+												>
+													FONT
+												</Typography>
+												<Typography
+													className={classes.heading}
+													onClick={() => setShow('fontWeight')}
+												>
+													FONTWEIGHT
+												</Typography>
+												<Typography
+													className={classes.heading}
+													onClick={() => setShow('charSpacing')}
+												>
+													SPACING
+												</Typography>
+												<Typography
+													className={classes.heading}
+													onClick={() => setShow('colors')}
+												>
+													COLORS
+												</Typography>
+												<Typography
+													className={classes.heading}
+													onClick={() => setShow('size')}
+												>
+													SIZE
+												</Typography>
+												{activeTab === 'element' && (
+													<>
+														{/* <Typography
+													className={classes.heading}
+													onClick={() => setShow('opacity')}
+												>
+													OPACITY
+												</Typography> */}
+														<Typography
+															className={classes.heading}
+															onClick={() => setShow('element-shadow')}
+														>
+															SHADOW
+														</Typography>
+													</>
+												)}
+											</Box>
+
+											{show === 'colors' && (
+												<Box
+													className={classes.optionsContainer}
+													sx={{
+														display: 'flex',
+														alignItems: 'center',
+														justifyContent: 'center',
+													}}
+												>
+													<CustomColorPicker
+														value={overlayTextFiltersState.color}
+														changeHandler={(color: string) => {
+															updateTextBox(canvas, { fill: color });
+															setOverlayTextFiltersState((prev) => ({
+																...prev,
+																color,
+															}));
+														}}
+													/>
+													<Typography
+														sx={{
+															color: 'white',
+															px: 1,
+														}}
+													>
+														Text Color
+													</Typography>
+													<Box
+														sx={{
+															display: 'flex',
+															justifyContent: 'center',
+															alignItems: 'center',
+														}}
+													>
+														<CustomColorPicker
+															type='color'
+															value={color}
+															changeHandler={(color: string) => {
+																setColor(color);
+																applyColor();
+															}}
+														/>
+
+														<Button
+															onClick={applyColor}
+															sx={{
+																color: 'white',
+																textTransform: 'none',
+																backgroundColor: colorApplied ? 'gray' : '',
+																mx: 1,
+															}}
+														>
+															<Typography
+																sx={{
+																	color: 'white',
+																}}
+															>
+																Text Highlight
+															</Typography>
+														</Button>
+														<Button
+															onClick={removeColor}
+															sx={{
+																textTransform: 'none',
+																minWidth: '10px',
+															}}
+														>
+															<DeleteIcon />
+														</Button>
+													</Box>
+													<CustomColorPicker
+														type='color'
+														value={backgroundColor}
+														changeHandler={(color: string) => {
+															setBackgroundColor(color);
+															handleSelectionUpdated();
+														}}
+													/>
+													<Button
+														onClick={handleSelectionUpdated}
+														sx={{
+															color: 'white',
+															textTransform: 'none',
+															backgroundColor: bgColorApplied ? 'gray' : '',
+															mx: 1,
+														}}
+													>
+														Bg Color
+													</Button>
+													<Button
+														onClick={removeBackgroundColor}
+														sx={{
+															// color: 'white',
+															textTransform: 'none',
+															minWidth: '10px',
+														}}
+													>
+														<DeleteIcon />
+													</Button>
+												</Box>
+											)}
+
+											{activeTab === 'element' && show === 'opacity' && (
+												<div className={classes.sliderContainer}>
+													<Slider
+														className={classes.slider}
+														aria-label='size'
+														color='secondary'
+														value={elementOpacity}
+														min={-1}
+														max={1}
+														onChange={(e: any) => {
+															const value = +e.target.value;
+															setElementOpacity(value);
+															updateElementOpacity();
+														}}
+														step={0.01}
+														valueLabelDisplay='auto'
+													/>
+												</div>
+											)}
+
+											{show === 'element-shadow' && (
+												<div>
+													{/* setHexConversionForElement */}
+
+													<Box className={classes.optionsContainer}>
+														<Typography id='opacity-slider' gutterBottom>
+															Color
+														</Typography>
+														<CustomColorPicker
+															value={
+																!hexConversionForElement
+																	? overlayTextFiltersState.color
+																	: 'rgba(0,0,0,1)'
+															}
+															changeHandler={(color: string) => {
+																const rgbaColorCode = hexToRgbA(color);
+																setHexConversionForElement(rgbaColorCode);
+																const splitHexConvertion =
+																	rgbaColorCode?.split(',');
+																updateElementShadow(undefined, undefined, {
+																	color: `${splitHexConvertion[0]},${splitHexConvertion[1]},${splitHexConvertion[2]},${elementShadowValues.opacity})`,
+																	offsetX: elementShadowValues.distance,
+																	offsetY: elementShadowValues.distance,
+																	blur: elementShadowValues.opacity,
+																});
+															}}
+														/>
+													</Box>
+
+													<Typography id='opacity-slider' gutterBottom>
+														Opacity
+													</Typography>
+													<Slider
+														aria-labelledby='opacity-slider'
+														value={elementShadowValues?.opacity}
+														onChange={(event, newValue) => {
+															setElementShadowValues((prev) => ({
+																...prev,
+																opacity: newValue,
+															}));
+
+															const splitHexConvertion =
+																hexConversionForElement?.split(',');
+
+															updateElementShadow(undefined, undefined, {
+																color: hexConversionForElement
+																	? `${splitHexConvertion[0]},${splitHexConvertion[1]},${splitHexConvertion[2]},${newValue})`
+																	: `rgba(0,0,0,${newValue})`,
+																offsetX: elementShadowValues?.distance,
+																offsetY: elementShadowValues?.distance,
+																blur: elementShadowValues?.blur,
+															});
+														}}
+														valueLabelDisplay='auto'
+														step={0.1}
+														min={0}
+														max={1}
+													/>
+													<Typography id='distance-slider' gutterBottom>
+														Distance
+													</Typography>
+													<Slider
+														aria-labelledby='distance-slider'
+														value={elementShadowValues.distance}
+														onChange={(event, newValue) => {
+															setElementShadowValues((prev) => ({
+																...prev,
+																distance: newValue,
+															}));
+
+															const splitHexConvertion =
+																hexConversionForElement?.split(',');
+															updateElementShadow(undefined, undefined, {
+																color: hexConversionForElement
+																	? `${splitHexConvertion[0]},${splitHexConvertion[1]},${splitHexConvertion[2]},${elementShadowValues.opacity})`
+																	: `rgba(0,0,0,${elementShadowValues.opacity}})`,
+																offsetX: newValue,
+																offsetY: newValue,
+																blur: elementShadowValues.blur,
+															});
+														}}
+														valueLabelDisplay='auto'
+														step={1}
+														min={-50}
+														max={50}
+													/>
+													<Typography id='blur-slider' gutterBottom>
+														Blur
+													</Typography>
+													<Slider
+														aria-labelledby='blur-slider'
+														value={elementShadowValues?.blur}
+														onChange={(event, newValue) => {
+															setElementShadowValues((prev) => ({
+																...prev,
+																blur: newValue,
+															}));
+															const splitHexConvertion =
+																hexConversionForElement?.split(',');
+															updateElementShadow(undefined, undefined, {
+																color: hexConversionForElement
+																	? `${splitHexConvertion[0]},${splitHexConvertion[1]},${splitHexConvertion[2]},${elementShadowValues.opacity})`
+																	: `rgba(0,0,0,${elementShadowValues?.opacity}})`,
+																offsetX: elementShadowValues?.distance,
+																offsetY: elementShadowValues?.distance,
+																blur: newValue,
+															});
+														}}
+														valueLabelDisplay='auto'
+														step={1}
+														min={0}
+														max={20}
+													/>
+												</div>
+											)}
+											{show === 'elementShadow' && (
+												<div className={classes.sliderContainer}>
+													<Slider
+														className={classes.slider}
+														aria-label='size'
+														color='secondary'
+														value={elementOpacity}
+														min={-1}
+														max={1}
+														onChange={(e: any) => {
+															const value = +e.target.value;
+															setElementOpacity(value);
+															updateElementOpacity();
+														}}
+														step={0.01}
+														valueLabelDisplay='auto'
+													/>
+												</div>
+											)}
+
+											{show === 'fontWeight' && (
+												<Box my={2} className={classes.sliderContainer}>
+													<Slider
+														className={classes.slider}
+														aria-label='size'
+														color='secondary'
+														defaultValue={400}
+														value={overlayTextFiltersState.fontWeight}
+														min={100}
+														max={900}
+														onChange={(e: any) => {
+															const value = +e.target.value;
+															updateTextBox(canvas, { fontWeight: value });
+															setOverlayTextFiltersState((prev) => ({
+																...prev,
+																fontWeight: value,
+															}));
+														}}
+														step={100}
+														valueLabelDisplay='auto'
+													/>
+												</Box>
+											)}
+
+											{show === 'size' && (
+												<Box my={2} className={classes.sliderContainer}>
+													<Slider
+														className={classes.slider}
+														aria-label='size'
+														color='secondary'
+														defaultValue={overlayTextFiltersState.fontSize}
+														min={10}
+														max={48}
+														onChange={(e: any) => {
+															const value = +e.target.value;
+															updateTextBox(canvas, { fontSize: value });
+															setOverlayTextFiltersState((prev) => ({
+																...prev,
+																fontSize: value,
+															}));
+														}}
+														step={1}
+														valueLabelDisplay='auto'
+													/>
+												</Box>
+											)}
+
+											{show === 'charSpacing' && (
+												<Box
+													my={2}
+													// className={classes.sliderContainer}
+													sx={{
+														display: 'flex',
+														justifyContent: 'center',
+														flexDirection: 'column',
+
+														width: '90%',
+													}}
+												>
+													<Box>
+														<Typography
+															sx={{
+																fontWeight: 600,
+																fontSize: '16px',
+																textAlign: 'center',
+															}}
+														>
+															Spacing
+														</Typography>
+														<Slider
+															className={classes.slider}
+															aria-label='size'
+															color='secondary'
+															value={overlayTextFiltersState.charSpacing}
+															min={-200}
+															max={800}
+															onChange={(e: any) => {
+																const charSpacing = +e.target.value;
+																updateTextBox(canvas, { charSpacing });
+																setOverlayTextFiltersState((prev) => ({
+																	...prev,
+																	charSpacing,
+																}));
+															}}
+															step={1}
+															valueLabelDisplay='auto'
+														/>
+														<Typography
+															sx={{
+																fontWeight: 600,
+																fontSize: '16px',
+																textAlign: 'center',
+															}}
+														>
+															Line Height
+														</Typography>
+														<Slider
+															className={classes.slider}
+															aria-label='size'
+															color='secondary'
+															defaultValue={overlayTextFiltersState.lineHeight}
+															min={-25}
+															max={25}
+															onChange={(e: any) => {
+																const value = +e.target.value;
+																updateTextBox(canvas, { lineHeight: value });
+																setOverlayTextFiltersState((prev) => ({
+																	...prev,
+																	lineHeight: value,
+																}));
+															}}
+															step={0.1}
+															valueLabelDisplay='auto'
+														/>
+													</Box>
+												</Box>
+											)}
+											{show === 'font' && (
+												<FontsTab value={value} handleChange={handleChange} />
+											)}
+										</Paper>
+									</div>
+								)}
+							{activeTab == 'bubble' && dropDown && (
 								<div
 									style={{
 										width: '555px',
@@ -1914,32 +2407,10 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 											className={classes.optionsContainer}
 											sx={{
 												display: 'flex',
-												justifyContent: 'space-evenly',
-												textTransform: 'capitalize',
-												width: '100%',
+												justifyContent: 'space-around',
+												pb: 1.5,
 											}}
 										>
-											<Typography
-												className={classes.heading}
-												onClick={() => setShow('font')}
-												sx={{
-													ml: 1,
-												}}
-											>
-												FONT
-											</Typography>
-											<Typography
-												className={classes.heading}
-												onClick={() => setShow('fontWeight')}
-											>
-												FONTWEIGHT
-											</Typography>
-											<Typography
-												className={classes.heading}
-												onClick={() => setShow('charSpacing')}
-											>
-												SPACING
-											</Typography>
 											<Typography
 												className={classes.heading}
 												onClick={() => setShow('colors')}
@@ -1952,198 +2423,125 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 											>
 												SIZE
 											</Typography>
-											{activeTab === 'element' && (
-												<>
-													{/* <Typography
-													className={classes.heading}
-													onClick={() => setShow('opacity')}
-												>
-													OPACITY
-												</Typography> */}
-													<Typography
-														className={classes.heading}
-														onClick={() => setShow('element-shadow')}
-													>
-														SHADOW
-													</Typography>
-												</>
-											)}
+
+											<Typography
+												className={classes.heading}
+												onClick={() => setShow('shadow')}
+											>
+												SHADOW
+											</Typography>
+											<Typography
+												className={classes.heading}
+												onClick={() => setShow('contrast')}
+												// onClick={() => handleButtonClick("Contrast")}
+											>
+												CONTRAST
+											</Typography>
+											<Typography
+												className={classes.heading}
+												onClick={() => setShow('brightness')}
+												// onClick={() => handleButtonClick("Contrast")}
+											>
+												BRIGHTNESS
+											</Typography>
 										</Box>
 
 										{show === 'colors' && (
-											<Box
-												className={classes.optionsContainer}
-												sx={{
-													display: 'flex',
-													alignItems: 'center',
-													justifyContent: 'center',
-												}}
-											>
+											<Box className={classes.optionsContainer}>
 												<CustomColorPicker
 													value={overlayTextFiltersState.color}
 													changeHandler={(color: string) => {
-														updateTextBox(canvas, { fill: color });
-														setOverlayTextFiltersState((prev) => ({
+														updateBubbleImage(undefined, {
+															stroke: color,
+															strokeWidth: filterValues.bubble.strokeWidth,
+														});
+														setFilterValues((prev) => ({
 															...prev,
-															color,
+															bubble: { ...prev.bubble, stroke: color },
 														}));
 													}}
 												/>
-												<Typography
-													sx={{
-														color: 'white',
-														px: 1,
-													}}
-												>
-													Text Color
-												</Typography>
-
-												<Box
-													sx={{
-														display: 'flex',
-														justifyContent: 'center',
-														alignItems: 'center',
-													}}
-												>
-													<CustomColorPicker
-														type='color'
-														value={color}
-														changeHandler={(color: string) => {
-															setColor(color);
-															applyColor();
-														}}
-													/>
-
-													<Button
-														onClick={applyColor}
-														sx={{
-															color: 'white',
-															textTransform: 'none',
-															backgroundColor: colorApplied ? 'gray' : '',
-															mx: 1,
-														}}
-													>
-														<Typography
-															sx={{
-																color: 'white',
-															}}
-														>
-															Text Highlight
-														</Typography>
-													</Button>
-													<Button
-														onClick={removeColor}
-														sx={{
-															textTransform: 'none',
-															minWidth: '10px',
-														}}
-													>
-														<DeleteIcon />
-													</Button>
-												</Box>
-												<CustomColorPicker
-													type='color'
-													value={backgroundColor}
-													changeHandler={(color: string) => {
-														setBackgroundColor(color);
-														handleSelectionUpdated();
-													}}
-												/>
-												<Button
-													onClick={handleSelectionUpdated}
-													sx={{
-														color: 'white',
-														textTransform: 'none',
-														backgroundColor: bgColorApplied ? 'gray' : '',
-														mx: 1,
-													}}
-												>
-													Bg Color
-												</Button>
-												<Button
-													onClick={removeBackgroundColor}
-													sx={{
-														// color: 'white',
-														textTransform: 'none',
-														minWidth: '10px',
-													}}
-												>
-													<DeleteIcon />
-												</Button>
 											</Box>
 										)}
 
-										{activeTab === 'element' && show === 'opacity' && (
+										{show === 'size' && (
 											<div className={classes.sliderContainer}>
 												<Slider
 													className={classes.slider}
 													aria-label='size'
 													color='secondary'
-													value={elementOpacity}
-													min={-1}
-													max={1}
+													value={filterValues.bubble.strokeWidth}
+													min={1}
+													max={40}
 													onChange={(e: any) => {
 														const value = +e.target.value;
-														setElementOpacity(value);
-														updateElementOpacity();
+														updateBubbleImage(undefined, {
+															stroke: filterValues.bubble.stroke,
+															strokeWidth: value,
+														});
+														setFilterValues((prev) => ({
+															...prev,
+															bubble: { ...prev.bubble, strokeWidth: value },
+														}));
 													}}
-													step={0.01}
+													step={1}
 													valueLabelDisplay='auto'
 												/>
 											</div>
 										)}
 
-										{show === 'element-shadow' && (
+										{show === 'shadow' && (
 											<div>
-												{/* setHexConversionForElement */}
+												<div className={classes.colorPicker}>
+													<Box className={classes.optionsContainer}>
+														<Typography id='opacity-slider' gutterBottom>
+															Color
+														</Typography>
+														<CustomColorPicker
+															value={
+																hexConvertion
+																	? overlayTextFiltersState.color
+																	: 'rgba(0,0,0,1)'
+															}
+															changeHandler={(color: string) => {
+																const rgbaColorCode = hexToRgbA(color);
+																setHexConversion(rgbaColorCode);
+																const splitHexConvertion =
+																	rgbaColorCode?.split(',');
 
-												<Box className={classes.optionsContainer}>
-													<Typography id='opacity-slider' gutterBottom>
-														Color
-													</Typography>
-													<CustomColorPicker
-														value={
-															!hexConversionForElement
-																? overlayTextFiltersState.color
-																: 'rgba(0,0,0,1)'
-														}
-														changeHandler={(color: string) => {
-															const rgbaColorCode = hexToRgbA(color);
-															setHexConversionForElement(rgbaColorCode);
-															const splitHexConvertion =
-																rgbaColorCode?.split(',');
-															updateElementShadow(undefined, undefined, {
-																color: `${splitHexConvertion[0]},${splitHexConvertion[1]},${splitHexConvertion[2]},${elementShadowValues.opacity})`,
-																offsetX: elementShadowValues.distance,
-																offsetY: elementShadowValues.distance,
-																blur: elementShadowValues.opacity,
-															});
-														}}
-													/>
-												</Box>
+																updateBubbleImage(undefined, undefined, {
+																	color: `${splitHexConvertion[0]},${splitHexConvertion[1]},${splitHexConvertion[2]},${shadowValues.opacity})`,
+																	offsetX: shadowValues.distance,
+																	offsetY: shadowValues.distance,
+																	blur: shadowValues.opacity,
+																});
+															}}
+														/>
+													</Box>
+												</div>
 
 												<Typography id='opacity-slider' gutterBottom>
 													Opacity
 												</Typography>
 												<Slider
 													aria-labelledby='opacity-slider'
-													value={elementShadowValues?.opacity}
+													value={shadowValues.opacity}
 													onChange={(event, newValue) => {
-														setElementShadowValues((prev) => ({
+														setShadowValues((prev) => ({
 															...prev,
 															opacity: newValue,
 														}));
 
 														const splitHexConvertion =
-															hexConversionForElement?.split(',');
+															hexConvertion?.split(',');
 
-														updateElementShadow(undefined, undefined, {
-															color: hexConversionForElement
+														updateBubbleImage(undefined, undefined, {
+															color: hexConvertion
 																? `${splitHexConvertion[0]},${splitHexConvertion[1]},${splitHexConvertion[2]},${newValue})`
 																: `rgba(0,0,0,${newValue})`,
-															offsetX: elementShadowValues?.distance,
-															offsetY: elementShadowValues?.distance,
-															blur: elementShadowValues?.blur,
+															offsetX: shadowValues.distance,
+															offsetY: shadowValues.distance,
+															blur: shadowValues.blur,
 														});
 													}}
 													valueLabelDisplay='auto'
@@ -2151,27 +2549,27 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 													min={0}
 													max={1}
 												/>
+
 												<Typography id='distance-slider' gutterBottom>
 													Distance
 												</Typography>
 												<Slider
 													aria-labelledby='distance-slider'
-													value={elementShadowValues.distance}
+													value={shadowValues.distance}
 													onChange={(event, newValue) => {
-														setElementShadowValues((prev) => ({
+														setShadowValues((prev) => ({
 															...prev,
 															distance: newValue,
 														}));
-
 														const splitHexConvertion =
-															hexConversionForElement?.split(',');
-														updateElementShadow(undefined, undefined, {
-															color: hexConversionForElement
-																? `${splitHexConvertion[0]},${splitHexConvertion[1]},${splitHexConvertion[2]},${elementShadowValues.opacity})`
-																: `rgba(0,0,0,${elementShadowValues.opacity}})`,
+															hexConvertion?.split(',');
+														updateBubbleImage(undefined, undefined, {
+															color: hexConvertion
+																? `${splitHexConvertion[0]},${splitHexConvertion[1]},${splitHexConvertion[2]},${shadowValues.opacity})`
+																: `rgba(0,0,0,${shadowValues.opacity})`,
 															offsetX: newValue,
 															offsetY: newValue,
-															blur: elementShadowValues.blur,
+															blur: shadowValues.blur,
 														});
 													}}
 													valueLabelDisplay='auto'
@@ -2184,20 +2582,21 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 												</Typography>
 												<Slider
 													aria-labelledby='blur-slider'
-													value={elementShadowValues?.blur}
+													value={shadowValues.blur}
 													onChange={(event, newValue) => {
-														setElementShadowValues((prev) => ({
+														setShadowValues((prev) => ({
 															...prev,
 															blur: newValue,
 														}));
 														const splitHexConvertion =
-															hexConversionForElement?.split(',');
-														updateElementShadow(undefined, undefined, {
-															color: hexConversionForElement
-																? `${splitHexConvertion[0]},${splitHexConvertion[1]},${splitHexConvertion[2]},${elementShadowValues.opacity})`
-																: `rgba(0,0,0,${elementShadowValues?.opacity}})`,
-															offsetX: elementShadowValues?.distance,
-															offsetY: elementShadowValues?.distance,
+															hexConvertion?.split(',');
+
+														updateBubbleImage(undefined, undefined, {
+															color: hexConvertion
+																? `${splitHexConvertion[0]},${splitHexConvertion[1]},${splitHexConvertion[2]},${shadowValues.opacity})`
+																: `rgba(0,0,0,${shadowValues.opacity})`,
+															offsetX: shadowValues.distance,
+															offsetY: shadowValues.distance,
 															blur: newValue,
 														});
 													}}
@@ -2208,19 +2607,23 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 												/>
 											</div>
 										)}
-										{show === 'elementShadow' && (
+
+										{show === 'contrast' && (
 											<div className={classes.sliderContainer}>
 												<Slider
 													className={classes.slider}
 													aria-label='size'
 													color='secondary'
-													value={elementOpacity}
+													value={bubbleFilter.contrast}
 													min={-1}
 													max={1}
 													onChange={(e: any) => {
 														const value = +e.target.value;
-														setElementOpacity(value);
-														updateElementOpacity();
+														setBubbleFilter((prev) => ({
+															...prev,
+															contrast: value,
+														}));
+														updateBubbleImageContrast();
 													}}
 													step={0.01}
 													valueLabelDisplay='auto'
@@ -2228,512 +2631,158 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 											</div>
 										)}
 
-										{show === 'fontWeight' && (
-											<Box my={2} className={classes.sliderContainer}>
+										{show === 'brightness' && (
+											<div className={classes.sliderContainer}>
 												<Slider
 													className={classes.slider}
 													aria-label='size'
 													color='secondary'
-													defaultValue={400}
-													value={overlayTextFiltersState.fontWeight}
-													min={100}
-													max={900}
+													value={bubbleFilter.brightness}
+													min={-1}
+													max={1}
 													onChange={(e: any) => {
 														const value = +e.target.value;
-														updateTextBox(canvas, { fontWeight: value });
-														setOverlayTextFiltersState((prev) => ({
+														setBubbleFilter((prev) => ({
 															...prev,
-															fontWeight: value,
+															brightness: value,
 														}));
+														updateBubbleImageBrightness();
 													}}
-													step={100}
+													step={0.01}
 													valueLabelDisplay='auto'
 												/>
-											</Box>
-										)}
-
-										{show === 'size' && (
-											<Box my={2} className={classes.sliderContainer}>
-												<Slider
-													className={classes.slider}
-													aria-label='size'
-													color='secondary'
-													defaultValue={overlayTextFiltersState.fontSize}
-													min={10}
-													max={48}
-													onChange={(e: any) => {
-														const value = +e.target.value;
-														updateTextBox(canvas, { fontSize: value });
-														setOverlayTextFiltersState((prev) => ({
-															...prev,
-															fontSize: value,
-														}));
-													}}
-													step={1}
-													valueLabelDisplay='auto'
-												/>
-											</Box>
-										)}
-
-										{show === 'charSpacing' && (
-											<Box
-												my={2}
-												// className={classes.sliderContainer}
-												sx={{
-													display: 'flex',
-													justifyContent: 'center',
-													flexDirection: 'column',
-
-													width: '90%',
-												}}
-											>
-												<Box>
-													<Typography
-														sx={{
-															fontWeight: 600,
-															fontSize: '16px',
-															textAlign: 'center',
-														}}
-													>
-														Spacing
-													</Typography>
-													<Slider
-														className={classes.slider}
-														aria-label='size'
-														color='secondary'
-														value={overlayTextFiltersState.charSpacing}
-														min={-200}
-														max={800}
-														onChange={(e: any) => {
-															const charSpacing = +e.target.value;
-															updateTextBox(canvas, { charSpacing });
-															setOverlayTextFiltersState((prev) => ({
-																...prev,
-																charSpacing,
-															}));
-														}}
-														step={1}
-														valueLabelDisplay='auto'
-													/>
-													<Typography
-														sx={{
-															fontWeight: 600,
-															fontSize: '16px',
-															textAlign: 'center',
-														}}
-													>
-														Line Height
-													</Typography>
-													<Slider
-														className={classes.slider}
-														aria-label='size'
-														color='secondary'
-														defaultValue={overlayTextFiltersState.lineHeight}
-														min={-25}
-														max={25}
-														onChange={(e: any) => {
-															const value = +e.target.value;
-															updateTextBox(canvas, { lineHeight: value });
-															setOverlayTextFiltersState((prev) => ({
-																...prev,
-																lineHeight: value,
-															}));
-														}}
-														step={0.1}
-														valueLabelDisplay='auto'
-													/>
-												</Box>
-											</Box>
-										)}
-										{show === 'font' && (
-											<FontsTab value={value} handleChange={handleChange} />
+											</div>
 										)}
 									</Paper>
 								</div>
 							)}
-						{activeTab == 'bubble' && dropDown && (
+							<Paper
+								sx={{
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'center',
+									borderRadius: 0,
+									width: '537px',
+								}}
+								onClick={() => {
+									dropDown ? setDropDown(false) : setDropDown(true);
+								}}
+							>
+								{dropDown ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
+							</Paper>
 							<div
 								style={{
-									width: '555px',
+									display: 'flex',
+									// marginTop: '16px',
+									justifyContent: 'space-between',
+
+									height: '100px',
+									width: '535px',
 								}}
 							>
-								<Paper className={classes.root}>
-									<Box
-										className={classes.optionsContainer}
-										sx={{
-											display: 'flex',
-											justifyContent: 'space-around',
-											pb: 1.5,
+								<button
+									style={{
+										backgroundColor: 'transparent',
+										border: 'none',
+									}}
+									// onClick={() => updateActiveTab('background')}
+									onClick={() => {
+										updateActiveTab('background');
+										deselectObj();
+									}}
+								>
+									<img
+										src='/Tab-Icons/background.png'
+										width='90'
+										height='90'
+										style={{
+											color: 'white',
+											fontSize: '30px',
+											filter: activeTab === 'background' ? filter : undefined,
 										}}
-									>
-										<Typography
-											className={classes.heading}
-											onClick={() => setShow('colors')}
-										>
-											COLORS
-										</Typography>
-										<Typography
-											className={classes.heading}
-											onClick={() => setShow('size')}
-										>
-											SIZE
-										</Typography>
+									/>
+								</button>
 
-										<Typography
-											className={classes.heading}
-											onClick={() => setShow('shadow')}
-										>
-											SHADOW
-										</Typography>
-										<Typography
-											className={classes.heading}
-											onClick={() => setShow('contrast')}
-											// onClick={() => handleButtonClick("Contrast")}
-										>
-											CONTRAST
-										</Typography>
-										<Typography
-											className={classes.heading}
-											onClick={() => setShow('brightness')}
-											// onClick={() => handleButtonClick("Contrast")}
-										>
-											BRIGHTNESS
-										</Typography>
-									</Box>
+								<button
+									style={{ backgroundColor: 'transparent', border: 'none' }}
+									// onClick={() => updateActiveTab('title')}
+									onClick={() => {
+										updateActiveTab('title');
+										deselectObj();
+									}}
+								>
+									<img
+										src='/Tab-Icons/Edit-Text.png'
+										width='90'
+										height='90'
+										style={{
+											color: 'white',
+											fontSize: '30px',
+											filter: activeTab === 'title' ? filter : undefined,
+										}}
+									/>
+								</button>
 
-									{show === 'colors' && (
-										<Box className={classes.optionsContainer}>
-											<CustomColorPicker
-												value={overlayTextFiltersState.color}
-												changeHandler={(color: string) => {
-													updateBubbleImage(undefined, {
-														stroke: color,
-														strokeWidth: filterValues.bubble.strokeWidth,
-													});
-													setFilterValues((prev) => ({
-														...prev,
-														bubble: { ...prev.bubble, stroke: color },
-													}));
-												}}
-											/>
-										</Box>
-									)}
+								<button
+									// onClick={() => updateActiveTab('bubble')}
+									onClick={() => {
+										updateActiveTab('bubble');
+										deselectObj();
+									}}
+									style={{ backgroundColor: 'transparent', border: 'none' }}
+								>
+									<img
+										src='/Tab-Icons/Add-Bubble.png'
+										width='90'
+										height='90'
+										style={{
+											color: 'white',
+											fontSize: '30px',
+											filter: activeTab === 'bubble' ? filter : undefined,
+										}}
+									/>
+								</button>
 
-									{show === 'size' && (
-										<div className={classes.sliderContainer}>
-											<Slider
-												className={classes.slider}
-												aria-label='size'
-												color='secondary'
-												value={filterValues.bubble.strokeWidth}
-												min={1}
-												max={40}
-												onChange={(e: any) => {
-													const value = +e.target.value;
-													updateBubbleImage(undefined, {
-														stroke: filterValues.bubble.stroke,
-														strokeWidth: value,
-													});
-													setFilterValues((prev) => ({
-														...prev,
-														bubble: { ...prev.bubble, strokeWidth: value },
-													}));
-												}}
-												step={1}
-												valueLabelDisplay='auto'
-											/>
-										</div>
-									)}
+								<button
+									// onClick={() => updateActiveTab('element')}
+									onClick={() => {
+										updateActiveTab('element');
+										deselectObj();
+									}}
+									style={{ backgroundColor: 'transparent', border: 'none' }}
+								>
+									<img
+										src='/Tab-Icons/Add-Elements.png'
+										width='90'
+										height='90'
+										style={{
+											color: 'white',
+											fontSize: '30px',
+											filter: activeTab === 'element' ? filter : undefined,
+										}}
+									/>
+								</button>
 
-									{show === 'shadow' && (
-										<div>
-											<div className={classes.colorPicker}>
-												<Box className={classes.optionsContainer}>
-													<Typography id='opacity-slider' gutterBottom>
-														Color
-													</Typography>
-													<CustomColorPicker
-														value={
-															hexConvertion
-																? overlayTextFiltersState.color
-																: 'rgba(0,0,0,1)'
-														}
-														changeHandler={(color: string) => {
-															const rgbaColorCode = hexToRgbA(color);
-															setHexConversion(rgbaColorCode);
-															const splitHexConvertion =
-																rgbaColorCode?.split(',');
-
-															updateBubbleImage(undefined, undefined, {
-																color: `${splitHexConvertion[0]},${splitHexConvertion[1]},${splitHexConvertion[2]},${shadowValues.opacity})`,
-																offsetX: shadowValues.distance,
-																offsetY: shadowValues.distance,
-																blur: shadowValues.opacity,
-															});
-														}}
-													/>
-												</Box>
-											</div>
-
-											<Typography id='opacity-slider' gutterBottom>
-												Opacity
-											</Typography>
-											<Slider
-												aria-labelledby='opacity-slider'
-												value={shadowValues.opacity}
-												onChange={(event, newValue) => {
-													setShadowValues((prev) => ({
-														...prev,
-														opacity: newValue,
-													}));
-
-													const splitHexConvertion = hexConvertion?.split(',');
-
-													updateBubbleImage(undefined, undefined, {
-														color: hexConvertion
-															? `${splitHexConvertion[0]},${splitHexConvertion[1]},${splitHexConvertion[2]},${newValue})`
-															: `rgba(0,0,0,${newValue})`,
-														offsetX: shadowValues.distance,
-														offsetY: shadowValues.distance,
-														blur: shadowValues.blur,
-													});
-												}}
-												valueLabelDisplay='auto'
-												step={0.1}
-												min={0}
-												max={1}
-											/>
-
-											<Typography id='distance-slider' gutterBottom>
-												Distance
-											</Typography>
-											<Slider
-												aria-labelledby='distance-slider'
-												value={shadowValues.distance}
-												onChange={(event, newValue) => {
-													setShadowValues((prev) => ({
-														...prev,
-														distance: newValue,
-													}));
-													const splitHexConvertion = hexConvertion?.split(',');
-													updateBubbleImage(undefined, undefined, {
-														color: hexConvertion
-															? `${splitHexConvertion[0]},${splitHexConvertion[1]},${splitHexConvertion[2]},${shadowValues.opacity})`
-															: `rgba(0,0,0,${shadowValues.opacity})`,
-														offsetX: newValue,
-														offsetY: newValue,
-														blur: shadowValues.blur,
-													});
-												}}
-												valueLabelDisplay='auto'
-												step={1}
-												min={-50}
-												max={50}
-											/>
-											<Typography id='blur-slider' gutterBottom>
-												Blur
-											</Typography>
-											<Slider
-												aria-labelledby='blur-slider'
-												value={shadowValues.blur}
-												onChange={(event, newValue) => {
-													setShadowValues((prev) => ({
-														...prev,
-														blur: newValue,
-													}));
-													const splitHexConvertion = hexConvertion?.split(',');
-
-													updateBubbleImage(undefined, undefined, {
-														color: hexConvertion
-															? `${splitHexConvertion[0]},${splitHexConvertion[1]},${splitHexConvertion[2]},${shadowValues.opacity})`
-															: `rgba(0,0,0,${shadowValues.opacity})`,
-														offsetX: shadowValues.distance,
-														offsetY: shadowValues.distance,
-														blur: newValue,
-													});
-												}}
-												valueLabelDisplay='auto'
-												step={1}
-												min={0}
-												max={20}
-											/>
-										</div>
-									)}
-
-									{show === 'contrast' && (
-										<div className={classes.sliderContainer}>
-											<Slider
-												className={classes.slider}
-												aria-label='size'
-												color='secondary'
-												value={bubbleFilter.contrast}
-												min={-1}
-												max={1}
-												onChange={(e: any) => {
-													const value = +e.target.value;
-													setBubbleFilter((prev) => ({
-														...prev,
-														contrast: value,
-													}));
-													updateBubbleImageContrast();
-												}}
-												step={0.01}
-												valueLabelDisplay='auto'
-											/>
-										</div>
-									)}
-
-									{show === 'brightness' && (
-										<div className={classes.sliderContainer}>
-											<Slider
-												className={classes.slider}
-												aria-label='size'
-												color='secondary'
-												value={bubbleFilter.brightness}
-												min={-1}
-												max={1}
-												onChange={(e: any) => {
-													const value = +e.target.value;
-													setBubbleFilter((prev) => ({
-														...prev,
-														brightness: value,
-													}));
-													updateBubbleImageBrightness();
-												}}
-												step={0.01}
-												valueLabelDisplay='auto'
-											/>
-										</div>
-									)}
-								</Paper>
+								<button
+									// onClick={() => updateActiveTab('writePost')}
+									onClick={() => {
+										updateActiveTab('writePost');
+										deselectObj();
+									}}
+									style={{ backgroundColor: 'transparent', border: 'none' }}
+								>
+									<img
+										src='/Tab-Icons/Write-Post.png'
+										width='90'
+										height='90'
+										style={{
+											color: 'white',
+											fontSize: '30px',
+											filter: activeTab === 'writePost' ? filter : undefined,
+										}}
+									/>
+								</button>
 							</div>
-						)}
-						<Paper
-							sx={{
-								display: 'flex',
-								alignItems: 'center',
-								justifyContent: 'center',
-								borderRadius: 0,
-								width: '537px',
-							}}
-							onClick={() => {
-								dropDown ? setDropDown(false) : setDropDown(true);
-							}}
-						>
-							{dropDown ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
-						</Paper>
-						<div
-							style={{
-								display: 'flex',
-								// marginTop: '16px',
-								justifyContent: 'space-between',
-
-								height: '100px',
-								width: '535px',
-							}}
-						>
-							<button
-								style={{
-									backgroundColor: 'transparent',
-									border: 'none',
-								}}
-								// onClick={() => updateActiveTab('background')}
-								onClick={() => {
-									updateActiveTab('background');
-									deselectObj();
-								}}
-							>
-								<img
-									src='/Tab-Icons/background.png'
-									width='90'
-									height='90'
-									style={{
-										color: 'white',
-										fontSize: '30px',
-										filter: activeTab === 'background' ? filter : undefined,
-									}}
-								/>
-							</button>
-
-							<button
-								style={{ backgroundColor: 'transparent', border: 'none' }}
-								// onClick={() => updateActiveTab('title')}
-								onClick={() => {
-									updateActiveTab('title');
-									deselectObj();
-								}}
-							>
-								<img
-									src='/Tab-Icons/Edit-Text.png'
-									width='90'
-									height='90'
-									style={{
-										color: 'white',
-										fontSize: '30px',
-										filter: activeTab === 'title' ? filter : undefined,
-									}}
-								/>
-							</button>
-
-							<button
-								// onClick={() => updateActiveTab('bubble')}
-								onClick={() => {
-									updateActiveTab('bubble');
-									deselectObj();
-								}}
-								style={{ backgroundColor: 'transparent', border: 'none' }}
-							>
-								<img
-									src='/Tab-Icons/Add-Bubble.png'
-									width='90'
-									height='90'
-									style={{
-										color: 'white',
-										fontSize: '30px',
-										filter: activeTab === 'bubble' ? filter : undefined,
-									}}
-								/>
-							</button>
-
-							<button
-								// onClick={() => updateActiveTab('element')}
-								onClick={() => {
-									updateActiveTab('element');
-									deselectObj();
-								}}
-								style={{ backgroundColor: 'transparent', border: 'none' }}
-							>
-								<img
-									src='/Tab-Icons/Add-Elements.png'
-									width='90'
-									height='90'
-									style={{
-										color: 'white',
-										fontSize: '30px',
-										filter: activeTab === 'element' ? filter : undefined,
-									}}
-								/>
-							</button>
-
-							<button
-								// onClick={() => updateActiveTab('writePost')}
-								onClick={() => {
-									updateActiveTab('writePost');
-									deselectObj();
-								}}
-								style={{ backgroundColor: 'transparent', border: 'none' }}
-							>
-								<img
-									src='/Tab-Icons/Write-Post.png'
-									width='90'
-									height='90'
-									style={{
-										color: 'white',
-										fontSize: '30px',
-										filter: activeTab === 'writePost' ? filter : undefined,
-									}}
-								/>
-							</button>
 						</div>
 					</div>
 
@@ -3141,82 +3190,82 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 						)}
 
 						{activeTab == 'element' && (
-							<div>
-								<>
-									<Box>
-										<Typography
-											sx={{
-												fontWeight: 'bold',
-												pb: 1.5,
-											}}
-										>
-											Choose Element
-										</Typography>
-										<Box
-											sx={{
-												display: 'flex',
-											}}
-										>
-											{swipeData?.map(({ swipeImg, id }, i) => {
-												return (
-													<Box
-														key={`swipe_${id}_${i}`}
-														sx={{
-															display: 'flex',
-															justifyContent: 'center',
-															alignItems: 'center',
-															width: '100%',
-														}}
-													>
-														<img
-															draggable={true}
-															onDragStart={(e) => handleDragStart(e, swipeImg)}
-															src={swipeImg}
-															onClick={() =>
-																swipeColorChangeHandler(id, swipeImg)
-															}
-															alt=''
-															style={{
-																cursor: 'pointer',
-																paddingBottom: '0.5rem',
-																width: '30px',
-																height: '30px',
-															}}
-														/>
-													</Box>
-												);
-											})}
-										</Box>
-
-										<Box
-											sx={{
-												display: 'flex',
-												justifyContent: 'space-between',
-												alignItems: 'center',
-												position: 'relative',
-											}}
-										>
-											{elements?.map((element: string, i) => {
-												return (
+							<Box id='element'>
+								<Box>
+									<Typography
+										sx={{
+											fontWeight: 'bold',
+											pb: 1.5,
+										}}
+									>
+										Choose Element
+									</Typography>
+									<Box
+										sx={{
+											display: 'flex',
+										}}
+									>
+										{swipeData?.map(({ swipeImg, id }, i) => {
+											return (
+												<Box
+													key={`swipe_${id}_${i}`}
+													sx={{
+														display: 'flex',
+														justifyContent: 'center',
+														alignItems: 'center',
+														width: '100%',
+													}}
+												>
 													<img
-														key={i}
-														src={element}
-														onClick={() => {
-															const iconSrc = '/icons/swipe.svg';
-															const color =
-																userMetaData?.company?.color || '#ffffff';
-															createSwipeGroup(canvas, {}, iconSrc, color);
-														}}
+														draggable={true}
+														onDragStart={(e) => handleDragStart(e, swipeImg)}
+														src={swipeImg}
+														onClick={() =>
+															swipeColorChangeHandler(id, swipeImg)
+														}
 														alt=''
-														width='90px'
 														style={{
 															cursor: 'pointer',
 															paddingBottom: '0.5rem',
+															width: '30px',
+															height: '30px',
 														}}
 													/>
-												);
-											})}
+												</Box>
+											);
+										})}
+									</Box>
 
+									<Box
+										sx={{
+											display: 'flex',
+											justifyContent: 'space-between',
+											alignItems: 'center',
+											position: 'relative',
+										}}
+									>
+										{elements?.map((element: string, i) => {
+											return (
+												<img
+													key={i}
+													src={element}
+													onClick={() => {
+														const iconSrc = '/icons/swipe.svg';
+														const color =
+															userMetaData?.company?.color || '#ffffff';
+														createSwipeGroup(canvas, {}, iconSrc, color);
+													}}
+													alt=''
+													width='90px'
+													style={{
+														cursor: 'pointer',
+														paddingBottom: '0.5rem',
+													}}
+												/>
+											);
+										})}
+
+										<div id='CustomColorPicker'>
 											<CustomColorPicker
 												value={userMetaData?.company?.color || '#909AE9'}
 												changeHandler={(color: string) => {
@@ -3258,596 +3307,662 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 													}
 												}}
 											/>
-										</Box>
+											{/* <CustomColorPicker
+												value={userMetaData?.company?.color || '#909AE9'}
+												changeHandler={(color: string) => {
+													const type = 'swipeGroup';
+													let existingObject = getExistingObject(type) as
+														| fabric.Image
+														| undefined;
+
+													if (
+														canvas?._activeObject &&
+														canvas?._activeObject?.type === 'image'
+													) {
+														existingObject =
+															canvas?._activeObject as fabric.Image;
+													}
+
+													if (!existingObject) {
+														console.log('existing Border object not found');
+														return;
+													}
+
+													// Check if the object is a fabric.Image and has the applyFilters method
+													if (
+														existingObject instanceof fabric.Image &&
+														typeof existingObject.applyFilters === 'function'
+													) {
+														const blendColorFilter1 =
+															new fabric.Image.filters.BlendColor({
+																color,
+																mode: 'tint',
+																alpha: 1,
+															});
+
+														const swipeGroup = getExistingObject('swipeGroup');
+
+														const activeObj = canvas?.getActiveObject();
+
+														if (activeObj?.customType === 'swipeGroup') {
+															updateSwipeColor(canvas, color);
+														} else {
+															existingObject.filters?.push(blendColorFilter1);
+															existingObject.applyFilters();
+															requestAnimationFrame(() => {
+																canvas?.renderAll();
+															});
+														}
+													} else {
+														console.error(
+															'existingObject is not a fabric.Image or does not have applyFilters method'
+														);
+														console.log('existingObject:', existingObject);
+													}
+												}}
+											/> */}
+										</div>
 									</Box>
-									<Box>
+								</Box>
+								<Box>
+									<Typography
+										sx={{
+											fontWeight: 'bold',
+											pt: 1,
+										}}
+									>
+										Shapes
+									</Typography>
+									<Box
+										sx={{
+											display: 'flex',
+											pt: 1.5,
+										}}
+									>
+										{shapeData?.map(({ imgShape }, i) => {
+											return (
+												<Box
+													key={i}
+													sx={{
+														display: 'flex',
+														justifyContent: 'center',
+														alignItems: 'center',
+														width: '100%',
+													}}
+												>
+													<img
+														src={imgShape}
+														onClick={() => borderColorChangeHandler(imgShape)}
+														onDragStart={(e) => handleDragStart(e, imgShape)}
+														// onClick={() => {
+														// 	fabric.Image.fromURL(
+														// 		imgShape,
+														// 		function (img) {
+														// 			img.set({ left: 230, top: 250 }).scale(0.2);
+														// 			canvas.add(img);
+														// 			requestAnimationFrame(() => {
+														// 				canvas.renderAll();
+														// 			});
+														// 		},
+														// 		{
+														// 			crossOrigin: 'anonymous',
+														// 		}
+														// 	);
+														// }}
+														alt=''
+														// width='90px'
+														style={{
+															cursor: 'pointer',
+															paddingBottom: '0.5rem',
+															width: '30px',
+															height: '30px',
+														}}
+													/>
+												</Box>
+											);
+										})}
+									</Box>
+
+									<Box
+										sx={{
+											display: 'flex',
+											justifyContent: 'flex-end',
+											pt: 1.5,
+										}}
+									>
+										<CustomColorPicker
+											// value={overlayTextFiltersState.color}
+											value={userMetaData?.company?.color || '#909AE9'}
+											changeHandler={(color: string) => {
+												const type = 'borders';
+												let existingObject = getExistingObject(type) as
+													| fabric.Image
+													| undefined;
+												if (
+													canvas?._activeObject &&
+													canvas?._activeObject?.type === 'image'
+												)
+													existingObject =
+														canvas?._activeObject as fabric.Image;
+
+												if (!existingObject) {
+													console.log('existing Border object not founded');
+													return;
+												}
+												const blendColorFilter =
+													new fabric.Image.filters.BlendColor({
+														color,
+														mode: 'tint',
+														alpha: 1,
+													});
+
+												existingObject.filters?.push(blendColorFilter);
+												existingObject.applyFilters();
+												requestAnimationFrame(() => {
+													canvas?.renderAll();
+												});
+											}}
+										/>
+									</Box>
+									<Box
+										sx={{
+											py: 1,
+										}}
+									>
 										<Typography
 											sx={{
 												fontWeight: 'bold',
 												pt: 1,
 											}}
 										>
-											Shapes
+											Borders
 										</Typography>
-										<Box
-											sx={{
-												display: 'flex',
-												pt: 1.5,
-											}}
-										>
-											{shapeData?.map(({ imgShape }, i) => {
-												return (
-													<Box
-														key={i}
-														sx={{
-															display: 'flex',
-															justifyContent: 'center',
-															alignItems: 'center',
-															width: '100%',
-														}}
-													>
-														<img
-															src={imgShape}
-															onClick={() => borderColorChangeHandler(imgShape)}
-															onDragStart={(e) => handleDragStart(e, imgShape)}
-															// onClick={() => {
-															// 	fabric.Image.fromURL(
-															// 		imgShape,
-															// 		function (img) {
-															// 			img.set({ left: 230, top: 250 }).scale(0.2);
-															// 			canvas.add(img);
-															// 			requestAnimationFrame(() => {
-															// 				canvas.renderAll();
-															// 			});
-															// 		},
-															// 		{
-															// 			crossOrigin: 'anonymous',
-															// 		}
-															// 	);
-															// }}
-															alt=''
-															// width='90px'
-															style={{
-																cursor: 'pointer',
-																paddingBottom: '0.5rem',
-																width: '30px',
-																height: '30px',
-															}}
-														/>
-													</Box>
-												);
-											})}
-										</Box>
-
-										<Box
-											sx={{
-												display: 'flex',
-												justifyContent: 'flex-end',
-												pt: 1.5,
-											}}
-										>
-											<CustomColorPicker
-												// value={overlayTextFiltersState.color}
-												value={userMetaData?.company?.color || '#909AE9'}
-												changeHandler={(color: string) => {
-													const type = 'borders';
-													let existingObject = getExistingObject(type) as
-														| fabric.Image
-														| undefined;
-													if (
-														canvas?._activeObject &&
-														canvas?._activeObject?.type === 'image'
-													)
-														existingObject =
-															canvas?._activeObject as fabric.Image;
-
-													if (!existingObject) {
-														console.log('existing Border object not founded');
-														return;
-													}
-													const blendColorFilter =
-														new fabric.Image.filters.BlendColor({
-															color,
-															mode: 'tint',
-															alpha: 1,
-														});
-
-													existingObject.filters?.push(blendColorFilter);
-													existingObject.applyFilters();
-													requestAnimationFrame(() => {
-														canvas?.renderAll();
-													});
-												}}
-											/>
-										</Box>
-										<Box
-											sx={{
-												py: 1,
-											}}
-										>
-											<Typography
-												sx={{
-													fontWeight: 'bold',
-													pt: 1,
-												}}
-											>
-												Borders
-											</Typography>
-										</Box>
-										<Box
-											sx={{
-												display: 'flex',
-												justifyContent: 'center',
-												alignItems: 'center',
-											}}
-										>
-											{dividersData?.map(({ dividerImg }, i) => {
-												return (
-													<Box
-														key={i}
-														sx={{
-															display: 'flex',
-															justifyContent: 'center',
-															alignItems: 'center',
-															width: '100%',
-															flexDirection: 'row',
-														}}
-													>
-														<img
-															src={dividerImg}
-															onDragStart={(e) =>
-																handleDragStart(e, dividerImg)
-															}
-															onClick={() =>
-																dividerColorChangeHandler(dividerImg)
-															}
-															// onClick={() => {
-															// 	fabric.Image.fromURL(
-															// 		dividerImg,
-															// 		function (img) {
-															// 			img.set({ left: 200, top: 250 }).scale(0.2);
-															// 			canvas.add(img);
-															// 			requestAnimationFrame(() => {
-															// 				canvas.renderAll();
-															// 			});
-															// 		},
-															// 		{
-															// 			crossOrigin: 'anonymous',
-															// 		}
-															// 	);
-															// }}
-															alt=''
-															// width='90px'
-															style={{
-																cursor: 'pointer',
-																paddingBottom: '0.5rem',
-																width: '40px',
-																height: '20px',
-																// border: '1px solid red',
-															}}
-														/>
-													</Box>
-												);
-											})}
-										</Box>
-										<Box
-											sx={{
-												display: 'flex',
-												justifyContent: 'space-between',
-												alignItems: 'center',
-											}}
-										>
-											{borders?.map((border: string, i) => {
-												return (
+									</Box>
+									<Box
+										sx={{
+											display: 'flex',
+											justifyContent: 'center',
+											alignItems: 'center',
+										}}
+									>
+										{dividersData?.map(({ dividerImg }, i) => {
+											return (
+												<Box
+													key={i}
+													sx={{
+														display: 'flex',
+														justifyContent: 'center',
+														alignItems: 'center',
+														width: '100%',
+														flexDirection: 'row',
+													}}
+												>
 													<img
-														key={i}
-														src={border}
-														onDragStart={(e) => handleDragStart(e, border)}
-														onClick={() => {
-															const imageObject = getExistingObject(
-																'borders'
-															) as fabric.Image | undefined;
-															if (!canvas) return;
-
-															if (imageObject && !imageObject.visible) {
-																imageObject.set({
-																	visible: true,
-																	// fill: userMetaData?.company?.color,
-																});
-																var filter =
-																	new fabric.Image.filters.BlendColor({
-																		color: userMetaData?.company?.color,
-																		mode: 'tint',
-																		alpha: 1,
-																	});
-																imageObject.filters.push(filter);
-																imageObject.applyFilters();
-																return canvas?.renderAll();
-															} else
-																createImage(canvas, border, {
-																	customType: 'borders',
-																});
-														}}
+														src={dividerImg}
+														onDragStart={(e) => handleDragStart(e, dividerImg)}
+														onClick={() =>
+															dividerColorChangeHandler(dividerImg)
+														}
+														// onClick={() => {
+														// 	fabric.Image.fromURL(
+														// 		dividerImg,
+														// 		function (img) {
+														// 			img.set({ left: 200, top: 250 }).scale(0.2);
+														// 			canvas.add(img);
+														// 			requestAnimationFrame(() => {
+														// 				canvas.renderAll();
+														// 			});
+														// 		},
+														// 		{
+														// 			crossOrigin: 'anonymous',
+														// 		}
+														// 	);
+														// }}
 														alt=''
-														width='90px'
+														// width='90px'
 														style={{
 															cursor: 'pointer',
 															paddingBottom: '0.5rem',
+															width: '40px',
+															height: '20px',
+															// border: '1px solid red',
 														}}
 													/>
-												);
-											})}
-											<CustomColorPicker
-												// value={overlayTextFiltersState.color}
-												value={userMetaData?.company?.color || '#909AE9'}
-												changeHandler={(color: string) => {
-													const type = 'borders';
-													let existingObject = getExistingObject(type) as
-														| fabric.Image
-														| undefined;
-													if (
-														canvas?._activeObject &&
-														canvas?._activeObject?.type === 'image'
-													)
-														existingObject =
-															canvas?._activeObject as fabric.Image;
+												</Box>
+											);
+										})}
+									</Box>
+									<Box
+										sx={{
+											display: 'flex',
+											justifyContent: 'space-between',
+											alignItems: 'center',
+										}}
+									>
+										{borders?.map((border: string, i) => {
+											return (
+												<img
+													key={i}
+													src={border}
+													onDragStart={(e) => handleDragStart(e, border)}
+													onClick={() => {
+														const imageObject = getExistingObject('borders') as
+															| fabric.Image
+															| undefined;
+														if (!canvas) return;
 
-													if (!existingObject) {
-														console.log('existing Border object not founded');
-														return;
-													}
-													const blendColorFilter =
-														new fabric.Image.filters.BlendColor({
-															color,
-															mode: 'tint',
-															alpha: 1,
-														});
+														if (imageObject && !imageObject.visible) {
+															imageObject.set({
+																visible: true,
+																// fill: userMetaData?.company?.color,
+															});
+															var filter = new fabric.Image.filters.BlendColor({
+																color: userMetaData?.company?.color,
+																mode: 'tint',
+																alpha: 1,
+															});
+															imageObject.filters.push(filter);
+															imageObject.applyFilters();
+															return canvas?.renderAll();
+														} else
+															createImage(canvas, border, {
+																customType: 'borders',
+															});
+													}}
+													alt=''
+													width='90px'
+													style={{
+														cursor: 'pointer',
+														paddingBottom: '0.5rem',
+													}}
+												/>
+											);
+										})}
+										<CustomColorPicker
+											// value={overlayTextFiltersState.color}
+											value={userMetaData?.company?.color || '#909AE9'}
+											changeHandler={(color: string) => {
+												const type = 'borders';
+												let existingObject = getExistingObject(type) as
+													| fabric.Image
+													| undefined;
+												if (
+													canvas?._activeObject &&
+													canvas?._activeObject?.type === 'image'
+												)
+													existingObject =
+														canvas?._activeObject as fabric.Image;
 
-													existingObject.filters?.push(blendColorFilter);
-													existingObject.applyFilters();
-													requestAnimationFrame(() => {
-														canvas?.renderAll();
+												if (!existingObject) {
+													console.log('existing Border object not founded');
+													return;
+												}
+												const blendColorFilter =
+													new fabric.Image.filters.BlendColor({
+														color,
+														mode: 'tint',
+														alpha: 1,
 													});
-												}}
-											/>
-										</Box>
+
+												existingObject.filters?.push(blendColorFilter);
+												existingObject.applyFilters();
+												requestAnimationFrame(() => {
+													canvas?.renderAll();
+												});
+											}}
+										/>
+									</Box>
+								</Box>
+
+								<Box>
+									<h4>Social Tags</h4>
+									<Box
+										sx={{
+											display: 'flex',
+										}}
+									>
+										{socialPlatformsData1?.map(({ spImg }, i) => {
+											return (
+												<Box
+													key={i}
+													sx={{
+														display: 'flex',
+														justifyContent: 'center',
+														alignItems: 'center',
+														width: '100%',
+													}}
+												>
+													<img
+														src={spImg}
+														onDragStart={(e) => handleDragStart(e, spImg)}
+														onClick={() => {
+															const left = Math.random() * (400 - 100) + 100;
+															const top = Math.random() * (800 - 400) + 100;
+															fabric.Image.fromURL(
+																spImg,
+																function (img) {
+																	img
+																		.set({
+																			left: left,
+																			top: top,
+																			customType: 'elementImg',
+																		})
+																		.scale(0.2);
+																	canvas.add(img);
+																	requestAnimationFrame(() => {
+																		canvas.renderAll();
+																	});
+																},
+																{
+																	crossOrigin: 'anonymous',
+																}
+															);
+														}}
+														alt=''
+														// width='90px'
+														style={{
+															cursor: 'pointer',
+															paddingBottom: '0.5rem',
+															width: '30px',
+															height: '30px',
+														}}
+													/>
+												</Box>
+											);
+										})}
+									</Box>
+									<Box
+										sx={{
+											display: 'flex',
+										}}
+									>
+										{socialPlatformsData2?.map(({ spImg }, i) => {
+											return (
+												<Box
+													key={i}
+													sx={{
+														display: 'flex',
+														justifyContent: 'center',
+														alignItems: 'center',
+														width: '100%',
+													}}
+												>
+													<img
+														src={spImg}
+														onClick={() => {
+															const left = Math.random() * (400 - 100) + 100;
+															const top = Math.random() * (800 - 500) + 100;
+															fabric.Image.fromURL(
+																spImg,
+																function (img) {
+																	img
+																		.set({
+																			left: left,
+																			top: top,
+																			customType: 'elementImg',
+																		})
+																		.scale(0.2);
+																	canvas.add(img);
+																	requestAnimationFrame(() => {
+																		canvas.renderAll();
+																	});
+																},
+																{
+																	crossOrigin: 'anonymous',
+																}
+															);
+														}}
+														alt=''
+														// width='90px'
+														style={{
+															cursor: 'pointer',
+															paddingBottom: '0.5rem',
+															width: '30px',
+															height: '30px',
+														}}
+													/>
+												</Box>
+											);
+										})}
 									</Box>
 
-									<Box>
-										<h4>Social Tags</h4>
-										<Box
-											sx={{
-												display: 'flex',
-											}}
-										>
-											{socialPlatformsData1?.map(({ spImg }, i) => {
-												return (
-													<Box
-														key={i}
-														sx={{
-															display: 'flex',
-															justifyContent: 'center',
-															alignItems: 'center',
-															width: '100%',
-														}}
-													>
-														<img
-															src={spImg}
-															onDragStart={(e) => handleDragStart(e, spImg)}
-															onClick={() => {
-																const left = Math.random() * (400 - 100) + 100;
-																const top = Math.random() * (800 - 400) + 100;
-																fabric.Image.fromURL(
-																	spImg,
-																	function (img) {
-																		img
-																			.set({ left: left, top: top })
-																			.scale(0.2);
-																		canvas.add(img);
-																		requestAnimationFrame(() => {
-																			canvas.renderAll();
-																		});
-																	},
-																	{
-																		crossOrigin: 'anonymous',
-																	}
-																);
-															}}
-															alt=''
-															// width='90px'
-															style={{
-																cursor: 'pointer',
-																paddingBottom: '0.5rem',
-																width: '30px',
-																height: '30px',
-															}}
-														/>
-													</Box>
-												);
-											})}
-										</Box>
-										<Box
-											sx={{
-												display: 'flex',
-											}}
-										>
-											{socialPlatformsData2?.map(({ spImg }, i) => {
-												return (
-													<Box
-														key={i}
-														sx={{
-															display: 'flex',
-															justifyContent: 'center',
-															alignItems: 'center',
-															width: '100%',
-														}}
-													>
-														<img
-															src={spImg}
-															onClick={() => {
-																const left = Math.random() * (400 - 100) + 100;
-																const top = Math.random() * (800 - 500) + 100;
-																fabric.Image.fromURL(
-																	spImg,
-																	function (img) {
-																		img
-																			.set({ left: left, top: top })
-																			.scale(0.2);
-																		canvas.add(img);
-																		requestAnimationFrame(() => {
-																			canvas.renderAll();
-																		});
-																	},
-																	{
-																		crossOrigin: 'anonymous',
-																	}
-																);
-															}}
-															alt=''
-															// width='90px'
-															style={{
-																cursor: 'pointer',
-																paddingBottom: '0.5rem',
-																width: '30px',
-																height: '30px',
-															}}
-														/>
-													</Box>
-												);
-											})}
-										</Box>
-
-										<Box
-											sx={{
-												display: 'flex',
-											}}
-										>
-											{socialPlatformsData3?.map(({ spImg }, i) => {
-												return (
-													<Box
-														key={i}
-														sx={{
-															display: 'flex',
-															justifyContent: 'center',
-															alignItems: 'center',
-															width: '100%',
-														}}
-													>
-														<img
-															src={spImg}
-															onClick={() => {
-																const left = Math.random() * (400 - 100) + 100;
-																const top = Math.random() * (800 - 600) + 100;
-																fabric.Image.fromURL(
-																	spImg,
-																	function (img) {
-																		img
-																			.set({ left: left, top: top })
-																			.scale(0.2);
-																		canvas.add(img);
-																		requestAnimationFrame(() => {
-																			canvas.renderAll();
-																		});
-																	},
-																	{
-																		crossOrigin: 'anonymous',
-																	}
-																);
-															}}
-															alt=''
-															// width='90px'
-															style={{
-																cursor: 'pointer',
-																paddingBottom: '0.5rem',
-																width: '30px',
-																height: '30px',
-															}}
-														/>
-													</Box>
-												);
-											})}
-										</Box>
-										<Box
-											sx={{
-												display: 'flex',
-												justifyContent: 'space-between',
-												alignItems: 'center',
-												mt: 1,
-											}}
-										>
-											{logos?.map((logo: string, i) => {
-												const logoFillColor =
-													userMetaData?.company?.color || 'black';
-												return (
-													<div
-														key={i}
+									<Box
+										sx={{
+											display: 'flex',
+										}}
+									>
+										{socialPlatformsData3?.map(({ spImg }, i) => {
+											return (
+												<Box
+													key={i}
+													sx={{
+														display: 'flex',
+														justifyContent: 'center',
+														alignItems: 'center',
+														width: '100%',
+													}}
+												>
+													<img
+														src={spImg}
 														onClick={() => {
-															const existingTextObject = getExistingObject(
-																'hashtag'
-															) as fabric.Textbox | undefined;
+															const left = Math.random() * (400 - 100) + 100;
+															const top = Math.random() * (800 - 600) + 100;
+															fabric.Image.fromURL(
+																spImg,
+																function (img) {
+																	img
+																		.set({
+																			left: left,
+																			top: top,
+																			customType: 'elementImg',
+																		})
+																		.scale(0.2);
+																	canvas.add(img);
+																	requestAnimationFrame(() => {
+																		canvas.renderAll();
+																	});
+																},
+																{
+																	crossOrigin: 'anonymous',
+																}
+															);
+														}}
+														alt=''
+														// width='90px'
+														style={{
+															cursor: 'pointer',
+															paddingBottom: '0.5rem',
+															width: '30px',
+															height: '30px',
+														}}
+													/>
+												</Box>
+											);
+										})}
+									</Box>
+									<Box
+										sx={{
+											display: 'flex',
+											justifyContent: 'space-between',
+											alignItems: 'center',
+											mt: 1,
+										}}
+									>
+										{logos?.map((logo: string, i) => {
+											const logoFillColor =
+												userMetaData?.company?.color || 'black';
+											return (
+												<div
+													key={i}
+													onClick={() => {
+														const existingTextObject = getExistingObject(
+															'hashtag'
+														) as fabric.Textbox | undefined;
 
-															if (
-																existingTextObject &&
-																!existingTextObject?.visible
-															)
-																updateTextBox(
-																	canvas,
-																	{
-																		visible: !existingTextObject.visible,
-																		fill: userMetaData?.company?.color,
-																	},
-																	'hashtag'
-																);
-															else
-																createTextBox(canvas, {
+														if (
+															existingTextObject &&
+															!existingTextObject?.visible
+														)
+															updateTextBox(
+																canvas,
+																{
+																	visible: !existingTextObject.visible,
 																	fill: userMetaData?.company?.color,
-																	customType: 'hashtag',
-																	name: `@${userMetaData?.company?.name}`,
+																},
+																'hashtag'
+															);
+														else
+															createTextBox(canvas, {
+																fill: userMetaData?.company?.color,
+																customType: 'hashtag',
+																name: `@${userMetaData?.company?.name}`,
+															});
+													}}
+													style={{
+														cursor: 'pointer',
+														paddingBottom: '0.5rem',
+														display: 'inline-block',
+													}}
+												>
+													{userMetaData?.company?.name
+														? `@${userMetaData?.company?.name}`
+														: '@COMPANYSOCIAL'}
+												</div>
+											);
+										})}
+
+										<CustomColorPicker
+											value={userMetaData?.company?.color || '#909AE9'}
+											// value={overlayTextFiltersState.color}
+											changeHandler={(color: string) => {
+												const type = 'hashtag';
+
+												let existingTextObject = getExistingObject(type) as
+													| fabric.Textbox
+													| undefined;
+												if (
+													canvas?._activeObject &&
+													canvas?._activeObject?.type === 'textbox'
+												)
+													existingTextObject =
+														canvas?._activeObject as fabric.Textbox;
+
+												if (!existingTextObject) return;
+												updateTextBox(canvas, { fill: color }, 'hashtag');
+											}}
+										/>
+									</Box>
+									<Box>
+										<Box
+											sx={{
+												display: 'flex',
+												justifyContent: 'space-between',
+												alignItems: 'center',
+												mt: 2,
+											}}
+										>
+											{userMetaData?.company?.logo && (
+												<img
+													src={userMetaData?.company?.logo}
+													onClick={() => {
+														fabric.Image.fromURL(
+															userMetaData?.company?.logo,
+															function (img) {
+																img.set({
+																	width: 400,
+																	height: 400,
+																	customType: 'elementImg',
 																});
-														}}
-														style={{
-															cursor: 'pointer',
-															paddingBottom: '0.5rem',
-															display: 'inline-block',
-														}}
-													>
-														{userMetaData?.company?.name
-															? `@${userMetaData?.company?.name}`
-															: '@COMPANYSOCIAL'}
-													</div>
-												);
-											})}
+																canvas.add(img);
+																requestAnimationFrame(() => {
+																	canvas.renderAll();
+																});
+															},
+															{
+																crossOrigin: 'anonymous',
+															}
+														);
+													}}
+													alt=''
+													// width='90px'
+													style={{
+														cursor: 'pointer',
+														paddingBottom: '0.5rem',
+														width: '80px',
+														height: '60px',
+													}}
+												/>
+											)}
 
-											<CustomColorPicker
-												value={userMetaData?.company?.color || '#909AE9'}
-												// value={overlayTextFiltersState.color}
-												changeHandler={(color: string) => {
-													const type = 'hashtag';
+											{userMetaData?.company?.logo2 && (
+												<img
+													src={userMetaData?.company?.logo2}
+													onClick={() => {
+														fabric.Image.fromURL(
+															userMetaData?.company?.logo2,
+															function (img) {
+																img.set({
+																	width: 400,
+																	height: 400,
+																	customType: 'elementImg',
+																});
+																canvas.add(img);
+																requestAnimationFrame(() => {
+																	canvas.renderAll();
+																});
+															},
+															{
+																crossOrigin: 'anonymous',
+															}
+														);
+													}}
+													alt=''
+													// width='90px'
+													style={{
+														cursor: 'pointer',
+														paddingBottom: '0.5rem',
+														width: '80px',
+														height: '60px',
+													}}
+												/>
+											)}
 
-													let existingTextObject = getExistingObject(type) as
-														| fabric.Textbox
-														| undefined;
-													if (
-														canvas?._activeObject &&
-														canvas?._activeObject?.type === 'textbox'
-													)
-														existingTextObject =
-															canvas?._activeObject as fabric.Textbox;
-
-													if (!existingTextObject) return;
-													updateTextBox(canvas, { fill: color }, 'hashtag');
-												}}
-											/>
-										</Box>
-										<Box>
-											<Box
-												sx={{
-													display: 'flex',
-													justifyContent: 'space-between',
-													alignItems: 'center',
-													mt: 2,
-												}}
-											>
-												{userMetaData?.company?.logo && (
-													<img
-														src={userMetaData?.company?.logo}
-														onClick={() => {
-															fabric.Image.fromURL(
-																userMetaData?.company?.logo,
-																function (img) {
-																	img.set({
-																		width: 400,
-																		height: 400,
-																	});
-																	canvas.add(img);
-																	requestAnimationFrame(() => {
-																		canvas.renderAll();
-																	});
-																},
-																{
-																	crossOrigin: 'anonymous',
-																}
-															);
-														}}
-														alt=''
-														// width='90px'
-														style={{
-															cursor: 'pointer',
-															paddingBottom: '0.5rem',
-															width: '80px',
-															height: '60px',
-														}}
-													/>
-												)}
-
-												{userMetaData?.company?.logo2 && (
-													<img
-														src={userMetaData?.company?.logo2}
-														onClick={() => {
-															fabric.Image.fromURL(
-																userMetaData?.company?.logo2,
-																function (img) {
-																	img.set({
-																		width: 400,
-																		height: 400,
-																	});
-																	canvas.add(img);
-																	requestAnimationFrame(() => {
-																		canvas.renderAll();
-																	});
-																},
-																{
-																	crossOrigin: 'anonymous',
-																}
-															);
-														}}
-														alt=''
-														// width='90px'
-														style={{
-															cursor: 'pointer',
-															paddingBottom: '0.5rem',
-															width: '80px',
-															height: '60px',
-														}}
-													/>
-												)}
-
-												{userMetaData?.company?.logo3 && (
-													<img
-														src={userMetaData?.company?.logo3}
-														onClick={() => {
-															fabric.Image.fromURL(
-																userMetaData?.company?.logo3,
-																function (img) {
-																	img.set({
-																		width: 400,
-																		height: 400,
-																	});
-																	canvas.add(img);
-																	requestAnimationFrame(() => {
-																		canvas.renderAll();
-																	});
-																},
-																{
-																	crossOrigin: 'anonymous',
-																}
-															);
-														}}
-														alt=''
-														// width='90px'
-														style={{
-															cursor: 'pointer',
-															paddingBottom: '0.5rem',
-															width: '80px',
-															height: '60px',
-														}}
-													/>
-												)}
-											</Box>
+											{userMetaData?.company?.logo3 && (
+												<img
+													src={userMetaData?.company?.logo3}
+													onClick={() => {
+														fabric.Image.fromURL(
+															userMetaData?.company?.logo3,
+															function (img) {
+																img.set({
+																	width: 400,
+																	height: 400,
+																	customType: 'elementImg',
+																});
+																canvas.add(img);
+																requestAnimationFrame(() => {
+																	canvas.renderAll();
+																});
+															},
+															{
+																crossOrigin: 'anonymous',
+															}
+														);
+													}}
+													alt=''
+													// width='90px'
+													style={{
+														cursor: 'pointer',
+														paddingBottom: '0.5rem',
+														width: '80px',
+														height: '60px',
+													}}
+												/>
+											)}
 										</Box>
 									</Box>
-								</>
-							</div>
+								</Box>
+							</Box>
 						)}
 
 						{activeTab == 'writePost' && (
@@ -3870,6 +3985,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 												scaleX: 1.53,
 												scaleY: 1.53,
 												fontSize: 16,
+												customType: 'coustomTypeText',
 											});
 
 											updateTextBox(canvas, { text });
