@@ -75,14 +75,9 @@ const HomePage = () => {
 	return (
 		<>
 			{step == 1 ? (
-				<Templates updateStep={setStep} />
+				<LandingPage setScrappedData={setScrappedData} updateStep={setStep} />
 			) : step == 2 ? (
-				<StyledContainer>
-					<Canvas
-						updatedSeedData={updatedSeedData}
-						template={selectedTemplate}
-					/>
-				</StyledContainer>
+				<Templates updateStep={setStep} />
 			) : step == 3 ? (
 				<StyledContainer>
 					<Canvas
@@ -96,9 +91,14 @@ const HomePage = () => {
 		</>
 		// <>
 		// 	{step == 1 ? (
-		// 		<LandingPage setScrappedData={setScrappedData} updateStep={setStep} />
-		// 	) : step == 2 ? (
 		// 		<Templates updateStep={setStep} />
+		// 	) : step == 2 ? (
+		// 		<StyledContainer>
+		// 			<Canvas
+		// 				updatedSeedData={updatedSeedData}
+		// 				template={selectedTemplate}
+		// 			/>
+		// 		</StyledContainer>
 		// 	) : step == 3 ? (
 		// 		<StyledContainer>
 		// 			<Canvas

@@ -247,8 +247,12 @@ export function onObjectAdded(e: MouseEvent, canvas: fabric.Canvas) {
 	drawObjectGuides(obj, canvas);
 }
 
+const snappyElements = ['snappyImage'];
 export function onObjectMoved(e: MouseEvent, canvas: fabric.Canvas) {
 	// Add the smart guides around the object
+
+	if (!snappyElements.includes(obj.type)) return false;
+
 	const obj = e.target;
 	drawObjectGuides(obj, canvas);
 }
@@ -260,6 +264,7 @@ export function clearAllGuides(canvas: fabric.Canvas) {
 
 export function onObjectMoving(e: MouseEvent, canvas: fabric.Canvas) {
 	const obj = e.target;
+	if (!snappyElements.includes(obj.type)) return false;
 	clearAllGuides(canvas); // Clear existing guides
 	drawObjectGuides(obj, canvas);
 
@@ -497,7 +502,6 @@ export function drawGuide(side, pos, obj, canvas) {
 
 	if (obj.guides[side] instanceof fabric.Line) {
 		// remove the line
-		console.log('remove');
 		canvas.remove(obj.guides[side]);
 		delete obj.guides[side];
 	}
