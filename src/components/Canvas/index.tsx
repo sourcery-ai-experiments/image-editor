@@ -31,8 +31,8 @@ import {
 	updateSwipeColor,
 	updateTextBox,
 } from '../../utils/TextHandler';
-import { createRect, updateRect } from '../../utils/RectHandler';
-import { saveJSON, hexToRgbA } from '../../utils/ExportHandler';
+import { updateRect } from '../../utils/RectHandler';
+import { saveJSON, hexToRgbA, saveImage } from '../../utils/ExportHandler';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { createImage, updateImageSource } from '../../utils/ImageHandler';
 import { useCanvasContext } from '../../context/CanvasContext';
@@ -56,62 +56,6 @@ import { debounce } from 'lodash';
 import GridOnIcon from '@mui/icons-material/GridOn';
 import GridOffIcon from '@mui/icons-material/GridOff';
 
-import socialTag1 from '../../assets/socialTags/Verification-Tick-1.svg';
-import socialTag2 from '../../assets/socialTags/Verification-Tick-2.svg';
-import socialTag3 from '../../assets/socialTags/Verification-Tick-3.svg';
-
-import shape1 from '../../assets/shapes/1-Shapes-Circle.svg';
-import shape2 from '../../assets/shapes/2-Shapes-Rectangle.svg';
-import shape3 from '../../assets/shapes/3-Shapes-Star-A.svg';
-import shape4 from '../../assets/shapes/4-Shapes-Star-B.svg';
-import shape5 from '../../assets/shapes/5-Shapes-Triangle.svg';
-import shape6 from '../../assets/shapes/6-Shapes-Square.svg';
-import shape7 from '../../assets/shapes/7-Shapes-Diamond.svg';
-import shape8 from '../../assets/shapes/8-Shapes-Plus.svg';
-import shape9 from '../../assets/shapes/9-Shapes-Heart.svg';
-import shape10 from '../../assets/shapes/10-Shapes-Trapezium.svg';
-
-import swipe1 from '../../assets/swipe/Swipe-1.svg';
-import swipe2 from '../../assets/swipe/Swipe-2.svg';
-import swipe3 from '../../assets/swipe/Swipe-3.svg';
-
-import socialPlatformsImg1 from '../../assets/socialPlatforms/1-Round-Color-FB.svg';
-import socialPlatformsImg2 from '../../assets/socialPlatforms/2-Round-Color-IG.svg';
-import socialPlatformsImg3 from '../../assets/socialPlatforms/3-Round-Color-X.svg';
-import socialPlatformsImg4 from '../../assets/socialPlatforms/4-Round-Color-YT.svg';
-import socialPlatformsImg5 from '../../assets/socialPlatforms/5-Round-Color-TT.svg';
-import socialPlatformsImg6 from '../../assets/socialPlatforms/6-Round-Color-LI.svg';
-import socialPlatformsImg7 from '../../assets/socialPlatforms/7-Round-BW-FB.svg';
-import socialPlatformsImg8 from '../../assets/socialPlatforms/8-Round-BW-IG.svg';
-import socialPlatformsImg9 from '../../assets/socialPlatforms/9-Round-BW-X.svg';
-import socialPlatformsImg10 from '../../assets/socialPlatforms/10-Round-BW-YT.svg';
-import socialPlatformsImg11 from '../../assets/socialPlatforms/11-Round-BW-TT.svg';
-import socialPlatformsImg12 from '../../assets/socialPlatforms/12-Round-BW-LI.svg';
-import socialPlatformsImg13 from '../../assets/socialPlatforms/13-Square-Color-FB.svg';
-import socialPlatformsImg14 from '../../assets/socialPlatforms/14-Square-Color-IG.svg';
-import socialPlatformsImg15 from '../../assets/socialPlatforms/15-Square-Color-X.svg';
-import socialPlatformsImg16 from '../../assets/socialPlatforms/16-Square-Color-TT.svg';
-import socialPlatformsImg17 from '../../assets/socialPlatforms/17-Square-Color-YT.svg';
-import socialPlatformsImg18 from '../../assets/socialPlatforms/18-Square-Color-LI.svg';
-import socialPlatformsImg19 from '../../assets/socialPlatforms/19-Square-BW-FB.svg';
-import socialPlatformsImg20 from '../../assets/socialPlatforms/20-Square-BW-IG.svg';
-import socialPlatformsImg21 from '../../assets/socialPlatforms/21-Square-BW-X.svg';
-import socialPlatformsImg22 from '../../assets/socialPlatforms/22-Square-BW-YT.svg';
-import socialPlatformsImg23 from '../../assets/socialPlatforms/23-Square-BW-TT.svg';
-import socialPlatformsImg24 from '../../assets/socialPlatforms/24-Square-BW-LI.svg';
-
-import arrowImg1 from '../../assets/arrows/Arrow-1.svg';
-import arrowImg2 from '../../assets/arrows/Arrow-2.svg';
-import arrowImg3 from '../../assets/arrows/Arrow-3.svg';
-import arrowImg4 from '../../assets/arrows/Arrow-4.svg';
-
-import dividers1 from '../../assets/dividers/Divider-1.svg';
-import dividers2 from '../../assets/dividers/Divider-2.svg';
-import dividers3 from '../../assets/dividers/Divider-3.svg';
-import dividers4 from '../../assets/dividers/Divider-4.svg';
-import dividers5 from '../../assets/dividers/Divider-5.svg';
-import dividers6 from '../../assets/dividers/Divider-6.svg';
-
 import SwipeVerticalIcon from '@mui/icons-material/SwipeVertical';
 
 import SwipeRightIcon from '@mui/icons-material/SwipeRight';
@@ -121,12 +65,10 @@ import toast from 'react-hot-toast';
 import SummaryForm from '../Tabs/WritePost/SummaryForm';
 import {
 	clearAllGuides,
-	onObjectAdded,
 	onObjectMoved,
 	onObjectMoving,
 } from './fabric-smart-object';
-import { FabricGuide } from '../../utils/fabricGuide';
-
+import { elementsAssets } from './config';
 type TemplateJSON = any;
 interface PaginationStateItem {
 	page: number;
@@ -153,6 +95,7 @@ interface FilterState {
 	fontFamily: string;
 	fontWeight: number;
 	charSpacing: number;
+	lineHeight: number;
 }
 
 const filter =
@@ -185,7 +128,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
 		const bindEvents = useCallback(() => {
 			if (!canvas) return;
-			console.log(events.object);
 			events.object.forEach((event) => {
 				if (event === 'moving') {
 					canvas.on(`object:${event}`, (e) => onObjectMoving(e, canvas));
@@ -410,9 +352,11 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			setActiveButton(buttonType);
 
 		const loadCanvas = useCallback(
-			async (pageNumber?: string) => {
+			// async (pageNumber?: string) => {
+			async () => {
+				if (!canvas) return;
 				const templateFound = paginationState?.find(
-					(item) => item.page === selectedPage
+					(item) => item?.page === selectedPage
 				);
 
 				await new Promise((resolve) => {
@@ -599,7 +543,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
 			if (shadow) {
 				const activeBubble = canvas.getActiveObject();
-
 				const newOptions: fabric.ICircleOptions = {
 					shadow: {
 						color: shadow.color || 'rgba(0,0,0,0.5)',
@@ -621,8 +564,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 					...(!existingBubbleStroke &&
 						template?.diptych === 'horizontal' && { left: 150, radius: 80 }),
 				};
-				// Shadow for newly created bubble with increased length
-
 				options.shadow = {
 					color: 'rgba(0,0,0,0.5)',
 					offsetX: 1,
@@ -735,7 +676,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			const canvas = canvasRef.current;
 			if (!canvas) return; // Check if canvasRef is valid
 
-			const ctx = canvas.getContext('2d');
+			const ctx = canvas?.getContext('2d');
 			const currentCanvasWidth = canvas.width;
 			const currentCanvasHeight = canvas.height;
 
@@ -755,18 +696,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
 			ctx.strokeStyle = '#ebebeb';
 			ctx.stroke();
-		}
-
-		function hideGrid(canvasRef, originalImage) {
-			const canvas = canvasRef.current;
-			if (!canvas || !originalImage) return;
-
-			const ctx = canvas.getContext('2d');
-			const currentCanvasWidth = canvas.width;
-			const currentCanvasHeight = canvas.height;
-
-			// Clear the canvas by filling it with the background color or any content you want
-			ctx.clearRect(0, 0, currentCanvasWidth, currentCanvasHeight);
 		}
 
 		const [gridShow, setGridShow] = useState<boolean>(false);
@@ -1064,20 +993,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			}
 		}, 100);
 
-		const shapeData = [
-			{ imgShape: shape1 },
-			{ imgShape: shape2 },
-			{ imgShape: shape3 },
-			{ imgShape: shape4 },
-			{ imgShape: shape5 },
-			{ imgShape: shape6 },
-			{ imgShape: shape7 },
-			{ imgShape: shape8 },
-			{ imgShape: shape9 },
-			{ imgShape: shape10 },
-		];
-
-		const borderColorChangeHandler = (imgShape) => {
+		const borderColorChangeHandler = (imgShape: any) => {
 			const color = userMetaData?.company?.color || '#909AE9';
 
 			var filter = new fabric.Image.filters.BlendColor({
@@ -1111,17 +1027,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			);
 		};
 
-		const swipeData = [
-			{ swipeImg: swipe1, id: 1 },
-			{ swipeImg: swipe2, id: 2 },
-			{ swipeImg: swipe3, id: 3 },
-			{ swipeImg: arrowImg1, id: 4 },
-			{ swipeImg: arrowImg2, id: 5 },
-			{ swipeImg: arrowImg3, id: 6 },
-			{ swipeImg: arrowImg4, id: 7 },
-		];
-
-		const swipeColorChangeHandler = (id, swipeImg) => {
+		const swipeColorChangeHandler = (id: any, swipeImg: any) => {
 			const color = userMetaData?.company?.color || '#909AE9';
 
 			var filter = new fabric.Image.filters.BlendColor({
@@ -1157,51 +1063,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				}
 			);
 		};
-
-		const socialPlatformsData1 = [
-			{ spImg: socialPlatformsImg1 },
-			{ spImg: socialPlatformsImg2 },
-			{ spImg: socialPlatformsImg3 },
-			{ spImg: socialPlatformsImg4 },
-			{ spImg: socialPlatformsImg5 },
-			{ spImg: socialPlatformsImg6 },
-			{ spImg: socialPlatformsImg7 },
-			{ spImg: socialPlatformsImg8 },
-			{ spImg: socialPlatformsImg9 },
-			{ spImg: socialPlatformsImg10 },
-		];
-		const socialPlatformsData2 = [
-			{ spImg: socialPlatformsImg11 },
-			{ spImg: socialPlatformsImg12 },
-			{ spImg: socialPlatformsImg13 },
-			{ spImg: socialPlatformsImg14 },
-			{ spImg: socialPlatformsImg15 },
-			{ spImg: socialPlatformsImg16 },
-			{ spImg: socialPlatformsImg17 },
-			{ spImg: socialPlatformsImg18 },
-			{ spImg: socialPlatformsImg19 },
-			{ spImg: socialPlatformsImg20 },
-		];
-
-		const socialPlatformsData3 = [
-			{ spImg: socialPlatformsImg21 },
-			{ spImg: socialPlatformsImg22 },
-			{ spImg: socialPlatformsImg23 },
-			{ spImg: socialPlatformsImg24 },
-			{ spImg: socialTag1 },
-			{ spImg: socialTag2 },
-			{ spImg: socialTag3 },
-		];
-
-		const dividersData = [
-			{ dividerImg: dividers1 },
-			{ dividerImg: dividers2 },
-			{ dividerImg: dividers3 },
-			{ dividerImg: dividers4 },
-			{ dividerImg: dividers5 },
-			{ dividerImg: dividers6 },
-		];
-		const dividerColorChangeHandler = (imgShape) => {
+		const dividerColorChangeHandler = (imgShape: any) => {
 			const color = userMetaData?.company?.color || '#909AE9';
 
 			var filter = new fabric.Image.filters.BlendColor({
@@ -1233,24 +1095,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 					crossOrigin: 'anonymous',
 				}
 			);
-
-			// fabric.Image.fromURL(
-			// 	imgShape,
-			// 	function (img) {
-			// 		img
-			// 			.set({ left: left, top: top, customType: 'elementImg' })
-			// 			.scale(0.2);
-			// 		img.filters.push(filter);
-			// 		img.applyFilters();
-			// 		canvas.add(img);
-			// 		requestAnimationFrame(() => {
-			// 			canvas.renderAll();
-			// 		});
-			// 	},
-			// 	{
-			// 		crossOrigin: 'anonymous',
-			// 	}
-			// );
 		};
 
 		const findHighestPageNumber = (
@@ -1279,7 +1123,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			);
 
 			let templateJSON;
-
 			try {
 				templateJSON = await import(
 					`../../constants/templates/${template.filePath}.json`
@@ -1307,12 +1150,11 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
 		const exportMultiCanvases = async () => {
 			const zip = new JSZip();
-
 			// Loop through paginationState
 			for (const page of paginationState) {
 				// Load templateJSON into canvas
 				await new Promise((resolve) => {
-					canvas?.loadFromJSON(page.templateJSON, () => {
+					canvas?.loadFromJSON(page?.templateJSON, () => {
 						resolve(null);
 					});
 				});
@@ -1321,7 +1163,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				const imageData = canvas?.toDataURL({ format: 'png' });
 
 				// Add image data to zip file
-				zip.file(`page_${page.page}.png`, imageData.split('base64,')[1], {
+				zip.file(`page_${page?.page}.png`, imageData.split('base64,')[1], {
 					base64: true,
 				});
 			}
@@ -1420,17 +1262,17 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 		const [hexConvertion, setHexConversion] = useState<string | null>(null);
 
 		// ------------------------save all templates--------------------------------
-		const [templateSaved, setTemplateSaved] = useState(false);
+		const [templateSaved, setTemplateSaved] = useState<Boolean>(false);
 
 		const handleSaveTemplate = async (event) => {
 			const currentTemplateJSON = await saveJSON(canvas, true);
+			setTemplateSaved(true);
 
-			await update(selectedPage, {
+			update(selectedPage, {
 				templateJSON: currentTemplateJSON,
 			});
 
 			await loadCanvas(selectedPage);
-			await setTemplateSaved(true);
 		};
 
 		useEffect(() => {
@@ -1546,10 +1388,15 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			}
 		};
 
-		const handleDragOver = (e) => {
+		const handleDragOver = (e: any) => {
 			e.preventDefault();
 		};
-		const handleDragStart = (e, imageUrl, background, bubble) => {
+		const handleDragStart = (
+			e: any,
+			imageUrl: any,
+			background: any,
+			bubble: any
+		) => {
 			// e.preventDefault();
 
 			if (bubble) {
@@ -2836,21 +2683,23 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
 					{/* pagination */}
 					<div className={classes.paginationContainer}>
-						{paginationState.map((item) => {
+						{paginationState?.map((item) => {
 							return (
 								<div
 									onClick={async () => {
 										const currentTemplateJSON = await saveJSON(canvas, true);
 
-										update(selectedPage, { templateJSON: currentTemplateJSON });
+										await update(selectedPage, {
+											templateJSON: currentTemplateJSON,
+										});
 
-										setSelectedPage(item.page);
-										loadCanvas(item.page);
+										await setSelectedPage(item?.page);
+										await loadCanvas(item?.page);
 									}}
-									key={item.page}
-									className={classes.paginationStyle}
+									key={item?.page}
+									className={classes?.paginationStyle}
 								>
-									{item.page}
+									{item?.page}
 								</div>
 							);
 						})}
@@ -2897,7 +2746,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 											const background = true;
 											handleDragStart(e, imageUrl, background);
 										}}
-										// onDragStart={(e, imageUrl) => console.log('e, imageURl', e, imageUrl)}
 									>
 										{template?.diptych === 'vertical' ? (
 											<Box
@@ -3123,7 +2971,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 											/>
 										}
 										label='Click for adding another bubble'
-										// label='Click checkbox to add another bubble.'
 									/>
 								</Box>
 
@@ -3253,7 +3100,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 											display: 'flex',
 										}}
 									>
-										{swipeData?.map(({ swipeImg, id }, i) => {
+										{elementsAssets?.arrows?.map(({ img, id }, i) => {
 											return (
 												<Box
 													key={`swipe_${id}_${i}`}
@@ -3266,11 +3113,9 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 												>
 													<img
 														draggable={true}
-														onDragStart={(e) => handleDragStart(e, swipeImg)}
-														src={swipeImg}
-														onClick={() =>
-															swipeColorChangeHandler(id, swipeImg)
-														}
+														onDragStart={(e) => handleDragStart(e, img)}
+														src={img}
+														onClick={() => swipeColorChangeHandler(id, img)}
 														alt=''
 														style={{
 															cursor: 'pointer',
@@ -3373,7 +3218,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 											pt: 1.5,
 										}}
 									>
-										{shapeData?.map(({ imgShape }, i) => {
+										{elementsAssets?.shapes?.map(({ img }, i) => {
 											return (
 												<Box
 													key={i}
@@ -3385,9 +3230,9 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 													}}
 												>
 													<img
-														src={imgShape}
-														onClick={() => borderColorChangeHandler(imgShape)}
-														onDragStart={(e) => handleDragStart(e, imgShape)}
+														src={img}
+														onClick={() => borderColorChangeHandler(img)}
+														onDragStart={(e) => handleDragStart(e, img)}
 														alt=''
 														// width='90px'
 														style={{
@@ -3464,7 +3309,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 											alignItems: 'center',
 										}}
 									>
-										{dividersData?.map(({ dividerImg }, i) => {
+										{elementsAssets?.dividers?.map(({ img }, i) => {
 											return (
 												<Box
 													key={i}
@@ -3477,11 +3322,9 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 													}}
 												>
 													<img
-														src={dividerImg}
-														onDragStart={(e) => handleDragStart(e, dividerImg)}
-														onClick={() =>
-															dividerColorChangeHandler(dividerImg)
-														}
+														src={img}
+														onDragStart={(e) => handleDragStart(e, img)}
+														onClick={() => dividerColorChangeHandler(img)}
 														alt=''
 														// width='90px'
 														style={{
@@ -3489,7 +3332,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 															paddingBottom: '0.5rem',
 															width: '40px',
 															height: '20px',
-															// border: '1px solid red',
 														}}
 													/>
 												</Box>
@@ -3580,12 +3422,12 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
 								<Box>
 									<h4>Social Tags</h4>
-									<Box
+									{/* <Box
 										sx={{
 											display: 'flex',
 										}}
 									>
-										{socialPlatformsData1?.map(({ spImg }, i) => {
+										{elementsAssets?.socialPlatforms?.map(({ img }, i) => {
 											return (
 												<Box
 													key={i}
@@ -3597,13 +3439,13 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 													}}
 												>
 													<img
-														src={spImg}
-														onDragStart={(e) => handleDragStart(e, spImg)}
+														src={img}
+														onDragStart={(e) => handleDragStart(e, img)}
 														onClick={() => {
 															const left = Math.random() * (400 - 100) + 100;
 															const top = Math.random() * (800 - 400) + 100;
 															fabric.Image.fromURL(
-																spImg,
+																img,
 																function (img) {
 																	const snappyImg = new fabric.SnappyImage(
 																		img.getElement(),
@@ -3627,7 +3469,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 															);
 														}}
 														alt=''
-														// width='90px'
 														style={{
 															cursor: 'pointer',
 															paddingBottom: '0.5rem',
@@ -3638,116 +3479,66 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 												</Box>
 											);
 										})}
-									</Box>
+									</Box> */}
 									<Box
 										sx={{
 											display: 'flex',
+											flexWrap: 'wrap',
 										}}
 									>
-										{socialPlatformsData2?.map(({ spImg }, i) => {
-											return (
-												<Box
-													key={i}
-													sx={{
-														display: 'flex',
-														justifyContent: 'center',
-														alignItems: 'center',
-														width: '100%',
+										{elementsAssets?.socialPlatforms?.map(({ img }, i) => (
+											<Box
+												key={i}
+												sx={{
+													display: 'flex',
+													justifyContent: 'center',
+													alignItems: 'center',
+													width: '10%',
+													marginBottom: '1rem', // Optional: add margin for spacing between rows
+												}}
+											>
+												<img
+													src={img}
+													onDragStart={(e) => handleDragStart(e, img)}
+													onClick={() => {
+														const left = Math.random() * (400 - 100) + 100;
+														const top = Math.random() * (800 - 400) + 100;
+														fabric.Image.fromURL(
+															img,
+															function (img) {
+																const snappyImg = new fabric.SnappyImage(
+																	img.getElement(),
+																	{
+																		left: left,
+																		top: top,
+																		scaleX: 0.2,
+																		scaleY: 0.2,
+																	}
+																);
+																snappyImg.customType = 'elementImg';
+																canvas.add(snappyImg);
+
+																requestAnimationFrame(() => {
+																	canvas.renderAll();
+																});
+															},
+															{
+																crossOrigin: 'anonymous',
+															}
+														);
 													}}
-												>
-													<img
-														src={spImg}
-														onClick={() => {
-															const left = Math.random() * (400 - 100) + 100;
-															const top = Math.random() * (800 - 500) + 100;
-															fabric.Image.fromURL(
-																spImg,
-																function (img) {
-																	img
-																		.set({
-																			left: left,
-																			top: top,
-																			customType: 'elementImg',
-																		})
-																		.scale(0.2);
-																	canvas.add(img);
-																	requestAnimationFrame(() => {
-																		canvas.renderAll();
-																	});
-																},
-																{
-																	crossOrigin: 'anonymous',
-																}
-															);
-														}}
-														alt=''
-														// width='90px'
-														style={{
-															cursor: 'pointer',
-															paddingBottom: '0.5rem',
-															width: '30px',
-															height: '30px',
-														}}
-													/>
-												</Box>
-											);
-										})}
+													alt=''
+													style={{
+														cursor: 'pointer',
+														paddingBottom: '0.5rem',
+														width: '30px',
+														height: '30px',
+													}}
+												/>
+											</Box>
+										))}
 									</Box>
 
-									<Box
-										sx={{
-											display: 'flex',
-										}}
-									>
-										{socialPlatformsData3?.map(({ spImg }, i) => {
-											return (
-												<Box
-													key={i}
-													sx={{
-														display: 'flex',
-														justifyContent: 'center',
-														alignItems: 'center',
-														width: '100%',
-													}}
-												>
-													<img
-														src={spImg}
-														onClick={() => {
-															const left = Math.random() * (400 - 100) + 100;
-															const top = Math.random() * (800 - 600) + 100;
-															fabric.Image.fromURL(
-																spImg,
-																function (img) {
-																	img
-																		.set({
-																			left: left,
-																			top: top,
-																			customType: 'elementImg',
-																		})
-																		.scale(0.2);
-																	canvas.add(img);
-																	requestAnimationFrame(() => {
-																		canvas.renderAll();
-																	});
-																},
-																{
-																	crossOrigin: 'anonymous',
-																}
-															);
-														}}
-														alt=''
-														// width='90px'
-														style={{
-															cursor: 'pointer',
-															paddingBottom: '0.5rem',
-															width: '30px',
-															height: '30px',
-														}}
-													/>
-												</Box>
-											);
-										})}
-									</Box>
 									<Box
 										sx={{
 											display: 'flex',
@@ -3840,7 +3631,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 															key={i}
 															src={itm}
 															onClick={() => {
-																console.log({ itm });
 																createImage(canvas, itm, {
 																	customType: 'elementImg',
 																	scaleX: 0.2,
@@ -3941,6 +3731,21 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 								Share
 							</button>
 						)}
+					</div>
+					<div style={{ marginTop: '40%', position: 'relative' }}>
+						<button
+							onClick={() => saveImage(canvas)}
+							style={{
+								width: '100%',
+								height: '42px',
+								borderRadius: '25px',
+								border: 'none',
+								backgroundColor: '#3b0e39',
+								color: 'white',
+							}}
+						>
+							Single Export
+						</button>
 					</div>
 				</div>
 			</div>
