@@ -2,8 +2,6 @@
 import { fabric } from 'fabric';
 import { useCanvasStore } from '../../store/useCanvasStore';
 
-const snappyElements = [fabric.SnappyText, fabric.SnappyImage];
-
 export const SnappyImage = fabric.util.createClass(fabric.Image, {
 	type: 'snappyImage',
 
@@ -119,6 +117,7 @@ export const SnappyImage = fabric.util.createClass(fabric.Image, {
 	clearGuides: function () {
 		for (let side in this.guides) {
 			if (this.guides[side] instanceof fabric.Line) {
+				console.log('runng');
 				this.canvas.remove(this.guides[side]);
 				delete this.guides[side];
 			}
@@ -128,13 +127,10 @@ export const SnappyImage = fabric.util.createClass(fabric.Image, {
 
 fabric.SnappyImage = SnappyImage;
 
-export function clearAllGuides() {
-	const { canvas } = useCanvasStore.getState();
-	if (!canvas) return false;
-	const objects = canvas
-		.getObjects()
-		.filter((o) => snappyElements.includes(o.type));
-	objects.forEach((obj) => obj.clearGuides());
+export function clearAllGuides(canvas) {
+	const objects = canvas.getObjects().filter((o) => o.type === 'snappyImage');
+
+	objects?.forEach((obj) => obj?.clearGuides());
 }
 
 const SnappyText = fabric.util.createClass(fabric.Textbox, {
@@ -173,9 +169,6 @@ const SnappyText = fabric.util.createClass(fabric.Textbox, {
 			selectable: false,
 			opacity: 1,
 		};
-
-		console.log(pos);
-		console.log(this);
 
 		switch (side) {
 			case 'top':
@@ -249,14 +242,14 @@ const SnappyText = fabric.util.createClass(fabric.Textbox, {
 		this.guides[side] = ln;
 		this.canvas.add(ln);
 	},
-	clearGuides: function () {
-		for (let side in this.guides) {
-			if (this.guides[side] instanceof fabric.Line) {
-				this.canvas.remove(this.guides[side]);
-				delete this.guides[side];
-			}
-		}
-	},
+	// clearGuides: function () {
+	// 	for (let side in this.guides) {
+	// 		if (this.guides[side] instanceof fabric.Line) {
+	// 			this.canvas.remove(this.guides[side]);
+	// 			delete this.guides[side];
+	// 		}
+	// 	}
+	// },
 });
 
 fabric.SnappyText = SnappyText;
@@ -267,7 +260,7 @@ var events = {
 	mouse: ['down', 'up', 'moving', 'over', 'out'],
 };
 
-function bindEvents() {
+export function bindEvents() {
 	const { canvas } = useCanvasStore.getState();
 	if (!canvas) return false;
 	events.object.forEach((event) => {
@@ -287,11 +280,10 @@ function isSnappyElement(obj: any): boolean {
 	return obj instanceof fabric.SnappyText || obj instanceof fabric.SnappyImage;
 }
 
-export function init() {
+export async function init() {
 	const { canvas } = useCanvasStore.getState();
 	if (!canvas) return false;
-	console.log('logged', canvas);
-	bindEvents();
+	await bindEvents();
 
 	var snappy = new fabric.SnappyText('Hello', {
 		width: 150,
@@ -314,7 +306,6 @@ export function init() {
 	canvas.add(snappy2).renderAll();
 }
 function onObjectAdded(e) {
-	// Add the smart guides around the object
 	const obj = e.target;
 
 	if (!isSnappyElement(obj)) return false;
@@ -323,7 +314,6 @@ function onObjectAdded(e) {
 }
 
 function onObjectMoved(e) {
-	// Add the smart guides around the object
 	const obj = e.target;
 	if (!isSnappyElement(obj)) return false;
 	drawObjectGuides(obj);
@@ -333,20 +323,15 @@ function onObjectMoving(e) {
 	const obj = e.target;
 	const { canvas } = useCanvasStore.getState();
 	if (!canvas || !isSnappyElement(obj)) return false;
-	clearAllGuides();
+	// clearAllGuides(canvas);
 	drawObjectGuides(obj);
-
-	// Loop through each object in canvas
 
 	const objects = canvas
 		.getObjects()
 		.filter((o) => o.type !== 'line' && o !== obj);
-	// var {bl,br,tl,tr} = obj.oCoords
 	const matches = new Set();
 
 	for (var i of objects) {
-		//i.set('opacity', obj.intersectsWithObject(i) ? 0.5 : 1);
-
 		for (var side in obj.guides) {
 			var axis, newPos;
 
@@ -436,18 +421,6 @@ function onObjectMoving(e) {
 				}
 			}
 		}
-
-		/*   if(inRange(obj.left, i.left)){
-        console.log('left')
-        matches.left = true
-        snapObject(obj, 'left', i.left)
-      }
-      
-      if(inRange(obj.top, i.top)){
-        console.log('top')
-        matches.top = true
-        snapObject(obj, 'top', i.top)
-      } */
 	}
 
 	for (var k of matches) {

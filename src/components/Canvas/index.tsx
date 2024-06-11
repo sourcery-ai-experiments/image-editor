@@ -64,6 +64,7 @@ import { textToImage } from '../../api/text-to-image/index';
 import toast from 'react-hot-toast';
 import SummaryForm from '../Tabs/WritePost/SummaryForm';
 import {
+	bindEvents,
 	clearAllGuides,
 	init,
 	onObjectAdded,
@@ -328,41 +329,36 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				activeObject.setSelectionStyles({ fill: '#ffffff' });
 				canvasInstanceRef.current.renderAll();
 				setColor(color);
-				// setColor('#FD3232');
-				// setColorApplied(false);
-				// canvas.discardActiveObject().renderAll();
 			}
 		};
 
 		const handleButtonClick = (buttonType: string) =>
 			setActiveButton(buttonType);
 
-		const loadCanvas = useCallback(
-			// async (pageNumber?: string) => {
-			async () => {
-				if (!canvas) return;
-				const templateFound = paginationState?.find(
-					(item) => item?.page === selectedPage
-				);
+		const loadCanvas = useCallback(async () => {
+			if (!canvas) return;
+			const templateFound = paginationState?.find(
+				(item) => item?.page === selectedPage
+			);
 
-				await new Promise((resolve) => {
-					canvas?.loadFromJSON(templateFound?.templateJSON, () => {
-						resolve(null);
-					});
+			await new Promise((resolve) => {
+				canvas?.loadFromJSON(templateFound?.templateJSON, () => {
+					resolve(null);
 				});
-				init();
-			},
-			[canvas, template, paginationState, selectedPage]
-		);
+			});
+		}, [canvas, paginationState, selectedPage]);
 
 		useEffect(() => {
+			init();
 			// loadCanvas();
-
-			createImage(canvas, template?.overlayImage, {
-				customType: 'overlay',
-				selectable: false,
-				evented: false,
-			});
+			// init().then(() => {
+			// loadCanvas();
+			// createImage(canvas, template?.overlayImage, {
+			// 	customType: 'overlay',
+			// 	selectable: false,
+			// 	evented: false,
+			// });
+			// });
 
 			const handleCanvasUpdate = () => {
 				const activeObject = canvas?.getActiveObject();
@@ -1291,7 +1287,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 		});
 
 		const handleSelectionChanged = () => {
-			clearAllGuides(canvas);
+			// clearAllGuides();
 		};
 
 		let dndBackground = useRef(false);

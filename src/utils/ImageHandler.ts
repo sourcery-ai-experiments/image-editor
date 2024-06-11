@@ -11,6 +11,37 @@ export const createImage = (
 			resolve(undefined);
 			return;
 		}
+		fabric.Image.fromURL(
+			imageUrl,
+			(img) => {
+				const imgWidth = img.width || 0;
+				const defaultOptions: fabric.IImageOptions = {
+					left: canvas.getWidth() / 2 - imgWidth / 2,
+					top: canvas.getHeight() / 2,
+				};
+				img.set({ ...defaultOptions, ...options });
+				if (options.customType) img.customType = options.customType;
+				img.applyFilters();
+				canvas.add(img);
+				canvas.renderAll();
+				resolve(img);
+			},
+			{
+				crossOrigin: 'anonymous',
+			}
+		);
+	});
+};
+export const createSnappyImage = (
+	canvas: fabric.Canvas | null,
+	imageUrl: string,
+	options: fabric.IImageOptions
+): Promise<fabric.Image | undefined> => {
+	return new Promise((resolve) => {
+		if (!canvas) {
+			resolve(undefined);
+			return;
+		}
 
 		fabric.Image.fromURL(
 			imageUrl,
@@ -33,29 +64,6 @@ export const createImage = (
 				crossOrigin: 'anonymous',
 			}
 		);
-
-		// fabric.Image.fromURL(
-		//   imageUrl,
-		//   (img) => {
-		//     const imgWidth = img.width || 0;
-		//     const defaultOptions: fabric.IImageOptions = {
-		//       left: canvas.getWidth() / 2 - imgWidth / 2,
-		//       top: canvas.getHeight() / 2,
-		//     };
-
-		//     img.set({ ...defaultOptions, ...options });
-
-		//     if (options.customType) img.customType = options.customType;
-		//     img.applyFilters();
-		//     canvas.add(img);
-		//     canvas.renderAll();
-
-		//     resolve(img);
-		//   },
-		//   {
-		//     crossOrigin: "anonymous",
-		//   }
-		// );
 	});
 };
 
