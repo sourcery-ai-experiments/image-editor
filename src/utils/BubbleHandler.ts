@@ -105,26 +105,39 @@ export const createBubbleElement = (
 		canvas.add(strokeCircle);
 		canvas.add(fabricImage);
 
+		let prevLeft = strokeCircle.left!;
+		let prevTop = strokeCircle.top!;
+
 		strokeCircle.on('moving', function () {
-			var circleCenter = strokeCircle.getCenterPoint();
-			var imageCenter = fabricImage.getCenterPoint();
+			// Get the current position of the strokeCircle
+			const currentLeft = strokeCircle.left!;
+			const currentTop = strokeCircle.top!;
 
-			var offsetX = circleCenter.x - imageCenter.x;
-			var offsetY = circleCenter.y - imageCenter.y;
+			// Calculate the delta (difference) in position
+			const deltaX = currentLeft - prevLeft;
+			const deltaY = currentTop - prevTop;
 
+			// Update the previous position to the current position for the next move
+			prevLeft = currentLeft;
+			prevTop = currentTop;
+
+			// Update the image position by the same delta
 			fabricImage
 				.set({
-					left: fabricImage.left! + offsetX,
-					top: fabricImage.top! + offsetY,
+					left: fabricImage.left! + deltaX,
+					top: fabricImage.top! + deltaY,
 				})
 				.setCoords();
 
+			// Update the clipPath position to match the strokeCircle
 			clipPath
 				.set({
 					left: strokeCircle.left,
 					top: strokeCircle.top,
 				})
 				.setCoords();
+
+			canvas.renderAll();
 		});
 
 		strokeCircle.on('scaling', function () {
