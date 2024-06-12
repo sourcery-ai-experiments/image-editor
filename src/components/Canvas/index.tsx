@@ -10,7 +10,7 @@ import {
 	Checkbox,
 } from '@mui/material';
 import { useOnClickOutside } from 'usehooks-ts';
-
+import './fabric-smart-object';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import Paper from '@mui/material/Paper';
 import Button from '@mui/material/Button';
@@ -64,11 +64,15 @@ import { textToImage } from '../../api/text-to-image/index';
 import toast from 'react-hot-toast';
 import SummaryForm from '../Tabs/WritePost/SummaryForm';
 import {
+	bindEvents,
 	clearAllGuides,
+	init,
+	onObjectAdded,
 	onObjectMoved,
 	onObjectMoving,
 } from './fabric-smart-object';
 import { elementsAssets } from './config';
+import { useCanvasStore } from '../../store/useCanvasStore';
 type TemplateJSON = any;
 interface PaginationStateItem {
 	page: number;
@@ -121,25 +125,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			brightness: 0,
 			contrast: 0,
 		});
-		var events = {
-			object: ['added', 'moving', 'moved', 'scaled', 'selected', 'over'],
-			mouse: ['down', 'up', 'moving', 'over', 'out'],
-		};
-
-		const bindEvents = useCallback(() => {
-			if (!canvas) return;
-			events.object.forEach((event) => {
-				if (event === 'moving') {
-					canvas.on(`object:${event}`, (e) => onObjectMoving(e, canvas));
-				} else if (event === 'mouseover') {
-					canvas.on(`object:${event}`, (e) => onObjectMouseOver(e, canvas));
-				} else if (event === 'moved') {
-					canvas.on(`object:${event}`, (e) => onObjectMoved(e, canvas));
-				}
-			});
-
-			canvas.renderAll();
-		}, [canvas]);
 
 		const background = ['bg-1', 'bg-2'];
 		const title = ['title'];
@@ -291,6 +276,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			};
 			const canvas = new fabric.Canvas(canvasEl.current, options);
 			canvasInstanceRef.current = canvas;
+			useCanvasStore.setState({ canvas });
 			updateCanvasContext(canvas);
 
 			// Attach the event listener with the separated function
@@ -300,6 +286,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			return () => {
 				// Cleanup
 				updateCanvasContext(null);
+				useCanvasStore.setState({ canvas: null });
 				canvas.dispose();
 			};
 		}, [canvasDimension, selectedPage, paginationState]);
@@ -342,35 +329,37 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				activeObject.setSelectionStyles({ fill: '#ffffff' });
 				canvasInstanceRef.current.renderAll();
 				setColor(color);
-				// setColor('#FD3232');
-				// setColorApplied(false);
-				// canvas.discardActiveObject().renderAll();
 			}
 		};
 
 		const handleButtonClick = (buttonType: string) =>
 			setActiveButton(buttonType);
 
-		const loadCanvas = useCallback(
-			// async (pageNumber?: string) => {
-			async () => {
-				if (!canvas) return;
-				const templateFound = paginationState?.find(
-					(item) => item?.page === selectedPage
-				);
+		const loadCanvas = useCallback(async () => {
+			if (!canvas) return;
+			const templateFound = paginationState?.find(
+				(item) => item?.page === selectedPage
+			);
 
-				await new Promise((resolve) => {
-					canvas?.loadFromJSON(templateFound?.templateJSON, () => {
-						resolve(null);
-					});
+			await new Promise((resolve) => {
+				canvas?.loadFromJSON(templateFound?.templateJSON, () => {
+					resolve(null);
 				});
-				bindEvents();
-			},
-			[canvas, template, paginationState, selectedPage]
-		);
+			});
+		}, [canvas, paginationState, selectedPage]);
 
 		useEffect(() => {
-			loadCanvas();
+			init();
+			// loadCanvas();
+			// init().then(() => {
+			// loadCanvas();
+			// createImage(canvas, template?.overlayImage, {
+			// 	customType: 'overlay',
+			// 	selectable: false,
+			// 	evented: false,
+			// });
+			// });
+
 			const handleCanvasUpdate = () => {
 				const activeObject = canvas?.getActiveObject();
 				const isSelectionCleared = canvas?._activeObject === null;
@@ -1298,7 +1287,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 		});
 
 		const handleSelectionChanged = () => {
-			clearAllGuides(canvas);
+			// clearAllGuides();
 		};
 
 		let dndBackground = useRef(false);
@@ -2887,7 +2876,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 														| fabric.Textbox
 														| undefined;
 
-													if (!existingObject)
+													if (!existingObject) {
 														return createTextBox(canvas, {
 															text,
 															customType: 'title',
@@ -2900,6 +2889,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 															scaleY: 1.53,
 															fontSize: 16,
 														});
+													}
 
 													updateTextBox(canvas, { text });
 

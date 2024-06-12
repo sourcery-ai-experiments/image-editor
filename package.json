@@ -37,7 +37,8 @@
     "react-tiny-popover": "^8.0.4",
     "slick-carousel": "^1.8.1",
     "usehooks-ts": "^3.1.0",
-    "webfontloader": "^1.6.28"
+    "webfontloader": "^1.6.28",
+    "zustand": "^4.5.2"
   },
   "devDependencies": {
     "@mui/icons-material": "^5.14.19",
