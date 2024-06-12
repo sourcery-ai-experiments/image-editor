@@ -162,3 +162,22 @@ export const scaleToFit = (
 	// img.scaleToWidth(img.width! * scaleFactor);
 	// img.scaleToHeight(img.height! * scaleFactor);
 };
+
+export const updateImageColor = (
+	canvas: fabric.Canvas | null,
+	activeObject: fabric.Image,
+	color: string
+) => {
+	if (!canvas) return;
+	// if (activeObject) {
+	console.log('activeObject color', color);
+	var filter = new fabric.Image.filters.BlendColor({
+		color,
+		mode: 'tint',
+		alpha: 1,
+	});
+	activeObject.filters.push(filter);
+	activeObject.applyFilters();
+	return canvas.renderAll();
+	// }
+};
