@@ -26,6 +26,7 @@ import DeselectIcon from '@mui/icons-material/Deselect';
 import JSZip from 'jszip';
 
 import {
+	createSnappyTextBox,
 	createSwipeGroup,
 	createTextBox,
 	updateSwipeColor,
@@ -65,6 +66,7 @@ import toast from 'react-hot-toast';
 import SummaryForm from '../Tabs/WritePost/SummaryForm';
 import {
 	clearAllGuides,
+	onObjectAdded,
 	onObjectMoved,
 	onObjectMoving,
 } from './fabric-smart-object';
@@ -129,7 +131,9 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 		const bindEvents = useCallback(() => {
 			if (!canvas) return;
 			events?.object?.forEach((event) => {
-				if (event === 'moving') {
+				if (event === 'added') {
+					canvas.on(`object:${event}`, (e) => onObjectAdded(e, canvas));
+				} else if (event === 'moving') {
 					canvas.on(`object:${event}`, (e) => onObjectMoving(e, canvas));
 				} else if (event === 'mouseover') {
 					canvas.on(`object:${event}`, (e) => onObjectMouseOver(e, canvas));
@@ -151,7 +155,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			'hashtag',
 			'elementImg',
 		];
-		const writePost = ['writePost', 'coustomTypeText'];
+		const writePost = ['writePost', 'customTypeText'];
 
 		useEffect(() => {
 			if (canvas) {
@@ -304,11 +308,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				console.log('----------dispose------------');
 			};
 		}, [canvasDimension]);
-		// canvas?.renderAll();
-		//canvasDimension, selectedPage, paginationState
-		// console.log('canvasDimension', canvasDimension);
-		// console.log('selectedPage', selectedPage);
-		// console.log('paginationState', paginationState);
 		const handleSelectionUpdated = (e) => {
 			const activeObject = canvasInstanceRef.current!.getActiveObject();
 			if (activeObject && activeObject.type === 'textbox') {
@@ -366,16 +365,17 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
 				await new Promise((resolve) => {
 					canvas?.loadFromJSON(templateFound?.templateJSON, () => {
+						bindEvents();
 						resolve(null);
 					});
 				});
-				bindEvents();
 			},
-			[canvas, template, paginationState, selectedPage]
+			[canvas, paginationState, selectedPage]
 		);
 
 		useEffect(() => {
 			loadCanvas();
+
 			const handleCanvasUpdate = () => {
 				const activeObject = canvas?.getActiveObject();
 				const isSelectionCleared = canvas?._activeObject === null;
@@ -463,15 +463,13 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				});
 			};
 			canvas?.on('mouse:down', handleMouseDown);
-			// Attach canvas update listeners
-			// canvas?.on('mouse:down', handleMouseClick);
+
 			canvas?.on('selection:created', handleCanvasUpdate);
 			canvas?.on('selection:updated', handleCanvasUpdate);
 			canvas?.on('selection:cleared', handleCanvasUpdate);
 
 			// Cleanup the event listeners when the component unmounts
 			return () => {
-				// canvas?.on('mouse:down', handleMouseClick);
 				canvas?.off('selection:created', handleCanvasUpdate);
 				canvas?.off('selection:updated', handleCanvasUpdate);
 				canvas?.off('selection:cleared', handleCanvasUpdate);
@@ -1149,7 +1147,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			setSelectedPage(highestPageNumber);
 			setTimeout(() => {
 				loadCanvas(highestPageNumber);
-			}, 2000);
+			}, 3000);
 
 			updateActiveTab('background');
 		};
@@ -1470,18 +1468,28 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			if (!canvas) {
 				return;
 			}
-			const targetElement = document.getElementById('element');
-			const targetElement2 = document.getElementById('canvasID');
-			const targetElement3 = document.getElementById('CustomColorPicker');
-			if (targetElement && !targetElement.contains(event.target)) {
+
+			// Define the IDs of the elements you want to check
+			const elementIDs = [
+				'element',
+				'canvasID',
+				'react-tiny-popover-container',
+			];
+			let isClickInside = false;
+
+			elementIDs.forEach((id) => {
+				const element = document.getElementById(id);
+
+				// Check if the click is inside any of the elements
+				if (element && element.contains(event.target)) {
+					isClickInside = true;
+				}
+			});
+
+			// If the click is outside all specified elements, discard the active object
+			if (!isClickInside) {
 				canvas.discardActiveObject();
-				canvas?.renderAll();
-			} else if (targetElement2 && !targetElement2.contains(event.target)) {
-				canvas.discardActiveObject();
-				canvas?.renderAll();
-			} else if (targetElement3 && !targetElement3.contains(event.target)) {
-				canvas.discardActiveObject();
-				canvas?.renderAll();
+				canvas.renderAll();
 			}
 		};
 		// canvas.discardActiveObject();
@@ -1506,11 +1514,20 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 							}
 						}
 					>
-						<div id='canvasID'>
+						<Box id='canvasID'>
 							<div
 								style={{
-									background:
-										'repeating-linear-gradient(transparent, transparent 10px, rgba(0, 0, 0, 0.1) 11px), repeating-linear-gradient(90deg, transparent, transparent 10px, rgba(0, 0, 0, 0.1) 11px);',
+									background: `repeating-linear-gradient(
+										transparent,
+										transparent 10px,
+										rgba(0, 0, 0, 0.1) 11px
+									),
+									repeating-linear-gradient(
+										90deg,
+										transparent,
+										transparent 10px,
+										rgba(0, 0, 0, 0.1) 11px
+									)`,
 								}}
 							>
 								<DeselectIcon
@@ -2680,7 +2697,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 									/>
 								</button>
 							</div>
-						</div>
+						</Box>
 					</div>
 
 					{/* pagination */}
@@ -2878,9 +2895,10 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 									Titles
 								</h4>
 								<div style={{ marginTop: '20px' }}>
-									{texts.map((text: string) => {
+									{texts?.map((text: string, i) => {
 										return (
 											<h5
+												key={i}
 												draggable
 												onDragStart={(e) => handleDragStart(e, text)}
 												onClick={() => {
@@ -2889,7 +2907,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 														| undefined;
 
 													if (!existingObject)
-														return createTextBox(canvas, {
+														return createSnappyTextBox(canvas, {
 															text,
 															customType: 'title',
 															fill: '#fff',
@@ -3676,7 +3694,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 												scaleX: 1.53,
 												scaleY: 1.53,
 												fontSize: 16,
-												customType: 'coustomTypeText',
+												customType: 'customTypeText',
 											});
 
 											updateTextBox(canvas, { text });
