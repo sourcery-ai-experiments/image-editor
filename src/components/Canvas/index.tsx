@@ -128,7 +128,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
 		const bindEvents = useCallback(() => {
 			if (!canvas) return;
-			events.object.forEach((event) => {
+			events?.object?.forEach((event) => {
 				if (event === 'moving') {
 					canvas.on(`object:${event}`, (e) => onObjectMoving(e, canvas));
 				} else if (event === 'mouseover') {
@@ -155,7 +155,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
 		useEffect(() => {
 			if (canvas) {
-				canvas.getObjects().forEach((obj) => {
+				canvas?.getObjects()?.forEach((obj) => {
 					if (
 						activeTab === 'background' &&
 						!background.includes(obj?.customType)
@@ -289,7 +289,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				preserveObjectStacking: true,
 				selection: true,
 			};
-			const canvas = new fabric.Canvas(canvasEl.current, options);
+			const canvas = new fabric.Canvas(canvasEl?.current, options);
 			canvasInstanceRef.current = canvas;
 			updateCanvasContext(canvas);
 
@@ -297,13 +297,18 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			canvas.on('selection:created', handleSelectionUpdated);
 			canvas.on('selection:updated', handleSelectionUpdated);
 
+			// Cleanup
 			return () => {
-				// Cleanup
 				updateCanvasContext(null);
 				canvas.dispose();
+				console.log('----------dispose------------');
 			};
-		}, [canvasDimension, selectedPage, paginationState]);
-
+		}, [canvasDimension]);
+		// canvas?.renderAll();
+		//canvasDimension, selectedPage, paginationState
+		// console.log('canvasDimension', canvasDimension);
+		// console.log('selectedPage', selectedPage);
+		// console.log('paginationState', paginationState);
 		const handleSelectionUpdated = (e) => {
 			const activeObject = canvasInstanceRef.current!.getActiveObject();
 			if (activeObject && activeObject.type === 'textbox') {
@@ -387,7 +392,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 					const mousePos = canvas?.getPointer(options.e) || { x: 0, y: 0 };
 
 					if (thisTarget.isType('group')) {
-						thisTarget.forEachObject((object: any) => {
+						thisTarget?.forEachObject((object: any) => {
 							if (object.type === 'textbox') {
 								const matrix = thisTarget.calcTransformMatrix();
 								const newPoint = fabric.util.transformPoint(
@@ -423,7 +428,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 					group._restoreObjectsState();
 					canvas?.remove(group);
 
-					groupItems.forEach((item: any) => {
+					groupItems?.forEach((item: any) => {
 						if (item !== textObject) {
 							item.selectable = false;
 						}
@@ -444,7 +449,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				textObject.on('editing:exited', () => {
 					if (exitEditing) {
 						const items: any[] = [];
-						groupItems.forEach((obj: any) => {
+						groupItems?.forEach((obj: any) => {
 							items.push(obj);
 							canvas?.remove(obj);
 						});
@@ -593,7 +598,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 					?.getObjects()
 					?.filter((obj: any) => obj.customId === c_id);
 
-				getExistingObject.forEach((obj) => {
+				getExistingObject?.forEach((obj) => {
 					if (
 						obj?.customType === 'bubble' ||
 						obj?.customType === 'bubbleStroke'
@@ -1102,7 +1107,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 		): number => {
 			let highestPageNumber = 0;
 
-			paginationState.forEach((item) => {
+			paginationState?.forEach((item) => {
 				if (item.page > highestPageNumber) {
 					highestPageNumber = item.page;
 				}
@@ -1113,6 +1118,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
 		const addTemplate = async () => {
 			const currentTemplateJSON = await saveJSON(canvas, true);
+			deselectObj();
 
 			await update(selectedPage, { templateJSON: currentTemplateJSON });
 
@@ -1274,15 +1280,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
 			await loadCanvas(selectedPage);
 		};
-
-		useEffect(() => {
-			if (templateSaved) {
-				setTimeout(async () => {
-					await handleExport();
-				}, 2000);
-			}
-		}, [templateSaved]);
-
 		const handleExport = async () => {
 			if (templateSaved) {
 				await exportMultiCanvases();
@@ -1291,6 +1288,14 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				toast.error('Please save all templates before exporting.');
 			}
 		};
+
+		useEffect(() => {
+			if (templateSaved) {
+				setTimeout(async () => {
+					await handleExport();
+				}, 2000);
+			}
+		}, [templateSaved]);
 
 		//--------------------------write post-------------------
 		const [summaryContent, setSummaryContent] = useState<{ content: string }>({
@@ -1469,15 +1474,12 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			const targetElement2 = document.getElementById('canvasID');
 			const targetElement3 = document.getElementById('CustomColorPicker');
 			if (targetElement && !targetElement.contains(event.target)) {
-				// console.log('event --element', event);
 				canvas.discardActiveObject();
 				canvas?.renderAll();
 			} else if (targetElement2 && !targetElement2.contains(event.target)) {
-				// console.log('event-- canvas', event);
 				canvas.discardActiveObject();
 				canvas?.renderAll();
 			} else if (targetElement3 && !targetElement3.contains(event.target)) {
-				// console.log('CustomColorPicker', event);
 				canvas.discardActiveObject();
 				canvas?.renderAll();
 			}
@@ -2688,7 +2690,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 								<div
 									onClick={async () => {
 										const currentTemplateJSON = await saveJSON(canvas, true);
-
+										deselectObj();
 										await update(selectedPage, {
 											templateJSON: currentTemplateJSON,
 										});
@@ -2834,7 +2836,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 											const background = true;
 											handleDragStart(e, imageUrl, background);
 										}}
-										// onDragStart={(e, imageUrl) => console.log('e, imageURl', e, imageUrl)}
 									>
 										{template?.diptych === 'vertical' ? (
 											<Box
@@ -3699,7 +3700,22 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 					</div>
 
 					<div style={{ marginTop: '60%', position: 'relative' }}>
-						{!templateSaved ? (
+						<button
+							onClick={handleSaveTemplate}
+							style={{
+								width: '100%',
+								height: '42px',
+								borderRadius: '25px',
+								border: 'none',
+								backgroundColor: '#3b0e39',
+								color: 'white',
+
+								cursor: 'pointer',
+							}}
+						>
+							{!templateSaved ? 'Share' : 'Loading...'}
+						</button>
+						{/* {!templateSaved ? (
 							<button
 								onClick={handleSaveTemplate}
 								style={{
@@ -3730,7 +3746,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 							>
 								Share
 							</button>
-						)}
+						)} */}
 					</div>
 					<div style={{ marginTop: '40%', position: 'relative' }}>
 						<button
@@ -3742,9 +3758,10 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 								border: 'none',
 								backgroundColor: '#3b0e39',
 								color: 'white',
+								cursor: 'pointer',
 							}}
 						>
-							Single Export
+							Single Share
 						</button>
 					</div>
 				</div>
