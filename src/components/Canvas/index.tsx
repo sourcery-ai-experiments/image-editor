@@ -542,7 +542,8 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			},
 			brightness?: number
 		) => {
-			const existingBubbleStroke = getExistingObject('bubbleStroke');
+			const existingBubbleStroke =
+				canvas?.getActiveObject() || getExistingObject('bubbleStroke');
 
 			if (!canvas) {
 				console.error('Canvas Not initialized');
@@ -550,7 +551,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			}
 
 			const activeObject = canvas.getActiveObject();
-			console.log('🚀  ~ activeObject:', activeObject);
 
 			if (activeObject?.customType === 'bubbleStroke') {
 				if (filter && !imgUrl && existingBubbleStroke) {
@@ -562,23 +562,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 					canvas.renderAll();
 				}
 			}
-
-			// if (activeObject.customType === 'bubbleStroke') {
-			// 	const newOptions: fabric.ICircleOptions = {
-			// 		stroke: filter?.stroke || 'blue',
-			// 		strokeWidth: filter?.strokeWidth || 15,
-			// 	};
-			// 	updateBubbleElement(canvas, existingBubbleStroke, newOptions);
-			// 	canvas.renderAll();
-			// }
-			// if (filter && !imgUrl && existingBubbleStroke) {
-			// 	const newOptions: fabric.ICircleOptions = {
-			// 		stroke: filter?.stroke || 'blue',
-			// 		strokeWidth: filter?.strokeWidth || 15,
-			// 	};
-			// 	updateBubbleElement(canvas, existingBubbleStroke, newOptions);
-			// 	canvas.renderAll();
-			// }
 
 			if (shadow) {
 				const activeBubble = canvas.getActiveObject();
@@ -1149,7 +1132,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			return highestPageNumber + 1;
 		};
 
-		console.log(templateData.templates);
 		const addTemplate = async () => {
 			const currentTemplateJSON = await saveJSON(canvas, true);
 			deselectObj();
@@ -1161,7 +1143,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			const templateFound = templateData.templates?.find(
 				(item) => item.filePath === paginationState[0].filePath
 			);
-			console.log({ templateFound });
 			let templateJSON;
 			try {
 				templateJSON = await import(
