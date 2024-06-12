@@ -73,35 +73,6 @@ export function createSnappyTextBox(
 	return newText;
 }
 
-// export function createTextBox(
-// 	canvas: fabric.Canvas | null,
-// 	options: FabricTextBox
-// ): fabric.Textbox | undefined {
-// 	if (!canvas) return;
-// 	const defaultOptions: ITextboxOptions = {
-// 		left: 50,
-// 		top: 50,
-// 		fontSize: 16,
-// 		fontWeight: 'bold',
-// 		fontFamily: 'Fira Sans',
-// 		textAlign: 'center',
-// 		fontStyle: 'normal',
-// 		fill: '#000000',
-// 		lineHeight: 1.16,
-// 		strokeWidth: 1,
-// 		text: 'Your text here',
-// 	};
-// 	const textOptions = { ...defaultOptions, ...options };
-// 	const newText = new fabric.Textbox(options.text || 'Your text here', {
-// 		...textOptions,
-// 	});
-// 	if (options.customType) newText.customType = options.customType;
-// 	canvas.add(newText);
-// 	canvas.setActiveObject(newText);
-// 	canvas.renderAll();
-// 	return newText;
-// }
-
 /**
  * Creates a new text object on the canvas with the specified options.
  * @param {fabric.Canvas} canvas - The canvas object on which to create the text.
@@ -239,59 +210,9 @@ export function updateTextBox(
 		(textbox as fabric.Textbox).set({
 			...options,
 			visible: true,
-			// fill: 'red',
-			top: 500,
 		});
-		canvas?.requestRenderAll();
+		canvas?.renderAll();
 	};
-
-	// const updateAndRender = () => {
-	//   const newText = options.text?.split("").join("\n");
-	//   (textbox as fabric.Textbox).set({
-	//     ...options,
-	//     text: newText,
-	//     visible: true,
-	//     width:25,
-	//     top:10,
-	//     left:100,
-	//     fontSize: 12,
-	//   });
-	//   canvas?.requestRenderAll();
-	// };
 
 	requestAnimationFrame(updateAndRender);
 }
-
-// export function updateTextBox(
-//   canvas: fabric.Canvas | null,
-//   options: ITextboxOptions,
-//   defaultType?: "title" | "hashtag" | "borders"
-// ): void {
-//   if (!canvas) return;
-
-//   let textbox: Object | undefined = getExistingObject(
-//     canvas,
-//     defaultType || "title"
-//   );
-
-//   const activeObject = canvas?.getActiveObject();
-//   if (activeObject && activeObject.isType("textbox")) textbox = activeObject;
-
-//   if (!textbox) {
-//     console.log("Textbox not founded");
-//     return;
-//   }
-//   // const verticalText = (textbox as fabric.Textbox).text.split("").join("\n");
-//   // console.log("🚀 ~ verticalText:", verticalText)
-
-// const updateAndRender = () => {
-//   (textbox as fabric.Textbox).set({
-//     ...options,
-//     visible: true,
-//   });
-//   canvas?.requestRenderAll();
-// };
-
-//   // Use requestAnimationFrame for smoother updates
-//   requestAnimationFrame(updateAndRender);
-// }

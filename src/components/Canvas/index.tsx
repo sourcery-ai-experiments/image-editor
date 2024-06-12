@@ -3507,48 +3507,38 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 											mt: 1,
 										}}
 									>
-										{logos?.map((logo: string, i) => {
-											const logoFillColor =
-												userMetaData?.company?.color || 'black';
-											return (
-												<div
-													key={i}
-													onClick={() => {
-														const existingTextObject = getExistingObject(
-															'hashtag'
-														) as fabric.Textbox | undefined;
+										<div
+											onClick={() => {
+												const existingTextObject = getExistingObject(
+													'hashtag'
+												) as fabric.Textbox | undefined;
 
-														if (
-															existingTextObject &&
-															!existingTextObject?.visible
-														)
-															updateTextBox(
-																canvas,
-																{
-																	visible: !existingTextObject.visible,
-																	fill: userMetaData?.company?.color,
-																},
-																'hashtag'
-															);
-														else
-															createTextBox(canvas, {
-																fill: userMetaData?.company?.color,
-																customType: 'hashtag',
-																name: `@${userMetaData?.company?.name}`,
-															});
-													}}
-													style={{
-														cursor: 'pointer',
-														paddingBottom: '0.5rem',
-														display: 'inline-block',
-													}}
-												>
-													{userMetaData?.company?.name
-														? `@${userMetaData?.company?.name}`
-														: '@COMPANYSOCIAL'}
-												</div>
-											);
-										})}
+												if (
+													existingTextObject &&
+													!existingTextObject?.visible
+												) {
+													existingTextObject.set({
+														fill: userMetaData?.company?.color,
+														visible: true,
+													});
+													canvas.renderAll();
+												} else
+													createTextBox(canvas, {
+														fill: userMetaData?.company?.color,
+														customType: 'hashtag',
+														name: `@${userMetaData?.company?.name}`,
+													});
+											}}
+											style={{
+												cursor: 'pointer',
+												paddingBottom: '0.5rem',
+												display: 'inline-block',
+											}}
+										>
+											{userMetaData?.company?.name
+												? `@${userMetaData?.company?.name}`
+												: '@COMPANYSOCIAL'}
+										</div>
 
 										<CustomColorPicker
 											value={userMetaData?.company?.color || '#909AE9'}
@@ -3566,7 +3556,10 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 														canvas?._activeObject as fabric.Textbox;
 
 												if (!existingTextObject) return;
-												updateTextBox(canvas, { fill: color }, 'hashtag');
+												existingTextObject.set({
+													fill: color,
+												});
+												canvas.renderAll();
 											}}
 										/>
 									</Box>
