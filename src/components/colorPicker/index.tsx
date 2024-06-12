@@ -29,6 +29,7 @@ const CustomColorPicker = ({ value, changeHandler }: Props) => {
 
 	return (
 		<Box
+			id='CustomColorPicker'
 			sx={{
 				position: 'relative',
 				height: '20px',

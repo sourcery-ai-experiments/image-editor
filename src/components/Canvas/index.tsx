@@ -34,7 +34,11 @@ import {
 import { updateRect } from '../../utils/RectHandler';
 import { saveJSON, hexToRgbA, saveImage } from '../../utils/ExportHandler';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { createImage, updateImageSource } from '../../utils/ImageHandler';
+import {
+	createImage,
+	updateImageColor,
+	updateImageSource,
+} from '../../utils/ImageHandler';
 import { useCanvasContext } from '../../context/CanvasContext';
 import { usePaginationContext } from '../../context/MultiCanvasPaginationContext';
 
@@ -1036,7 +1040,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			const color = userMetaData?.company?.color || '#909AE9';
 
 			var filter = new fabric.Image.filters.BlendColor({
-				color,
+				color: color,
 				mode: 'tint',
 				alpha: 1,
 			});
@@ -1470,20 +1474,23 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			if (!canvas) {
 				return;
 			}
-			const targetElement = document.getElementById('element');
-			const targetElement2 = document.getElementById('canvasID');
-			const targetElement3 = document.getElementById('CustomColorPicker');
-			if (targetElement && !targetElement.contains(event.target)) {
-				canvas.discardActiveObject();
-				canvas?.renderAll();
-			} else if (targetElement2 && !targetElement2.contains(event.target)) {
-				canvas.discardActiveObject();
-				canvas?.renderAll();
-			} else if (targetElement3 && !targetElement3.contains(event.target)) {
-				canvas.discardActiveObject();
-				canvas?.renderAll();
+			const targetElementIds = ['element', 'canvasID', 'CustomColorPicker'];
+			let shouldDiscardActiveObject = false;
+
+			for (const id of targetElementIds) {
+				const targetElement = document.getElementById(id);
+				if (targetElement && !targetElement.contains(event.target)) {
+					shouldDiscardActiveObject = true;
+					break;
+				}
 			}
+
+			// if (shouldDiscardActiveObject) {
+			// 	canvas.discardActiveObject();
+			// 	canvas.renderAll();
+			// }
 		};
+
 		// canvas.discardActiveObject();
 		// canvas?.renderAll();
 		useOnClickOutside(canvasRef, handleClickOutside);
@@ -1498,14 +1505,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				}}
 			>
 				<div>
-					<div
-						ref={canvasRef}
-						style={
-							{
-								// border: '2px solid yellow',
-							}
-						}
-					>
+					<div ref={canvasRef}>
 						<div id='canvasID'>
 							<div
 								style={{
@@ -3163,41 +3163,16 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 											<CustomColorPicker
 												value={userMetaData?.company?.color || '#909AE9'}
 												changeHandler={(color: string) => {
-													const type = 'swipeGroup';
-													let existingObject = getExistingObject(type) as
-														| fabric.Image
-														| undefined;
+													const activeObject = canvas?.getActiveObject();
 
-													if (
-														canvas?._activeObject &&
-														canvas?._activeObject?.type === 'image'
-													)
-														existingObject =
-															canvas?._activeObject as fabric.Image;
-
-													if (!existingObject) {
-														console.log('existing Border object not founded');
+													if (!canvas && !activeObject) {
+														console.log('Canvas and activeObject Not found');
 														return;
 													}
-													const blendColorFilter1 =
-														new fabric.Image.filters.BlendColor({
-															color,
-															mode: 'tint',
-															alpha: 1,
-														});
-
-													const swipeGroup = getExistingObject('swipeGroup');
-
-													const activeObj = canvas?.getActiveObject();
-
-													if (activeObj?.customType === 'swipeGroup') {
+													if (activeObject.type == 'group') {
 														updateSwipeColor(canvas, color);
 													} else {
-														existingObject.filters?.push(blendColorFilter1);
-														existingObject.applyFilters();
-														requestAnimationFrame(() => {
-															canvas?.renderAll();
-														});
+														updateImageColor(canvas, activeObject, color);
 													}
 												}}
 											/>
@@ -3256,36 +3231,14 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 										}}
 									>
 										<CustomColorPicker
-											// value={overlayTextFiltersState.color}
 											value={userMetaData?.company?.color || '#909AE9'}
 											changeHandler={(color: string) => {
-												const type = 'borders';
-												let existingObject = getExistingObject(type) as
-													| fabric.Image
-													| undefined;
-												if (
-													canvas?._activeObject &&
-													canvas?._activeObject?.type === 'image'
-												)
-													existingObject =
-														canvas?._activeObject as fabric.Image;
-
-												if (!existingObject) {
-													console.log('existing Border object not founded');
+												const activeObject = canvas?.getActiveObject();
+												if (!canvas && !activeObject) {
+													console.log('Canvas and activeObject Not found');
 													return;
 												}
-												const blendColorFilter =
-													new fabric.Image.filters.BlendColor({
-														color,
-														mode: 'tint',
-														alpha: 1,
-													});
-
-												existingObject.filters?.push(blendColorFilter);
-												existingObject.applyFilters();
-												requestAnimationFrame(() => {
-													canvas?.renderAll();
-												});
+												updateImageColor(canvas, activeObject, color);
 											}}
 										/>
 									</Box>
@@ -3386,36 +3339,14 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 											);
 										})}
 										<CustomColorPicker
-											// value={overlayTextFiltersState.color}
 											value={userMetaData?.company?.color || '#909AE9'}
 											changeHandler={(color: string) => {
-												const type = 'borders';
-												let existingObject = getExistingObject(type) as
-													| fabric.Image
-													| undefined;
-												if (
-													canvas?._activeObject &&
-													canvas?._activeObject?.type === 'image'
-												)
-													existingObject =
-														canvas?._activeObject as fabric.Image;
-
-												if (!existingObject) {
-													console.log('existing Border object not founded');
+												const activeObject = canvas?.getActiveObject();
+												if (!canvas && !activeObject) {
+													console.log('Canvas and activeObject Not found');
 													return;
 												}
-												const blendColorFilter =
-													new fabric.Image.filters.BlendColor({
-														color,
-														mode: 'tint',
-														alpha: 1,
-													});
-
-												existingObject.filters?.push(blendColorFilter);
-												existingObject.applyFilters();
-												requestAnimationFrame(() => {
-													canvas?.renderAll();
-												});
+												updateImageColor(canvas, activeObject, color);
 											}}
 										/>
 									</Box>
