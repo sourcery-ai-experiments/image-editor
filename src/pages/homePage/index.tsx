@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import LandingPage from '../landing page/landingPage';
 import { APIResponse, TemplateData } from '../../types';
-import { BaseURL, templateData } from '../../constants';
+import { BaseURL, DEV_MODE, templateData } from '../../constants';
 import { styled } from '@mui/styles';
 import Templates from '../templates/templates';
 import Canvas from '../../components/Canvas';
@@ -72,45 +72,30 @@ const HomePage = () => {
 			setSelectedTemplate(templateFound);
 		}
 	}, [paginationState]);
-	return (
-		<>
-			{step == 1 ? (
-				<LandingPage setScrappedData={setScrappedData} updateStep={setStep} />
-			) : step == 2 ? (
-				<Templates updateStep={setStep} />
-			) : step == 3 ? (
-				<StyledContainer>
-					<Canvas
-						updatedSeedData={updatedSeedData}
-						template={selectedTemplate}
-					/>
-				</StyledContainer>
-			) : (
-				''
-			)}
-		</>
-
-		// <>
-		// 	{step == 1 ? (
-		// 		<Templates updateStep={setStep} />
-		// 	) : step == 2 ? (
-		// 		<StyledContainer>
-		// 			<Canvas
-		// 				updatedSeedData={updatedSeedData}
-		// 				template={selectedTemplate}
-		// 			/>
-		// 		</StyledContainer>
-		// 	) : step == 3 ? (
-		// 		<StyledContainer>
-		// 			<Canvas
-		// 				updatedSeedData={updatedSeedData}
-		// 				template={selectedTemplate}
-		// 			/>
-		// 		</StyledContainer>
-		// 	) : (
-		// 		''
-		// 	)}
-		// </>
+	return DEV_MODE ? (
+		step == 1 ? (
+			<Templates updateStep={setStep} />
+		) : step == 2 ? (
+			<StyledContainer>
+				<Canvas updatedSeedData={updatedSeedData} template={selectedTemplate} />
+			</StyledContainer>
+		) : step == 3 ? (
+			<StyledContainer>
+				<Canvas updatedSeedData={updatedSeedData} template={selectedTemplate} />
+			</StyledContainer>
+		) : (
+			''
+		)
+	) : step == 1 ? (
+		<LandingPage setScrappedData={setScrappedData} updateStep={setStep} />
+	) : step == 2 ? (
+		<Templates updateStep={setStep} />
+	) : step == 3 ? (
+		<StyledContainer>
+			<Canvas updatedSeedData={updatedSeedData} template={selectedTemplate} />
+		</StyledContainer>
+	) : (
+		''
 	);
 };
 

@@ -4,6 +4,7 @@ export const BaseURL = import.meta.env.VITE_APP_BASE_URL;
 export const AUTH0_CLIENT_ID = `${import.meta.env.VITE_AUTH0_CLIENT_ID}`;
 export const AUTH0_DOMAIN_ID = import.meta.env.VITE_AUTH0_DOMAIN_ID;
 export const AUTH0_AUDIENCE_ID = `${import.meta.env.VITE_AUTH0_AUDIENCE_ID}`;
+export const DEV_MODE = import.meta.env.VITE_DEV === 'true' || false;
 
 export const canvasDimension = {
 	width: 540,
