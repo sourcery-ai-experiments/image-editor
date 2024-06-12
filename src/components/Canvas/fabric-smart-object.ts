@@ -382,12 +382,11 @@ export function clearAllGuides(canvas: fabric.Canvas) {
 	const objects = canvas
 		.getObjects()
 		.filter((o) => snappyElements.includes(o.type));
-	objects.forEach((obj) => obj.clearGuides());
+	objects?.forEach((obj) => obj?.clearGuides?.());
 }
 
 export function onObjectMoving(e: MouseEvent, canvas: fabric.Canvas) {
 	const obj = e.target;
-	console.log('rung', obj.type);
 	if (!snappyElements.includes(obj.type)) return false;
 	clearAllGuides(canvas); // Clear existing guides
 	drawObjectGuides(obj, canvas);

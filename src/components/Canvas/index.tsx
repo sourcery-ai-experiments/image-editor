@@ -374,7 +374,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 					});
 				});
 			},
-			[canvas, paginationState, selectedPage]
+			[canvas, template, paginationState, selectedPage]
 		);
 
 		useEffect(() => {
@@ -1118,6 +1118,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			return highestPageNumber + 1;
 		};
 
+		console.log(templateData.templates);
 		const addTemplate = async () => {
 			const currentTemplateJSON = await saveJSON(canvas, true);
 			deselectObj();
@@ -1129,7 +1130,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			const templateFound = templateData.templates?.find(
 				(item) => item.filePath === paginationState[0].filePath
 			);
-
+			console.log({ templateFound });
 			let templateJSON;
 			try {
 				templateJSON = await import(
