@@ -303,6 +303,7 @@ export const updateBubbleElement = (
 ) => {
 	const imageClipPath = getExistingObject(canvas, 'bubble')
 		?.clipPath as fabric.Circle;
+
 	// Update strokeCircle properties
 	if (options) {
 		if (options.strokeWidth !== undefined) {

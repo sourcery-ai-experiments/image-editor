@@ -232,6 +232,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				color: '#fff',
 				fontFamily: 'Fira Sans',
 			},
+
 			overlay: {
 				imgUrl: template?.overlayImage,
 				opacity: template?.opacity || 0.6,
@@ -548,6 +549,37 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				return;
 			}
 
+			const activeObject = canvas.getActiveObject();
+			console.log('🚀  ~ activeObject:', activeObject);
+
+			if (activeObject?.customType === 'bubbleStroke') {
+				if (filter && !imgUrl && existingBubbleStroke) {
+					const newOptions: fabric.ICircleOptions = {
+						stroke: filter?.stroke || 'blue',
+						strokeWidth: filter?.strokeWidth || 15,
+					};
+					updateBubbleElement(canvas, existingBubbleStroke, newOptions);
+					canvas.renderAll();
+				}
+			}
+
+			// if (activeObject.customType === 'bubbleStroke') {
+			// 	const newOptions: fabric.ICircleOptions = {
+			// 		stroke: filter?.stroke || 'blue',
+			// 		strokeWidth: filter?.strokeWidth || 15,
+			// 	};
+			// 	updateBubbleElement(canvas, existingBubbleStroke, newOptions);
+			// 	canvas.renderAll();
+			// }
+			// if (filter && !imgUrl && existingBubbleStroke) {
+			// 	const newOptions: fabric.ICircleOptions = {
+			// 		stroke: filter?.stroke || 'blue',
+			// 		strokeWidth: filter?.strokeWidth || 15,
+			// 	};
+			// 	updateBubbleElement(canvas, existingBubbleStroke, newOptions);
+			// 	canvas.renderAll();
+			// }
+
 			if (shadow) {
 				const activeBubble = canvas.getActiveObject();
 				const newOptions: fabric.ICircleOptions = {
@@ -580,7 +612,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				};
 				requestAnimationFrame(() => {
 					createBubbleElement1(canvas!, imgUrl!, options);
-
 					canvas.renderAll();
 				});
 				return;
@@ -2372,7 +2403,13 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 										</Box>
 
 										{show === 'colors' && (
-											<Box className={classes.optionsContainer}>
+											<Box
+												className={classes.optionsContainer}
+												sx={{
+													mb: 1,
+													ml: 4,
+												}}
+											>
 												<CustomColorPicker
 													value={overlayTextFiltersState.color}
 													changeHandler={(color: string) => {
@@ -2961,7 +2998,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 								<ImageViewer
 									clickHandler={(img: string) => {
 										const activeBubble = canvas?.getActiveObject();
-
 										if (
 											isChecked &&
 											activeBubble?.customType === 'bubbleStroke'
@@ -2970,7 +3006,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 											deselectObj();
 											canvas?.renderAll();
 										}
-
 										updateBubbleImage(img);
 									}}
 									images={initialData.bubbles}
