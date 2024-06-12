@@ -125,129 +125,250 @@ export const SnappyImage = fabric.util.createClass(fabric.Image, {
 
 fabric.SnappyImage = SnappyImage;
 
-// export const SnappyRect = fabric.util.createClass(fabric.Rect, {
-// 	type: 'snappyRect',
+const SnappyText = fabric.util.createClass(fabric.Textbox, {
+	type: 'snappyText',
 
-// 	initialize: function (options) {
-// 		options || (options = {});
-// 		this.callSuper('initialize', options);
-// 		this.guides = {};
-// 	},
-// 	_render: function (ctx) {
-// 		this.callSuper('_render', ctx);
-// 		this._drawObjectGuides();
-// 	},
+	initialize: function (options) {
+		options || (options = {});
+		this.callSuper('initialize', options);
+		this.guides = {};
+	},
+	_render: function (ctx) {
+		this.callSuper('_render', ctx);
+		this._drawObjectGuides();
+	},
 
-// 	_drawObjectGuides: function () {
-// 		const w = this.getScaledWidth();
-// 		const h = this.getScaledHeight();
-// 		this._drawGuide('top', this.top);
-// 		this._drawGuide('left', this.left);
-// 		this._drawGuide('centerX', this.left + w / 2);
-// 		this._drawGuide('centerY', this.top + h / 2);
-// 		this._drawGuide('right', this.left + w);
-// 		this._drawGuide('bottom', this.top + h);
-// 		this.setCoords();
-// 	},
+	_drawObjectGuides: function () {
+		const w = this.getScaledWidth();
+		const h = this.getScaledHeight();
+		this._drawGuide('top', this.top);
+		this._drawGuide('left', this.left);
+		this._drawGuide('centerX', this.left + w / 2);
+		this._drawGuide('centerY', this.top + h / 2);
+		this._drawGuide('right', this.left + w);
+		this._drawGuide('bottom', this.top + h);
+		this.setCoords();
+	},
 
-// 	_drawGuide: function (side, pos) {
-// 		let ln;
-// 		const color = 'rgb(178, 207, 255)';
-// 		const lineProps = {
-// 			left: 0,
-// 			top: 0,
-// 			evented: true,
-// 			stroke: color,
-// 			selectable: false,
-// 			opacity: 1,
-// 		};
+	_drawGuide: function (side, pos) {
+		let ln;
+		const color = 'rgb(178, 207, 255)';
+		const lineProps = {
+			left: 0,
+			top: 0,
+			evented: true,
+			stroke: color,
+			selectable: false,
+			opacity: 1,
+		};
 
-// 		switch (side) {
-// 			case 'top':
-// 				ln = new fabric.Line(
-// 					[0, 0, this.canvas.width, 0],
-// 					Object.assign(lineProps, {
-// 						left: 0,
-// 						top: pos,
-// 					})
-// 				);
-// 				break;
-// 			case 'bottom':
-// 				ln = new fabric.Line(
-// 					[0, 0, this.canvas.width, 0],
-// 					Object.assign(lineProps, {
-// 						left: 0,
-// 						top: pos,
-// 					})
-// 				);
-// 				break;
+		switch (side) {
+			case 'top':
+				ln = new fabric.Line(
+					[0, 0, this.canvas.width, 0],
+					Object.assign(lineProps, {
+						left: 0,
+						top: pos,
+					})
+				);
+				break;
+			case 'bottom':
+				ln = new fabric.Line(
+					[0, 0, this.canvas.width, 0],
+					Object.assign(lineProps, {
+						left: 0,
+						top: pos,
+					})
+				);
+				break;
 
-// 			case 'centerY':
-// 				ln = new fabric.Line(
-// 					[0, 0, this.canvas.width, 0],
-// 					Object.assign(lineProps, {
-// 						left: 0,
-// 						top: pos,
-// 					})
-// 				);
-// 				break;
+			case 'centerY':
+				ln = new fabric.Line(
+					[0, 0, this.canvas.width, 0],
+					Object.assign(lineProps, {
+						left: 0,
+						top: pos,
+					})
+				);
+				break;
 
-// 			case 'left':
-// 				ln = new fabric.Line(
-// 					[0, this.canvas.height, 0, 0],
-// 					Object.assign(lineProps, {
-// 						left: pos,
-// 						top: 0,
-// 					})
-// 				);
-// 				break;
+			case 'left':
+				ln = new fabric.Line(
+					[0, this.canvas.height, 0, 0],
+					Object.assign(lineProps, {
+						left: pos,
+						top: 0,
+					})
+				);
+				break;
 
-// 			case 'right':
-// 				ln = new fabric.Line(
-// 					[0, this.canvas.height, 0, 0],
-// 					Object.assign(lineProps, {
-// 						left: pos,
-// 						top: 0,
-// 					})
-// 				);
-// 				break;
+			case 'right':
+				ln = new fabric.Line(
+					[0, this.canvas.height, 0, 0],
+					Object.assign(lineProps, {
+						left: pos,
+						top: 0,
+					})
+				);
+				break;
 
-// 			case 'centerX':
-// 				ln = new fabric.Line(
-// 					[0, this.canvas.height, 0, 0],
-// 					Object.assign(lineProps, {
-// 						left: pos,
-// 						top: 0,
-// 					})
-// 				);
-// 				break;
+			case 'centerX':
+				ln = new fabric.Line(
+					[0, this.canvas.height, 0, 0],
+					Object.assign(lineProps, {
+						left: pos,
+						top: 0,
+					})
+				);
+				break;
 
-// 			default:
-// 				break;
-// 		}
+			default:
+				break;
+		}
 
-// 		if (this.guides[side] instanceof fabric.Line) {
-// 			// remove the line
-// 			this.canvas.remove(this.guides[side]);
-// 			delete this.guides[side];
-// 		}
-// 		this.guides[side] = ln;
-// 		this.canvas.add(ln);
-// 	},
-// });
+		if (this.guides[side] instanceof fabric.Line) {
+			// remove the line
+			this.canvas.remove(this.guides[side]);
+			delete this.guides[side];
+		}
+		this.guides[side] = ln;
+		this.canvas.add(ln);
+	},
+});
 
-// fabric.SnappyRect = SnappyRect;
+fabric.SnappyText = SnappyText;
+
+const SnappyCircle = fabric.util.createClass(fabric.Circle, {
+	type: 'snappyCircle',
+
+	initialize: function (options) {
+		options || (options = {});
+		this.callSuper('initialize', options);
+		this.guides = {};
+	},
+	_render: function (ctx) {
+		this.callSuper('_render', ctx);
+		this._drawObjectGuides();
+	},
+
+	_drawObjectGuides: function () {
+		const w = this.getScaledWidth();
+		const h = this.getScaledHeight();
+		this._drawGuide('top', this.top);
+		this._drawGuide('left', this.left);
+		this._drawGuide('centerX', this.left + w / 2);
+		this._drawGuide('centerY', this.top + h / 2);
+		this._drawGuide('right', this.left + w);
+		this._drawGuide('bottom', this.top + h);
+		this.setCoords();
+	},
+
+	_drawGuide: function (side, pos) {
+		let ln;
+		const color = 'rgb(178, 207, 255)';
+		const lineProps = {
+			left: 0,
+			top: 0,
+			evented: true,
+			stroke: color,
+			selectable: false,
+			opacity: 1,
+		};
+
+		switch (side) {
+			case 'top':
+				ln = new fabric.Line(
+					[0, 0, this.canvas.width, 0],
+					Object.assign(lineProps, {
+						left: 0,
+						top: pos,
+					})
+				);
+				break;
+			case 'bottom':
+				ln = new fabric.Line(
+					[0, 0, this.canvas.width, 0],
+					Object.assign(lineProps, {
+						left: 0,
+						top: pos,
+					})
+				);
+				break;
+
+			case 'centerY':
+				ln = new fabric.Line(
+					[0, 0, this.canvas.width, 0],
+					Object.assign(lineProps, {
+						left: 0,
+						top: pos,
+					})
+				);
+				break;
+
+			case 'left':
+				ln = new fabric.Line(
+					[0, this.canvas.height, 0, 0],
+					Object.assign(lineProps, {
+						left: pos,
+						top: 0,
+					})
+				);
+				break;
+
+			case 'right':
+				ln = new fabric.Line(
+					[0, this.canvas.height, 0, 0],
+					Object.assign(lineProps, {
+						left: pos,
+						top: 0,
+					})
+				);
+				break;
+
+			case 'centerX':
+				ln = new fabric.Line(
+					[0, this.canvas.height, 0, 0],
+					Object.assign(lineProps, {
+						left: pos,
+						top: 0,
+					})
+				);
+				break;
+
+			default:
+				break;
+		}
+
+		if (this.guides[side] instanceof fabric.Line) {
+			// remove the line
+			this.canvas.remove(this.guides[side]);
+			delete this.guides[side];
+		}
+		this.guides[side] = ln;
+		this.canvas.add(ln);
+	},
+	clearGuides: function () {
+		for (let side in this.guides) {
+			if (this.guides[side] instanceof fabric.Line) {
+				this.canvas.remove(this.guides[side]);
+				delete this.guides[side];
+			}
+		}
+	},
+});
+
+fabric.SnappyCircle = SnappyCircle;
 
 export function onObjectAdded(e: MouseEvent, canvas: fabric.Canvas) {
 	// Add the smart guides around the object
 	const obj = e.target;
 
-	if (!(obj instanceof fabric.Rect)) return false;
+	if (!snappyElements.includes(obj.type)) return false;
 
 	drawObjectGuides(obj, canvas);
 }
 
-const snappyElements = ['snappyImage'];
+const snappyElements = ['snappyImage', 'snappyText', 'snappyCircle'];
 export function onObjectMoved(e: MouseEvent, canvas: fabric.Canvas) {
 	// Add the smart guides around the object
 
@@ -258,21 +379,18 @@ export function onObjectMoved(e: MouseEvent, canvas: fabric.Canvas) {
 }
 
 export function clearAllGuides(canvas: fabric.Canvas) {
-	const objects = canvas.getObjects().filter((o) => o.type === 'snappyImage');
+	const objects = canvas
+		.getObjects()
+		.filter((o) => snappyElements.includes(o.type));
 	objects.forEach((obj) => obj.clearGuides());
 }
 
 export function onObjectMoving(e: MouseEvent, canvas: fabric.Canvas) {
 	const obj = e.target;
+	console.log('rung', obj.type);
 	if (!snappyElements.includes(obj.type)) return false;
 	clearAllGuides(canvas); // Clear existing guides
 	drawObjectGuides(obj, canvas);
-
-	/**
-    Implement edge detection here
-  */
-
-	// Loop through each object in canvas
 
 	const objects = canvas
 		.getObjects()
@@ -281,46 +399,44 @@ export function onObjectMoving(e: MouseEvent, canvas: fabric.Canvas) {
 	const matches = new Set();
 
 	for (var i of objects) {
-		//i.set('opacity', obj.intersectsWithObject(i) ? 0.5 : 1);
-
 		for (var side in obj?.guides) {
 			var axis, newPos;
 
 			switch (side) {
 				case 'right':
 					axis = 'left';
-					newPos = i.guides[side][axis] - obj.getScaledWidth();
+					newPos = i?.guides[side][axis] - obj.getScaledWidth();
 					break;
 				case 'bottom':
 					axis = 'top';
-					newPos = i.guides[side][axis] - obj.getScaledHeight();
+					newPos = i?.guides[side][axis] - obj.getScaledHeight();
 					break;
 				case 'centerX':
 					axis = 'left';
-					newPos = i.guides[side][axis] - obj.getScaledWidth() / 2;
+					newPos = i?.guides[side][axis] - obj.getScaledWidth() / 2;
 					break;
 				case 'centerY':
 					axis = 'top';
-					newPos = i.guides[side][axis] - obj.getScaledHeight() / 2;
+					newPos = i?.guides[side][axis] - obj.getScaledHeight() / 2;
 					break;
 				default:
 					axis = side;
-					newPos = i.guides[side][axis];
+					newPos = i?.guides[side][axis];
 					break;
 			}
 
-			if (inRange(obj.guides[side][axis], i.guides[side][axis])) {
+			if (inRange(obj?.guides[side][axis], i?.guides[side][axis])) {
 				matches.add(side);
 				snapObject(obj, axis, newPos, canvas);
 			}
 
 			if (side === 'left') {
-				if (inRange(obj.guides['left'][axis], i.guides['right'][axis])) {
+				if (inRange(obj.guides['left'][axis], i?.guides['right'][axis])) {
 					matches.add(side);
 					snapObject(obj, axis, i.guides['right'][axis], canvas);
 				}
 			} else if (side === 'right') {
-				if (inRange(obj.guides['right'][axis], i.guides['left'][axis])) {
+				if (inRange(obj.guides['right'][axis], i?.guides['left'][axis])) {
 					matches.add(side);
 					snapObject(
 						obj,
@@ -330,12 +446,12 @@ export function onObjectMoving(e: MouseEvent, canvas: fabric.Canvas) {
 					);
 				}
 			} else if (side === 'top') {
-				if (inRange(obj.guides['top'][axis], i.guides['bottom'][axis])) {
+				if (inRange(obj.guides['top'][axis], i?.guides['bottom'][axis])) {
 					matches.add(side);
-					snapObject(obj, axis, i.guides['bottom'][axis], canvas);
+					snapObject(obj, axis, i?.guides['bottom'][axis], canvas);
 				}
 			} else if (side === 'bottom') {
-				if (inRange(obj.guides['bottom'][axis], i.guides['top'][axis])) {
+				if (inRange(obj.guides['bottom'][axis], i?.guides['top'][axis])) {
 					matches.add(side);
 					snapObject(
 						obj,
@@ -345,16 +461,16 @@ export function onObjectMoving(e: MouseEvent, canvas: fabric.Canvas) {
 					);
 				}
 			} else if (side === 'centerX') {
-				if (inRange(obj.guides['centerX'][axis], i.guides['left'][axis])) {
+				if (inRange(obj.guides['centerX'][axis], i?.guides['left'][axis])) {
 					matches.add(side);
 					snapObject(
 						obj,
 						axis,
-						i.guides['left'][axis] - obj.getScaledWidth() / 2,
+						i?.guides['left'][axis] - obj.getScaledWidth() / 2,
 						canvas
 					);
 				} else if (
-					inRange(obj.guides['centerX'][axis], i.guides['right'][axis])
+					inRange(obj.guides['centerX'][axis], i?.guides['right'][axis])
 				) {
 					matches.add(side);
 					snapObject(
@@ -365,16 +481,16 @@ export function onObjectMoving(e: MouseEvent, canvas: fabric.Canvas) {
 					);
 				}
 			} else if (side === 'centerY') {
-				if (inRange(obj.guides['centerY'][axis], i.guides['top'][axis])) {
+				if (inRange(obj.guides['centerY'][axis], i?.guides['top'][axis])) {
 					matches.add(side);
 					snapObject(
 						obj,
 						axis,
-						i.guides['top'][axis] - obj.getScaledHeight() / 2,
+						i?.guides['top'][axis] - obj.getScaledHeight() / 2,
 						canvas
 					);
 				} else if (
-					inRange(obj.guides['centerY'][axis], i.guides['bottom'][axis])
+					inRange(obj.guides['centerY'][axis], i?.guides['bottom'][axis])
 				) {
 					matches.add(side);
 					snapObject(
@@ -386,18 +502,6 @@ export function onObjectMoving(e: MouseEvent, canvas: fabric.Canvas) {
 				}
 			}
 		}
-
-		/*   if(inRange(obj.left, i.left)){
-        console.log('left')
-        matches.left = true
-        snapObject(obj, 'left', i.left)
-      }
-      
-      if(inRange(obj.top, i.top)){
-        console.log('top')
-        matches.top = true
-        snapObject(obj, 'top', i.top)
-      } */
 	}
 
 	for (var k of matches) {

@@ -13,11 +13,13 @@ const CustomColorPicker = ({ value, changeHandler }: Props) => {
 
 	// State to manage the color value
 	const [currentColor, setCurrentColor] = useState(value || '#ffffff');
-	// console.log('🚀 currentColor:', currentColor);
-	// console.log('🚀  value:', value);
 
 	useEffect(() => {
 		setCurrentColor(value);
+
+		() => {
+			setCurrentColor('#ffffff');
+		};
 	}, []);
 
 	const handleClick = () => setDisplayColorPicker(!displayColorPicker);
@@ -45,6 +47,7 @@ const CustomColorPicker = ({ value, changeHandler }: Props) => {
 				content={<ChromePicker color={currentColor} onChange={handleChange} />}
 			>
 				<button
+					id='colorPicker'
 					onClick={handleClick}
 					style={{
 						all: 'unset',
