@@ -3404,64 +3404,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
 								<Box>
 									<h4>Social Tags</h4>
-									{/* <Box
-										sx={{
-											display: 'flex',
-										}}
-									>
-										{elementsAssets?.socialPlatforms?.map(({ img }, i) => {
-											return (
-												<Box
-													key={i}
-													sx={{
-														display: 'flex',
-														justifyContent: 'center',
-														alignItems: 'center',
-														width: '100%',
-													}}
-												>
-													<img
-														src={img}
-														onDragStart={(e) => handleDragStart(e, img)}
-														onClick={() => {
-															const left = Math.random() * (400 - 100) + 100;
-															const top = Math.random() * (800 - 400) + 100;
-															fabric.Image.fromURL(
-																img,
-																function (img) {
-																	const snappyImg = new fabric.SnappyImage(
-																		img.getElement(),
-																		{
-																			left: left,
-																			top: top,
-																			scaleX: 0.2,
-																			scaleY: 0.2,
-																		}
-																	);
-																	snappyImg.customType = 'elementImg';
-																	canvas.add(snappyImg);
 
-																	requestAnimationFrame(() => {
-																		canvas.renderAll();
-																	});
-																},
-																{
-																	crossOrigin: 'anonymous',
-																}
-															);
-														}}
-														alt=''
-														style={{
-															cursor: 'pointer',
-															paddingBottom: '0.5rem',
-															width: '30px',
-															height: '30px',
-														}}
-													/>
-												</Box>
-											);
-										})}
-									</Box> */}
 									<Box
 										sx={{
 											display: 'flex',
@@ -3689,38 +3632,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 						>
 							{!templateSaved ? 'Share' : 'Loading...'}
 						</button>
-						{/* {!templateSaved ? (
-							<button
-								onClick={handleSaveTemplate}
-								style={{
-									width: '100%',
-									height: '42px',
-									borderRadius: '25px',
-									border: 'none',
-									backgroundColor: '#3b0e39',
-									color: 'white',
-
-									cursor: 'pointer',
-								}}
-							>
-								Save All Templates
-							</button>
-						) : (
-							<button
-								onClick={handleExport}
-								style={{
-									width: '100%',
-									height: '42px',
-									borderRadius: '25px',
-									border: 'none',
-									backgroundColor: '#3b0e39',
-									color: 'white',
-									cursor: 'pointer',
-								}}
-							>
-								Share
-							</button>
-						)} */}
 					</div>
 					<div style={{ marginTop: '40%', position: 'relative' }}>
 						<button
