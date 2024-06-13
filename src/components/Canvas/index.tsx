@@ -2941,7 +2941,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 														| undefined;
 
 													if (!existingObject)
-														return createSnappyTextBox(canvas, {
+														return createTextBox(canvas, {
 															text,
 															customType: 'title',
 															fill: '#fff',
