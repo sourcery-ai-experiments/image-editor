@@ -534,6 +534,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			},
 			brightness?: number
 		) => {
+			console.log(canvas?._activeObject);
 			const existingBubbleStroke =
 				canvas?.getActiveObject() || getExistingObject('bubbleStroke');
 
@@ -1482,6 +1483,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			const elementIDs = [
 				'element',
 				'canvasID',
+				'custom-slider',
 				'react-tiny-popover-container',
 			];
 			let isClickInside = false;
@@ -1500,15 +1502,8 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				canvas.discardActiveObject();
 				canvas.renderAll();
 			}
-
-			// if (shouldDiscardActiveObject) {
-			// 	canvas.discardActiveObject();
-			// 	canvas.renderAll();
-			// }
 		};
 
-		// canvas.discardActiveObject();
-		// canvas?.renderAll();
 		useOnClickOutside(canvasRef, handleClickOutside);
 		return (
 			<div
@@ -2972,15 +2967,16 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
 								<ImageViewer
 									clickHandler={(img: string) => {
+										console.log('🚀 ~ activeBubble:', canvas?._activeObject);
 										const activeBubble = canvas?.getActiveObject();
-										if (
-											isChecked &&
-											activeBubble?.customType === 'bubbleStroke'
-										) {
-											canvas.discardActiveObject();
-											deselectObj();
-											canvas?.renderAll();
-										}
+										// if (
+										// 	isChecked &&
+										// 	activeBubble?.customType === 'bubbleStroke'
+										// ) {
+										// 	canvas.discardActiveObject();
+										// 	deselectObj();
+										// 	canvas?.renderAll();
+										// }
 										updateBubbleImage(img);
 									}}
 									images={initialData.bubbles}

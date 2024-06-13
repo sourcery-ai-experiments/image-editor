@@ -31,7 +31,7 @@ const CustomSlider = ({ images, clickHandler, onDragStart }) => {
 	};
 
 	return (
-		<div className='custom-slider'>
+		<div id='custom-slider' className='custom-slider'>
 			<div className='prev-button-container'>
 				<button onClick={handlePrev} className='prev-button'>
 					&lt;
