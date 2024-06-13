@@ -1165,9 +1165,9 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
 			addPage(obj);
 			setSelectedPage(highestPageNumber);
-			setTimeout(() => {
-				loadCanvas(highestPageNumber);
-			}, 3000);
+			// setTimeout(() => {
+			// 	loadCanvas(highestPageNumber);
+			// }, 2000);
 
 			updateActiveTab('background');
 		};
