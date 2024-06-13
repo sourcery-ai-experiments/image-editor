@@ -84,6 +84,7 @@ const SummaryForm: FC<Props> = ({ setSummaryContent }: Props) => {
 			<FormGroup>
 				<FormControlLabel
 					control={<Checkbox defaultChecked />}
+					checked={formData.emojis}
 					onChange={(e) =>
 						setFormData((prev) => ({
 							...prev,
@@ -119,6 +120,9 @@ const SummaryForm: FC<Props> = ({ setSummaryContent }: Props) => {
 				<Button
 					onClick={generateSummaryHandler}
 					variant='contained'
+					sx={{
+						textTransform: 'capitalize',
+					}}
 					sx={{ mt: 2 }}
 					endIcon={isLoading ? <CircularProgress size={20} /> : null}
 				>

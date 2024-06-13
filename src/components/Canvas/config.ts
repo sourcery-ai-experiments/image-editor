@@ -6,7 +6,6 @@ export const elementsAssets = {
 		{ img: `${basePath}/arrows/Arrow-2.svg`, id: 2 },
 		{ img: `${basePath}/arrows/Arrow-3.svg`, id: 3 },
 		{ img: `${basePath}/arrows/Arrow-4.svg`, id: 4 },
-		//swipe add ,id:1
 		{ img: `${basePath}/swipe/Swipe-1.svg`, id: 5 },
 		{ img: `${basePath}/swipe/Swipe-2.svg`, id: 6 },
 		{ img: `${basePath}/swipe/Swipe-3.svg`, id: 7 },

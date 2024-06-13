@@ -334,16 +334,12 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 		};
 
 		const applyColor = () => {
-			const activeObject = canvasInstanceRef.current.getActiveObject();
-			console.log('🚀 ~ applyColor ~ activeObject:', activeObject);
-			// if (color.length > 0 && activeObject && activeObject.type === 'textbox') {
-			if (color.length > 0 && activeObject && activeObject.type === 'title') {
+			const activeObject = canvasInstanceRef.current!.getActiveObject();
+			if (activeObject && activeObject.type === 'textbox') {
 				activeObject.setSelectionStyles({
 					fill: color,
 				});
-				console.log('🚀 ~ applyColor ~ color:', color);
-
-				canvasInstanceRef.current.renderAll();
+				canvasInstanceRef.current!.renderAll();
 				setColorApplied(true);
 			}
 		};
@@ -354,32 +350,25 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				activeObject.setSelectionStyles({ fill: '#ffffff' });
 				canvasInstanceRef.current.renderAll();
 				setColor(color);
-				// setColor('#FD3232');
-				// setColorApplied(false);
-				// canvas.discardActiveObject().renderAll();
 			}
 		};
 
 		const handleButtonClick = (buttonType: string) =>
 			setActiveButton(buttonType);
 
-		const loadCanvas = useCallback(
-			// async (pageNumber?: string) => {
-			async () => {
-				if (!canvas) return;
-				const templateFound = paginationState?.find(
-					(item) => item?.page === selectedPage
-				);
+		const loadCanvas = useCallback(async () => {
+			if (!canvas) return;
+			const templateFound = paginationState?.find(
+				(item) => item?.page === selectedPage
+			);
 
-				await new Promise((resolve) => {
-					canvas?.loadFromJSON(templateFound?.templateJSON, () => {
-						bindEvents();
-						resolve(null);
-					});
+			await new Promise((resolve) => {
+				canvas?.loadFromJSON(templateFound?.templateJSON, () => {
+					bindEvents();
+					resolve(null);
 				});
-			},
-			[canvas, template, paginationState, selectedPage]
-		);
+			});
+		}, [canvas, template, paginationState, selectedPage]);
 
 		useEffect(() => {
 			loadCanvas();
@@ -607,7 +596,14 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
 			var c_id = activeBubble?.customId;
 
-			if (activeBubble && activeBubble.customType === 'bubble') {
+			if (!activeBubble && isChecked) {
+				requestAnimationFrame(() => {
+					createBubbleElement(canvas!, imgUrl!);
+					canvas.renderAll();
+				});
+			}
+
+			if (activeBubble && activeBubble.customType === 'bubble' && imgUrl) {
 				const obj = {
 					left: Math.floor(activeBubble?.clipPath?.left),
 					top: Math.floor(activeBubble?.clipPath?.top),
@@ -626,14 +622,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 					}
 				});
 				createBubbleElement(canvas!, imgUrl!, obj);
-				canvas.renderAll();
-			}
-
-			if (!activeBubble && isChecked) {
-				requestAnimationFrame(() => {
-					createBubbleElement(canvas!, imgUrl!);
-					canvas.renderAll();
-				});
+				return canvas.renderAll();
 			}
 		};
 
@@ -3219,7 +3208,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 														console.log('Canvas and activeObject Not found');
 														return;
 													}
-													if (activeObject.type == 'group') {
+													if (activeObject.type?.includes('group')) {
 														updateSwipeColor(canvas, color);
 													} else {
 														updateImageColor(canvas, activeObject, color);
