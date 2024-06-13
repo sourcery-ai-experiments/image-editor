@@ -55,7 +55,8 @@ export function createSnappyTextBox(
 		textAlign: 'center',
 		fontStyle: 'normal',
 
-		fill: '#000000',
+		fill: 'green',
+		// fill: '#000000',
 		lineHeight: 1.16,
 		strokeWidth: 1,
 		text: `${options?.name}` || 'Your text here',
@@ -196,9 +197,7 @@ export function updateTextBox(
 		canvas,
 		defaultType || 'title'
 	);
-
 	const activeObject = canvas?.getActiveObject();
-
 	if (activeObject && activeObject.isType('textbox')) textbox = activeObject;
 
 	if (!textbox) {
@@ -209,7 +208,8 @@ export function updateTextBox(
 	const updateAndRender = () => {
 		(textbox as fabric.Textbox).set({
 			...options,
-			visible: true,
+			// visible: true,
+			// fill: options?.fill,
 		});
 		canvas?.renderAll();
 	};

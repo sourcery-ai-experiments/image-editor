@@ -335,10 +335,13 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
 		const applyColor = () => {
 			const activeObject = canvasInstanceRef.current.getActiveObject();
-			if (color.length > 0 && activeObject && activeObject.type === 'textbox') {
+			console.log('🚀 ~ applyColor ~ activeObject:', activeObject);
+			// if (color.length > 0 && activeObject && activeObject.type === 'textbox') {
+			if (color.length > 0 && activeObject && activeObject.type === 'title') {
 				activeObject.setSelectionStyles({
 					fill: color,
 				});
+				console.log('🚀 ~ applyColor ~ color:', color);
 
 				canvasInstanceRef.current.renderAll();
 				setColorApplied(true);
@@ -1960,12 +1963,14 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 														display: 'flex',
 														alignItems: 'center',
 														justifyContent: 'center',
+														// border: '2px solid red',
 													}}
 												>
 													<CustomColorPicker
 														value={overlayTextFiltersState.color}
 														changeHandler={(color: string) => {
 															updateTextBox(canvas, { fill: color });
+
 															setOverlayTextFiltersState((prev) => ({
 																...prev,
 																color,
