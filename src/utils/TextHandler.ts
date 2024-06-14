@@ -208,8 +208,6 @@ export function updateTextBox(
 	const updateAndRender = () => {
 		(textbox as fabric.Textbox).set({
 			...options,
-			// visible: true,
-			// fill: options?.fill,
 		});
 		canvas?.renderAll();
 	};

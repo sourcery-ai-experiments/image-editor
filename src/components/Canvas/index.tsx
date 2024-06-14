@@ -811,7 +811,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 		//old code
 		const updateBackgroundImage = debounce((imageUrl: string) => {
 			if (!canvas) return;
-			deselectObj();
 
 			let activeObject: fabric.Object | undefined | null =
 				canvas.getActiveObject() || getExistingObject('bg-1');
@@ -831,7 +830,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
 			if (!activeObject) {
 				if (template?.diptych === 'horizontal') {
-					// createHorizontalCollage(canvas, [imageUrl, imageUrl]);
 					if (currentImageIndex !== undefined && currentImageIndex % 2 === 0) {
 						createHorizontalCollage(canvas, [imageUrl, null]);
 					} else if (
@@ -841,7 +839,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 						createHorizontalCollage(canvas, [null, imageUrl]);
 					}
 				} else if (template?.diptych === 'vertical') {
-					// createVerticalCollage(canvas, [imageUrl, imageUrl]);
 					if (currentImageIndex !== undefined && currentImageIndex % 2 === 0) {
 						createVerticalCollage(canvas, [imageUrl, null]);
 					} else if (
@@ -880,8 +877,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			if (!canvasWidth || !canvasHeight) return;
 
 			if (existingObject) {
-				// existingObject.bringToFront();
-				// existingObject.sendToBack();
 				existingObject.animate(
 					{ opacity: opacity },
 					{
@@ -889,13 +884,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 						onChange: canvas.renderAll.bind(canvas),
 					}
 				);
-				// canvas.insertAt(image, 1, false);
-
-				// if (opacity === 0) {
-				//   setTimeout(() => {
-				//     canvas.remove(existingObject);
-				//   }, 100);
-				// }
 
 				return;
 			} else {
@@ -1268,11 +1256,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				// Check if the active object exists
 				const { offsetX, offsetY, blur } = shadowValues;
 
-				// Modify the shadow properties of the active object
-				// color: shadow.color || "rgba(0,0,0,0.5)",
-				// offsetX: shadow.offsetX || 10,
-				// offsetY: shadow.offsetY || 10,
-				// blur: shadow.blur || 1,
 				activeObject.set({
 					shadow: {
 						color: shadow.color || 'rgba(0,0,0,0.5)',
@@ -2977,10 +2960,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 								<h4 style={{ margin: '0px', padding: '0px' }}>From Article</h4>
 
 								<ImageViewer
-									clickHandler={(img: string) => {
-										const activeBubble = canvas?.getActiveObject();
-										updateBubbleImage(img);
-									}}
+									clickHandler={(img: string) => updateBubbleImage(img)}
 									images={initialData.bubbles}
 								/>
 
