@@ -303,8 +303,8 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			updateCanvasContext(canvas);
 
 			// Attach the event listener with the separated function
-			canvas.on('selection:created', handleSelectionUpdated);
-			canvas.on('selection:updated', handleSelectionUpdated);
+			// canvas.on('selection:created', handleSelectionUpdated);
+			// canvas.on('selection:updated', handleSelectionUpdated);
 
 			// Cleanup
 			return () => {
@@ -313,12 +313,24 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				console.log('----------dispose------------');
 			};
 		}, [canvasDimension]);
+
 		const handleSelectionUpdated = (e) => {
-			const activeObject = canvasInstanceRef.current!.getActiveObject();
+			canvas?.renderAll();
+			const activeObject: fabric.ActiveSelection =
+				canvasInstanceRef.current!.getActiveObject();
+
 			if (activeObject && activeObject.type === 'textbox') {
 				activeObject.setSelectionStyles({
 					textBackgroundColor: backgroundColor,
+					textBorderColor: 'blue',
+					textCornerColor: 'blue',
+					textCornerSize: 12,
+					textPadding: 5,
+					borderDashArray: [3, 3],
+					cornerStyle: 'circle', // or 'rect' for rectangular corners
+					transparentCorners: false,
 				});
+
 				canvasInstanceRef.current!.renderAll();
 				setColorApplied(true);
 			}
@@ -2407,8 +2419,10 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 													max={40}
 													onChange={(e: any) => {
 														const value = +e.target.value;
+														const activeObject = canvas?.getActiveObject();
+
 														updateBubbleImage(undefined, {
-															stroke: filterValues.bubble.stroke,
+															stroke: activeObject?.stroke,
 															strokeWidth: value,
 														});
 														setFilterValues((prev) => ({
@@ -2676,7 +2690,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 								</button>
 
 								<button
-									// onClick={() => updateActiveTab('element')}
 									onClick={() => {
 										updateActiveTab('element');
 										deselectObj();
@@ -2696,7 +2709,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 								</button>
 
 								<button
-									// onClick={() => updateActiveTab('writePost')}
 									onClick={() => {
 										updateActiveTab('writePost');
 										deselectObj();
@@ -2729,7 +2741,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 										await update(selectedPage, {
 											templateJSON: currentTemplateJSON,
 										});
-
 										await setSelectedPage(item?.page);
 										await loadCanvas(item?.page);
 									}}
@@ -2740,6 +2751,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 								</div>
 							);
 						})}
+
 						<div
 							className={classes.paginationStyle}
 							onClick={() => addTemplate()}
