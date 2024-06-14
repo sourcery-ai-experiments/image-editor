@@ -55,16 +55,10 @@ const News = () => {
 			backgroundColor: '#4B1248',
 			borderRadius: '5px 5px',
 			minHeight: '20px',
-			// height: '40px',
-		},
-		'& .MuiTabs-indicator': {
-			// backgroundColor: '#4B1248',
 		},
 	};
 
 	const { user, getAccessTokenSilently } = useAuth0();
-
-	// const [activeTab, setActiveTab] = useState<string>('');
 
 	const submitTabHandler = async (data: any) => {
 		(async () => {
@@ -121,59 +115,10 @@ const News = () => {
 			setValue(deletedIndex + 1);
 		}
 
-		// if (deletedIndex === 0) {
-		// 	setValue(deletedIndex + 1);
-
-		// }
-		// if (deletedIndex > 0) {
-		// 	setValue(deletedIndex - 1);
-		// }
-		// if (deletedIndex > userMetaData.interests.length - 1) {
-		// 	setValue(deletedIndex + 1);
-		// }
-		// if (deletedIndex < userMetaData.interests.length - 1) {
-		// 	setValue(deletedIndex - 1);
-		// }
-
-		// if (deletedIndex !== undefined && deletedIndex >= 0) {
-		// 	let adjacentValue: string | undefined;
-
-		// 	if (deletedIndex < userMetaData.interests.length - 1) {
-		// 		adjacentValue = userMetaData.interests[deletedIndex + 1].label;
-		// 	} else if (deletedIndex < 0) {
-		// 		adjacentValue = userMetaData.interests[deletedIndex - 1].label;
-		// 	}
-
-		// 	if (adjacentValue) {
-		// 		console.log('Adjacent value after deletion:', adjacentValue);
-		// 	} else {
-		// 		console.log('No adjacent value after deletion.');
-		// 	}
-		// }
-
 		// Reset news feed and update user metadata
 		setNewsFeed(['']);
 		updateUserMetaData(updatedUserData?.user_metadata);
 	};
-
-	// const handleDelete = async (val: string) => {
-	// 	const token = await getAccessTokenSilently();
-
-	// 	const userId = user?.sub as string;
-
-	// 	const userData: any = await updateUserData(token, userId, {
-	// 		user_metadata: {
-	// 			...userMetaData,
-	// 			interests: userMetaData?.interests?.filter(
-	// 				(interest: any) => interest?.label !== val
-	// 			),
-	// 		},
-	// 	});
-	// 	setNewsFeed(['']);
-	// 	updateUserMetaData(userData?.user_metadata);
-	// };
-
-	// console.log('🚀 ~ value:', value);
 
 	const handleChange = (event: React.SyntheticEvent, newValue: number) => {
 		event.preventDefault();
@@ -574,21 +519,6 @@ function InterestDialog({ open, handleClose }: any) {
 
 		updateUserMetaData(userData?.user_metadata);
 
-		// const interests = selectedOptions?.map((option) => option);
-		// console.log('🚀 ~ saveHandler ~ interests:', interests);
-
-		// const payload = {
-		// 	user_metadata: {
-		// 		...userMetaData,
-		// 		interests: userMetaData?.interests
-		// 			? [...userMetaData?.interests, ...interests]
-		// 			: [...interests],
-		// 	},
-		// };
-		// const userData: any = await updateUserData(token, user?.sub, payload);
-
-		// updateUserMetaData(userData?.user_metadata);
-
 		handleClose();
 	};
 	// add and url
@@ -634,18 +564,6 @@ function InterestDialog({ open, handleClose }: any) {
 			const userData: any = await updateUserData(token, user?.sub, payload);
 
 			updateUserMetaData(userData?.user_metadata);
-			// const payload = {
-			// 	user_metadata: {
-			// 		...userMetaData,
-			// 		interests: userMetaData?.interests
-			// 			? [...userMetaData?.interests, newData]
-			// 			: [newData],
-			// 	},
-			// };
-
-			// const userData: any = await updateUserData(token, user?.sub, payload);
-
-			// updateUserMetaData(userData?.user_metadata);
 			setTagName('');
 			setTagUrl('');
 		}

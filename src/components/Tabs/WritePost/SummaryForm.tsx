@@ -38,7 +38,22 @@ const SummaryForm: FC<Props> = ({ setSummaryContent }: Props) => {
 		{
 			label: 'Facebook',
 			value: 'facebook',
-			length: 600,
+			length: 63206,
+		},
+		{
+			label: 'Instagram',
+			value: 'instagram',
+			length: 150,
+		},
+		{
+			label: 'LinkedIn',
+			value: 'linkedIn',
+			length: 2000,
+		},
+		{
+			label: 'TikTok',
+			value: 'tikTok',
+			length: 2200,
 		},
 	];
 
