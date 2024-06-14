@@ -54,8 +54,6 @@ const PaginationProvider: React.FC<{ children: ReactNode }> = ({
 		[]
 	);
 	const [selectedPage, setSelectedPage] = useState<number>(1);
-
-	console.log({ paginationState });
 	const addPage = (newPage: PaginationStateItem) => {
 		setPaginationState((prevState) => [...prevState, newPage]);
 	};
