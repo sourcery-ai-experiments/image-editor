@@ -55,7 +55,7 @@ const ImageViewer = ({
 	};
 
 	return (
-		<Box>
+		<Box id='custom-slider'>
 			{children}
 			<Slider touchMove={false} {...settings}>
 				{images.map((img) => {
