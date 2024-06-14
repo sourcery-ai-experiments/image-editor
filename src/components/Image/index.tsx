@@ -58,9 +58,10 @@ const ImageViewer = ({
 		<Box id='custom-slider'>
 			{children}
 			<Slider touchMove={false} {...settings}>
-				{images.map((img) => {
+				{images.map((img, i) => {
 					return (
 						<Box
+							key={i}
 							sx={{
 								display: 'flex',
 								justifyContent: 'center',
