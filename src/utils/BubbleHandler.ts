@@ -167,15 +167,11 @@ export const createBubbleElement1 = (
 		'bubbleStroke'
 	) as fabric.Circle;
 
-	// const left = Math.floor(Math.random() * (450 - 100 + 1)) + 100;
-	// const top = Math.floor(Math.random() * (500 - 100 + 1)) + 100;
-	const left = canvas.getWidth() / 2; //centerX
-	const top = canvas.getHeight() / 2; //centerY
-
+	const id: number = Math.floor(Math.random() * 100);
 	var strokeCircle = new fabric.Circle({
 		radius: 100,
-		left: left,
-		top: top,
+		left: 350,
+		top: 330,
 		originX: 'center',
 		originY: 'center',
 		fill: 'transparent',
@@ -186,6 +182,7 @@ export const createBubbleElement1 = (
 		...(existingBubbleStroke && { ...existingBubbleStroke }),
 		...options,
 	});
+	(strokeCircle as any).customId = id;
 
 	const existingBubble = getExistingObject(canvas, 'bubble') as fabric.Circle;
 	var clipPath = new fabric.Circle({
@@ -243,39 +240,26 @@ export const createBubbleElement1 = (
 		canvas.insertAt(strokeCircle, 4, false);
 		canvas.insertAt(fabricImage, 5, false);
 
-		let prevLeft = strokeCircle.left!;
-		let prevTop = strokeCircle.top!;
-
 		strokeCircle.on('moving', function () {
-			// Get the current position of the strokeCircle
-			const currentLeft = strokeCircle.left!;
-			const currentTop = strokeCircle.top!;
+			var circleCenter = strokeCircle.getCenterPoint();
+			var imageCenter = fabricImage.getCenterPoint();
 
-			// Calculate the delta (difference) in position
-			const deltaX = currentLeft - prevLeft;
-			const deltaY = currentTop - prevTop;
+			var offsetX = circleCenter.x - imageCenter.x;
+			var offsetY = circleCenter.y - imageCenter.y;
 
-			// Update the previous position to the current position for the next move
-			prevLeft = currentLeft;
-			prevTop = currentTop;
-
-			// Update the image position by the same delta
 			fabricImage
 				.set({
-					left: fabricImage.left! + deltaX,
-					top: fabricImage.top! + deltaY,
+					left: fabricImage.left! + offsetX,
+					top: fabricImage.top! + offsetY,
 				})
 				.setCoords();
 
-			// Update the clipPath position to match the strokeCircle
 			clipPath
 				.set({
 					left: strokeCircle.left,
 					top: strokeCircle.top,
 				})
 				.setCoords();
-
-			canvas.renderAll();
 		});
 
 		strokeCircle.on('scaling', function () {
@@ -295,7 +279,6 @@ export const createBubbleElement1 = (
 		canvas.renderAll();
 	};
 };
-
 export const updateBubbleElement = (
 	canvas: fabric.Canvas,
 	strokeCircle: fabric.Circle,

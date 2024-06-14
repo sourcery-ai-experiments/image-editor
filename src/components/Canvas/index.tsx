@@ -548,14 +548,11 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 		) => {
 			const existingBubbleStroke =
 				canvas?.getActiveObject() || getExistingObject('bubbleStroke');
-
 			if (!canvas) {
 				console.error('Canvas Not initialized');
 				return;
 			}
-
 			const activeObject = canvas.getActiveObject();
-
 			if (activeObject?.customType === 'bubbleStroke') {
 				if (filter && !imgUrl && existingBubbleStroke) {
 					const newOptions: fabric.ICircleOptions = {
@@ -566,7 +563,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 					canvas.renderAll();
 				}
 			}
-
 			if (shadow) {
 				const activeBubble = canvas.getActiveObject();
 				const newOptions: fabric.ICircleOptions = {
@@ -581,7 +577,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				canvas.renderAll();
 				return;
 			}
-
 			if (!isChecked) {
 				let options: fabric.ICircleOptions = {
 					...existingBubbleStroke,
@@ -590,41 +585,28 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 					...(!existingBubbleStroke &&
 						template?.diptych === 'horizontal' && { left: 150, radius: 80 }),
 				};
-				options.shadow = {
-					color: 'rgba(0,0,0,0.5)',
-					offsetX: 1,
-					offsetY: 1,
-					blur: 1,
-					spread: 100,
-				};
 				requestAnimationFrame(() => {
-					createBubbleElement1(canvas!, imgUrl!, options);
+					createBubbleElement1(canvas!, imgUrl!);
 					canvas.renderAll();
 				});
 				return;
 			}
-
 			const activeBubble = canvas.getActiveObject();
-
 			var c_id = activeBubble?.customId;
-
 			if (!activeBubble && isChecked) {
 				requestAnimationFrame(() => {
 					createBubbleElement(canvas!, imgUrl!);
 					canvas.renderAll();
 				});
 			}
-
 			if (activeBubble && activeBubble.customType === 'bubble' && imgUrl) {
 				const obj = {
 					left: Math.floor(activeBubble?.clipPath?.left),
 					top: Math.floor(activeBubble?.clipPath?.top),
 				};
-
 				const getExistingObject = canvas
 					?.getObjects()
 					?.filter((obj: any) => obj.customId === c_id);
-
 				getExistingObject?.forEach((obj) => {
 					if (
 						obj?.customType === 'bubble' ||
