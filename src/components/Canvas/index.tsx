@@ -546,7 +546,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			},
 			brightness?: number
 		) => {
-			console.log(canvas?._activeObject);
 			const existingBubbleStroke =
 				canvas?.getActiveObject() || getExistingObject('bubbleStroke');
 
@@ -1074,7 +1073,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 						scaleX: 0.2,
 						scaleY: 0.2,
 					});
-					snappyImg.customType = 'swipeGroup';
+					// snappyImg.customType = 'swipeGroup';
 					snappyImg.filters.push(filter);
 					snappyImg.applyFilters();
 
@@ -2979,16 +2978,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
 								<ImageViewer
 									clickHandler={(img: string) => {
-										console.log('🚀 ~ activeBubble:', canvas?._activeObject);
 										const activeBubble = canvas?.getActiveObject();
-										// if (
-										// 	isChecked &&
-										// 	activeBubble?.customType === 'bubbleStroke'
-										// ) {
-										// 	canvas.discardActiveObject();
-										// 	deselectObj();
-										// 	canvas?.renderAll();
-										// }
 										updateBubbleImage(img);
 									}}
 									images={initialData.bubbles}
