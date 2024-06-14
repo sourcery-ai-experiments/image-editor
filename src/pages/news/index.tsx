@@ -321,7 +321,7 @@ function MultiActionAreaCard({ feed, updateScrapURL }: any) {
 												borderRadius: '1rem',
 											}}
 											image={feed?.feed?.image}
-											alt='green iguana'
+											alt='s'
 										/>
 									</Link>
 								</div>

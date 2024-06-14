@@ -2724,7 +2724,12 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 											templateJSON: currentTemplateJSON,
 										});
 										await setSelectedPage(item?.page);
-										await loadCanvas(item?.page);
+										await new Promise((resolve) => {
+											canvas?.loadFromJSON(item?.templateJSON, () => {
+												bindEvents();
+												resolve(null);
+											});
+										});
 									}}
 									key={item?.page}
 									className={classes?.paginationStyle}

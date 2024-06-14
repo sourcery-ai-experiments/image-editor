@@ -266,8 +266,6 @@ export const updateHorizontalCollageImage = (
 	const height = canvas.getHeight();
 	const width = canvas.getWidth();
 
-	console.log('activeObject _____', activeObject);
-
 	if (activeObject && activeObject.isType('image')) {
 		if (activeObject.customType === 'bg-1') {
 			var imageElement = document.createElement('img');
