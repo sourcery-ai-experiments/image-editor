@@ -16,7 +16,7 @@ export const createImage = (
 			imageUrl,
 			function (img) {
 				const imgWidth = img.width || 0;
-				const snappyImg = new fabric.SnappyImage(img.getElement(), {
+				const snappyImg = new fabric.Image(img.getElement(), {
 					left: canvas.getWidth() / 2 - imgWidth / 2,
 					top: canvas.getHeight() / 2,
 					...options,
@@ -69,7 +69,6 @@ export const createImageLogo = (
 			resolve(undefined);
 			return;
 		}
-		console.log('imageUrl', imageUrl);
 
 		fabric.Image.fromURL(
 			imageUrl,
@@ -169,8 +168,6 @@ export const updateImageColor = (
 	color: string
 ) => {
 	if (!canvas) return;
-	// if (activeObject) {
-	console.log('activeObject color', color);
 	var filter = new fabric.Image.filters.BlendColor({
 		color,
 		mode: 'tint',
@@ -179,5 +176,4 @@ export const updateImageColor = (
 	activeObject.filters.push(filter);
 	activeObject.applyFilters();
 	return canvas.renderAll();
-	// }
 };
