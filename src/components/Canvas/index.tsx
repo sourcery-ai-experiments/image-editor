@@ -3520,7 +3520,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 															});
 														}}
 														alt=''
-														// width='90px'
 														style={{
 															cursor: 'pointer',
 															paddingBottom: '0.5rem',
