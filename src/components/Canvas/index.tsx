@@ -73,9 +73,10 @@ import {
 	clearAllGuides,
 	onObjectAdded,
 	onObjectMoved,
-	onObjectMoving,
 } from './fabric-smart-object';
 import { elementsAssets } from './config';
+import { initAligningGuidelines } from '../../utils/canvasHelper';
+import { initCenteringGuidelines } from '../../utils/centeringGuidelines';
 type TemplateJSON = any;
 interface PaginationStateItem {
 	page: number;
@@ -133,23 +134,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			object: ['added', 'moving', 'moved', 'scaled', 'selected', 'over'],
 			mouse: ['down', 'up', 'moving', 'over', 'out'],
 		};
-
-		const bindEvents = useCallback(() => {
-			if (!canvas) return;
-			events?.object?.forEach((event) => {
-				if (event === 'added') {
-					canvas.on(`object:${event}`, (e) => onObjectAdded(e, canvas));
-				} else if (event === 'moving') {
-					canvas.on(`object:${event}`, (e) => onObjectMoving(e, canvas));
-				} else if (event === 'mouseover') {
-					canvas.on(`object:${event}`, (e) => onObjectMouseOver(e, canvas));
-				} else if (event === 'moved') {
-					canvas.on(`object:${event}`, (e) => onObjectMoved(e, canvas));
-				}
-			});
-
-			canvas.renderAll();
-		}, [canvas]);
 
 		const background = ['bg-1', 'bg-2'];
 		const title = ['title'];
@@ -302,11 +286,9 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			};
 			const canvas = new fabric.Canvas(canvasEl?.current, options);
 			canvasInstanceRef.current = canvas;
+			initAligningGuidelines(canvas);
+			initCenteringGuidelines(canvas);
 			updateCanvasContext(canvas);
-
-			// Attach the event listener with the separated function
-			// canvas.on('selection:created', handleSelectionUpdated);
-			// canvas.on('selection:updated', handleSelectionUpdated);
 
 			// Cleanup
 			return () => {
@@ -378,7 +360,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
 			await new Promise((resolve) => {
 				canvas?.loadFromJSON(templateFound?.templateJSON, () => {
-					bindEvents();
 					resolve(null);
 				});
 			});
@@ -1003,7 +984,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			fabric.Image.fromURL(
 				imgShape,
 				function (img) {
-					const snappyImg = new fabric.SnappyImage(img.getElement(), {
+					const snappyImg = new fabric.Image(img.getElement(), {
 						left: left,
 						top: top,
 						scaleX: 0.2,
@@ -1039,7 +1020,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			fabric.Image.fromURL(
 				swipeImg,
 				function (img) {
-					const snappyImg = new fabric.SnappyImage(img.getElement(), {
+					const snappyImg = new fabric.Image(img.getElement(), {
 						left: left,
 						top: top,
 						scaleX: 0.2,
@@ -1073,7 +1054,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			fabric.Image.fromURL(
 				imgShape,
 				function (img) {
-					const snappyImg = new fabric.SnappyImage(img.getElement(), {
+					const snappyImg = new fabric.Image(img.getElement(), {
 						left: left,
 						top: top,
 						scaleX: 0.2,
@@ -2342,14 +2323,12 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 											<Typography
 												className={classes.heading}
 												onClick={() => setShow('contrast')}
-												// onClick={() => handleButtonClick("Contrast")}
 											>
 												CONTRAST
 											</Typography>
 											<Typography
 												className={classes.heading}
 												onClick={() => setShow('brightness')}
-												// onClick={() => handleButtonClick("Contrast")}
 											>
 												BRIGHTNESS
 											</Typography>
@@ -2711,7 +2690,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 										await setSelectedPage(item?.page);
 										await new Promise((resolve) => {
 											canvas?.loadFromJSON(item?.templateJSON, () => {
-												bindEvents();
+												// bindEvents();
 												resolve(null);
 											});
 										});
@@ -3387,7 +3366,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 													justifyContent: 'center',
 													alignItems: 'center',
 													width: '10%',
-													marginBottom: '1rem', // Optional: add margin for spacing between rows
+													marginBottom: '1rem',
 												}}
 											>
 												<img
@@ -3399,7 +3378,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 														fabric.Image.fromURL(
 															img,
 															function (img) {
-																const snappyImg = new fabric.SnappyImage(
+																const snappyImg = new fabric.Image(
 																	img.getElement(),
 																	{
 																		left: left,
