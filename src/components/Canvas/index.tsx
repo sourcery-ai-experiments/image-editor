@@ -8,6 +8,7 @@ import {
 	Stack,
 	FormControlLabel,
 	Checkbox,
+	CircularProgress,
 } from '@mui/material';
 import { useOnClickOutside } from 'usehooks-ts';
 
@@ -119,6 +120,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			getExistingObject,
 		} = useCanvasContext();
 		const [activeButton, setActiveButton] = useState('Overlay');
+		const [loadingState, setLoadingState] = useState(null);
 		const [show, setShow] = useState('font');
 		const canvasEl = useRef<HTMLCanvasElement>(null);
 		const [selectedFilter] = useState<string>('');
@@ -1380,14 +1382,13 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 		const handleDragOver = (e: any) => {
 			e.preventDefault();
 		};
+
 		const handleDragStart = (
 			e: any,
 			imageUrl: any,
 			background: any,
 			bubble: any
 		) => {
-			// e.preventDefault();
-
 			if (bubble) {
 				dndBubble.current = true;
 
@@ -1426,7 +1427,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 		// here come
 
 		const [prompt, setPrompt] = useState('');
-		const [promptLoading, setPromptLoading] = useState(false);
 		const [generatedImages, setGeneratedImages] = useState([]);
 
 		React.useEffect(() => {
@@ -1436,7 +1436,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 		}, [updatedSeedData]);
 
 		const generateTextToImageHanlder = async (promptText) => {
-			setPromptLoading(true);
+			setLoadingState('textToImage');
 
 			const response = await textToImage(
 				promptText?.length > 0 ? promptText : prompt
@@ -1445,7 +1445,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			const newImageUrl = `${BaseURL}/${response?.image_url}`;
 
 			if (newImageUrl) setGeneratedImages((prev) => [...prev, newImageUrl]);
-			setPromptLoading(false);
+			setLoadingState(null);
 		};
 
 		// 	// Add event listeners
@@ -1481,6 +1481,13 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 		};
 
 		useOnClickOutside(canvasRef, handleClickOutside);
+
+		const hashtags = [
+			userMetaData?.company?.logo,
+			userMetaData?.company?.logo2,
+			userMetaData?.company?.logo3,
+		]?.filter((itm) => itm);
+
 		return (
 			<div
 				style={{
@@ -2583,7 +2590,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 							<div
 								style={{
 									display: 'flex',
-									// marginTop: '16px',
 									justifyContent: 'space-between',
 
 									height: '100px',
@@ -2595,7 +2601,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 										backgroundColor: 'transparent',
 										border: 'none',
 									}}
-									// onClick={() => updateActiveTab('background')}
 									onClick={() => {
 										updateActiveTab('background');
 										deselectObj();
@@ -2615,7 +2620,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
 								<button
 									style={{ backgroundColor: 'transparent', border: 'none' }}
-									// onClick={() => updateActiveTab('title')}
 									onClick={() => {
 										updateActiveTab('title');
 										deselectObj();
@@ -2634,7 +2638,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 								</button>
 
 								<button
-									// onClick={() => updateActiveTab('bubble')}
 									onClick={() => {
 										updateActiveTab('bubble');
 										deselectObj();
@@ -2827,7 +2830,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 										borderRadius: '4px',
 									}}
 								/>
-								<button
+								<Button
 									onClick={generateTextToImageHanlder}
 									style={{
 										marginTop: '10px',
@@ -2835,15 +2838,20 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 										width: '100%',
 										height: '42px',
 										borderRadius: '25px',
+										textTransform: 'capitalize',
 										border: 'none',
 										backgroundColor: '#3b0e39',
 										color: 'white',
-										cursor: promptLoading ? 'wait' : 'pointer',
 									}}
-									disabled={promptLoading}
+									disabled={loadingState === 'textToImage'}
+									endIcon={
+										loadingState === 'textToImage' ? (
+											<CircularProgress size={20} />
+										) : null
+									}
 								>
 									Generate
-								</button>
+								</Button>
 								{generatedImages?.length > 0 && (
 									<ImageViewer
 										clickHandler={(img: string) => updateBackgroundImage(img)}
@@ -3022,7 +3030,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 											borderRadius: '4px',
 										}}
 									/>
-									<button
+									<Button
 										onClick={generateTextToImageHanlder}
 										style={{
 											marginTop: '10px',
@@ -3032,46 +3040,39 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 											borderRadius: '25px',
 											border: 'none',
 											backgroundColor: '#3b0e39',
+											textTransform: 'capitalize',
 											color: 'white',
-											cursor: promptLoading ? 'wait' : 'pointer',
 										}}
-										disabled={promptLoading}
+										endIcon={
+											loadingState === 'textToImage' ? (
+												<CircularProgress size={20} />
+											) : null
+										}
 									>
 										Generate
-									</button>
-									<ImageViewer
-										clickHandler={(img: string) => {
-											const activeBubble = canvas?.getActiveObject();
+									</Button>
+									{generatedImages?.length > 0 && (
+										<ImageViewer
+											clickHandler={(img: string) => {
+												const activeBubble = canvas?.getActiveObject();
 
-											if (
-												isChecked &&
-												activeBubble?.customType === 'bubbleStroke'
-											) {
-												canvas.discardActiveObject();
-												canvas?.renderAll();
-											}
-											updateBubbleImage(img);
-										}}
-										images={generatedImages}
-										onDragStart={(e, imageUrl) => {
-											const background = false;
-											const bubble = true;
-											handleDragStart(e, imageUrl, background, true);
-										}}
-									>
-										{template?.diptych === 'vertical' ? (
-											<Box
-												sx={{
-													display: 'flex',
-													justifyContent: 'space-around',
-													py: 1,
-												}}
-											>
-												<div>Top Images</div>
-												<div>Bottom Images</div>
-											</Box>
-										) : template?.diptych === 'horizontal' ? (
-											<>
+												if (
+													isChecked &&
+													activeBubble?.customType === 'bubbleStroke'
+												) {
+													canvas.discardActiveObject();
+													canvas?.renderAll();
+												}
+												updateBubbleImage(img);
+											}}
+											images={generatedImages}
+											onDragStart={(e, imageUrl) => {
+												const background = false;
+												const bubble = true;
+												handleDragStart(e, imageUrl, background, true);
+											}}
+										>
+											{template?.diptych === 'vertical' ? (
 												<Box
 													sx={{
 														display: 'flex',
@@ -3079,12 +3080,25 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 														py: 1,
 													}}
 												>
-													<div>Left Images</div>
-													<div>Right Images</div>
+													<div>Top Images</div>
+													<div>Bottom Images</div>
 												</Box>
-											</>
-										) : null}
-									</ImageViewer>
+											) : template?.diptych === 'horizontal' ? (
+												<>
+													<Box
+														sx={{
+															display: 'flex',
+															justifyContent: 'space-around',
+															py: 1,
+														}}
+													>
+														<div>Left Images</div>
+														<div>Right Images</div>
+													</Box>
+												</>
+											) : null}
+										</ImageViewer>
+									)}
 								</>
 							</div>
 						)}
@@ -3492,35 +3506,29 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 											}}
 										>
 											{userMetaData?.company &&
-												[
-													userMetaData?.company?.logo,
-													userMetaData?.company?.logo2,
-													userMetaData?.company?.logo3,
-												]
-													?.filter((itm) => itm !== undefined || itm !== null)
-													.map((itm, i) => (
-														<img
-															key={i}
-															src={itm}
-															onClick={() => {
-																createImage(canvas, itm, {
-																	customType: 'elementImg',
-																	scaleX: 0.2,
-																	scaleY: 0.2,
-																	top: 0,
-																	left: 100,
-																});
-															}}
-															alt=''
-															// width='90px'
-															style={{
-																cursor: 'pointer',
-																paddingBottom: '0.5rem',
-																width: '80px',
-																height: '60px',
-															}}
-														/>
-													))}
+												hashtags.map((itm, i) => (
+													<img
+														key={i}
+														src={itm}
+														onClick={() => {
+															createImage(canvas, itm, {
+																customType: 'elementImg',
+																scaleX: 0.2,
+																scaleY: 0.2,
+																top: 0,
+																left: 100,
+															});
+														}}
+														alt=''
+														// width='90px'
+														style={{
+															cursor: 'pointer',
+															paddingBottom: '0.5rem',
+															width: '80px',
+															height: '60px',
+														}}
+													/>
+												))}
 										</Box>
 									</Box>
 								</Box>
@@ -3587,7 +3595,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 							{!templateSaved ? 'Share' : 'Loading...'}
 						</button>
 					</div>
-					<div style={{ marginTop: '40%', position: 'relative' }}>
+					<div style={{ marginTop: '4%', position: 'relative' }}>
 						<button
 							onClick={() => saveImage(canvas)}
 							style={{
