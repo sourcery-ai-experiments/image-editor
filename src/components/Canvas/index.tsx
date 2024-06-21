@@ -454,8 +454,8 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 					}
 				});
 			};
-			canvas?.on('mouse:down', handleMouseDown);
 
+			canvas?.on('mouse:down', handleMouseDown);
 			canvas?.on('selection:created', handleCanvasUpdate);
 			canvas?.on('selection:updated', handleCanvasUpdate);
 			canvas?.on('selection:cleared', handleCanvasUpdate);
@@ -1027,6 +1027,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 						scaleY: 0.2,
 					});
 					// snappyImg.customType = 'swipeGroup';
+					snappyImg.customType = 'elementImg';
 					snappyImg.filters.push(filter);
 					snappyImg.applyFilters();
 
@@ -2725,7 +2726,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 					</div>
 				</div>
 
-				<div>
+				<Box>
 					<div style={{ width: '300px', height: '480px', padding: '10px' }}>
 						{activeTab == 'background' && (
 							<>
@@ -3556,7 +3557,12 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 						)}
 					</div>
 
-					<div style={{ marginTop: '60%', position: 'relative' }}>
+					<div
+						style={{
+							marginTop: '65%',
+							position: 'relative',
+						}}
+					>
 						<button
 							onClick={handleSaveTemplate}
 							style={{
@@ -3572,8 +3578,8 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 						>
 							{!templateSaved ? 'Share' : 'Loading...'}
 						</button>
-					</div>
-					<div style={{ marginTop: '4%', position: 'relative' }}>
+						<br />
+						<br />
 						<button
 							onClick={() => saveImage(canvas)}
 							style={{
@@ -3589,7 +3595,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 							Single Share
 						</button>
 					</div>
-				</div>
+				</Box>
 			</div>
 		);
 	}

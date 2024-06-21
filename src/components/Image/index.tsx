@@ -53,7 +53,6 @@ const ImageViewer = ({
 			},
 		],
 	};
-
 	return (
 		<Box id='custom-slider'>
 			{children}
