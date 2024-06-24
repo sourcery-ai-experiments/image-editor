@@ -1129,39 +1129,30 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
 		const exportMultiCanvases = async () => {
 			const zip = new JSZip();
-			// Loop through paginationState
 			for (const page of paginationState) {
-				// Load templateJSON into canvas
 				await new Promise((resolve) => {
 					canvas?.loadFromJSON(page?.templateJSON, () => {
 						resolve(null);
 					});
 				});
-
 				// Extract image data from canvas
 				const imageData = canvas?.toDataURL({ format: 'png' });
-
 				// Add image data to zip file
 				zip.file(`page_${page?.page}.png`, imageData.split('base64,')[1], {
 					base64: true,
 				});
 			}
-
 			// Generate zip file
 			const zipBlob = await zip.generateAsync({ type: 'blob' });
-
 			// Convert blob to URL
 			const zipUrl = URL.createObjectURL(zipBlob);
-
 			// Create a link element
 			const link = document.createElement('a');
 			link.href = zipUrl;
 			link.download = 'exported_images.zip';
-
 			// Simulate click on the link to trigger download
 			document.body.appendChild(link);
 			link.click();
-
 			// Cleanup
 			document.body.removeChild(link);
 			URL.revokeObjectURL(zipUrl);
@@ -1430,6 +1421,11 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			setLoadingState(null);
 		};
 
+		const handleKeyPress = (e) => {
+			if (e.key === 'Enter') {
+				generateTextToImageHanlder();
+			}
+		};
 		// 	// Add event listeners
 		const canvasRef = useRef(null);
 		const handleClickOutside = (event) => {
@@ -1718,7 +1714,8 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 													aria-label='Overlay, Brightness, Contrast'
 													color='secondary'
 													defaultValue={0}
-													min={-1}
+													// min={-1}
+													min={-0.5}
 													value={filtersRange.contrast}
 													max={1}
 													step={0.01}
@@ -1726,12 +1723,14 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 													//eslint-disable-next-line
 													onChange={(e: any) => {
 														let value = +e.target.value;
+														let scaledValue = value / 2;
 														setFiltersRange({
 															...filtersRange,
 															contrast: value,
 														});
 														var filter = new fabric.Image.filters.Contrast({
-															contrast: value,
+															contrast: scaledValue,
+															// contrast: value,
 														});
 														updateBackgroundFilters(filter, 'contrast');
 													}}
@@ -1740,7 +1739,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 										)}
 										{activeButton === 'Brightness' && (
 											<div className={classes.sliderContainer}>
-												<Slider
+												{/* <Slider
 													className={classes.slider}
 													aria-label='Overlay, Brightness, Contrast'
 													color='secondary'
@@ -1758,6 +1757,33 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 														});
 														var filter = new fabric.Image.filters.Brightness({
 															brightness: value,
+														});
+
+														updateBackgroundFilters(filter, 'brightness');
+													}}
+												/> */}
+
+												{/* // Scale the value to decrease the strength by 50% */}
+												<Slider
+													className={classes.slider}
+													aria-label='Overlay, Brightness, Contrast'
+													color='secondary'
+													defaultValue={0}
+													min={-0.5}
+													max={1}
+													step={0.01}
+													value={filtersRange.brightness}
+													valueLabelDisplay='auto'
+													onChange={(e: any) => {
+														let value = +e.target.value;
+														// Scale the value to decrease the strength by 50%
+														let scaledValue = value / 2;
+														setFiltersRange({
+															...filtersRange,
+															brightness: value,
+														});
+														var filter = new fabric.Image.filters.Brightness({
+															brightness: scaledValue,
 														});
 
 														updateBackgroundFilters(filter, 'brightness');
@@ -2798,6 +2824,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 								<h4 style={{ margin: '0px', padding: '0px' }}>AI Images</h4>
 								<input
 									onChange={(e) => setPrompt(e.target.value)}
+									onKeyPress={handleKeyPress}
 									type='text'
 									value={prompt}
 									placeholder='Prompt here'
@@ -2826,7 +2853,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 									disabled={loadingState === 'textToImage'}
 									endIcon={
 										loadingState === 'textToImage' ? (
-											<CircularProgress size={20} />
+											<CircularProgress sx={{ color: '#ffffff' }} size={20} />
 										) : null
 									}
 								>
@@ -3025,7 +3052,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 										}}
 										endIcon={
 											loadingState === 'textToImage' ? (
-												<CircularProgress size={20} />
+												<CircularProgress sx={{ color: '#ffffff' }} size={20} />
 											) : null
 										}
 									>
@@ -3522,7 +3549,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 									<h5
 										onClick={() => {
 											const text = summaryContent.content;
-
 											createTextBox(canvas, {
 												text,
 												customType: 'title',
@@ -3536,7 +3562,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 												fontSize: 16,
 												customType: 'customTypeText',
 											});
-
 											updateTextBox(canvas, { text });
 										}}
 										style={{
