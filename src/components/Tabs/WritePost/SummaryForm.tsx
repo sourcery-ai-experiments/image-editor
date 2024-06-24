@@ -94,6 +94,35 @@ const SummaryForm: FC<Props> = ({ setSummaryContent }: Props) => {
 		}
 	};
 
+	const customStyles = {
+		control: (provided) => ({
+			...provided,
+			backgroundColor: 'white', // background color of the control
+			borderColor: '#3B0E39', // border color of the control
+		}),
+		singleValue: (provided) => ({
+			...provided,
+			color: 'black', // color of the selected option text
+		}),
+		placeholder: (provided) => ({
+			...provided,
+			color: 'gray', // color of the placeholder text
+		}),
+		option: (provided, state) => ({
+			...provided,
+			backgroundColor: state.isSelected ? '#3B0E39' : 'white', // background color of the options
+			color: state.isSelected ? 'white' : 'black', // color of the option text
+			'&:hover': {
+				backgroundColor: 'lightgray', // background color on hover
+				color: 'black', // color of the option text on hover
+			},
+		}),
+		menu: (provided) => ({
+			...provided,
+			backgroundColor: 'white', // background color of the menu
+		}),
+	};
+
 	return (
 		<div>
 			<FormGroup>
@@ -107,8 +136,21 @@ const SummaryForm: FC<Props> = ({ setSummaryContent }: Props) => {
 						}))
 					}
 					label='Emojis'
+					sx={{
+						'& .MuiIconButton-root': {
+							color: '#fff',
+							border: '1px solid #fff',
+						},
+						'&.Mui-checked': {
+							color: '#fff',
+						},
+						'& .MuiSvgIcon-root ': {
+							fill: '#fff',
+						},
+					}}
 				/>
 				<br />
+
 				<Typography>Hashtags</Typography>
 				<Creatable
 					onChange={handleHashtagSelectChange}
@@ -119,6 +161,7 @@ const SummaryForm: FC<Props> = ({ setSummaryContent }: Props) => {
 					classNamePrefix='select'
 					isClearable
 					isMulti
+					styles={customStyles}
 				/>
 				<br />
 				<Typography>Social Platforms</Typography>
@@ -130,6 +173,7 @@ const SummaryForm: FC<Props> = ({ setSummaryContent }: Props) => {
 					options={socialMedias}
 					className='basic-single'
 					classNamePrefix='select'
+					styles={customStyles}
 				/>
 
 				<Button

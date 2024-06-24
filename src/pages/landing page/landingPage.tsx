@@ -74,6 +74,12 @@ function LandingPage({ setScrappedData, updateStep }: Props) {
 		}
 	};
 
+	const handleKeyPress = (e: any) => {
+		if (e.key === 'Enter') {
+			getData();
+		}
+	};
+
 	return (
 		<>
 			<Box>
@@ -87,6 +93,7 @@ function LandingPage({ setScrappedData, updateStep }: Props) {
 							onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
 								updateScrapURL(e.target.value)
 							}
+							onKeyPress={handleKeyPress}
 							sx={{
 								width: '355px',
 							}}
