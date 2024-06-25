@@ -283,6 +283,9 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				renderOnAddRemove: false,
 				preserveObjectStacking: true,
 				selection: true,
+				// stopContextMenu:true,
+				// fireRightClick: true,
+				// fireMiddleClick: true,
 			};
 			const canvas = new fabric.Canvas(canvasEl?.current, options);
 			canvasInstanceRef.current = canvas;
@@ -294,7 +297,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			return () => {
 				updateCanvasContext(null);
 				canvas.dispose();
-				console.log('----------dispose------------');
 			};
 		}, [canvasDimension]);
 
@@ -1030,6 +1032,18 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 					snappyImg.customType = 'elementImg';
 					snappyImg.filters.push(filter);
 					snappyImg.applyFilters();
+					snappyImg.on('moving', function () {
+						snappyImg.hasControls = false;
+						snappyImg.hasBorders = false;
+					});
+					snappyImg.on('mouseup', function () {
+						snappyImg.set({
+							hasControls: true,
+							hasBorders: true,
+						});
+						// Optionally, trigger canvas render after updating properties
+						snappyImg.canvas.renderAll();
+					});
 
 					canvas.add(snappyImg);
 
@@ -1256,9 +1270,13 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			}
 		}, [templateSaved]);
 
+		const hashTagValue = userMetaData?.company?.name
+			? `@${userMetaData?.company?.name}`
+			: '@COMPANYSOCIAL';
 		//--------------------------write post-------------------
 		const [summaryContent, setSummaryContent] = useState<{ content: string }>({
 			content: '',
+			hashTags: [],
 		});
 
 		const handleSelectionChanged = () => {
@@ -1465,6 +1483,12 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			userMetaData?.company?.logo2,
 			userMetaData?.company?.logo3,
 		]?.filter((itm) => itm);
+
+		// Right Click  disSelected
+		window.oncontextmenu = function () {
+			deselectObj();
+			canvas.renderAll();
+		};
 
 		return (
 			<div
@@ -3475,9 +3499,36 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 												display: 'inline-block',
 											}}
 										>
-											{userMetaData?.company?.name
-												? `@${userMetaData?.company?.name}`
-												: '@COMPANYSOCIAL'}
+											{' '}
+											{hashTagValue}
+										</div>
+										<div>
+											<FormControlLabel
+												control={
+													<Checkbox
+														checked={summaryContent.hashTags.length > 0}
+													/>
+												}
+												onChange={(e) =>
+													setSummaryContent((prev) => ({
+														...prev,
+														hashTags: e.target.checked ? [hashTagValue] : [],
+													}))
+												}
+												label='Hashtag'
+												sx={{
+													'& .MuiIconButton-root': {
+														color: '#fff',
+														border: '1px solid #fff',
+													},
+													'&.Mui-checked': {
+														color: '#fff',
+													},
+													'& .MuiSvgIcon-root ': {
+														fill: '#fff',
+													},
+												}}
+											/>
 										</div>
 
 										<CustomColorPicker
@@ -3576,7 +3627,10 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 										{summaryContent?.content}
 									</h5>
 								) : (
-									<SummaryForm setSummaryContent={setSummaryContent} />
+									<SummaryForm
+										setSummaryContent={setSummaryContent}
+										summaryContent={summaryContent}
+									/>
 								)}
 							</div>
 						)}

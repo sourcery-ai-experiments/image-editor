@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { Dispatch, FC, SetStateAction, useState } from 'react';
+import { Dispatch, FC, SetStateAction, useEffect, useState } from 'react';
 import { useCanvasContext } from '../../../context/CanvasContext';
 import {
 	Button,
@@ -16,7 +16,10 @@ import CircularProgress from '@mui/material/CircularProgress';
 interface Props {
 	setSummaryContent: Dispatch<SetStateAction<string | undefined>>;
 }
-const SummaryForm: FC<Props> = ({ setSummaryContent }: Props) => {
+const SummaryForm: FC<Props> = ({
+	setSummaryContent,
+	summaryContent,
+}: Props) => {
 	const { scrapURL } = useCanvasContext();
 	const [isLoading, setIsLoading] = useState(false);
 	const [formData, setFormData] = useState({
@@ -24,10 +27,17 @@ const SummaryForm: FC<Props> = ({ setSummaryContent }: Props) => {
 		vibe: 'positive',
 		format: 'text',
 		emojis: false,
-		hashtags: [],
+		hashtags: summaryContent.hashTags,
 		social_media: 'twitter',
 		char_count: 280,
 	});
+	console.log('formData', formData);
+	useEffect(() => {
+		setFormData((prevFormData) => ({
+			...prevFormData,
+			hashtags: summaryContent.hashTags,
+		}));
+	}, [summaryContent.hashTags]);
 
 	const socialMedias = [
 		{
@@ -159,6 +169,7 @@ const SummaryForm: FC<Props> = ({ setSummaryContent }: Props) => {
 					options={formData.hashtags?.map((h) => ({ value: h, label: h }))}
 					className='basic-multi-select'
 					classNamePrefix='select'
+					defaultValue={formData.hashtags?.map((h) => ({ value: h, label: h }))}
 					isClearable
 					isMulti
 					styles={customStyles}
