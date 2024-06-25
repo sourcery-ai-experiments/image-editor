@@ -34,7 +34,10 @@ const Header = () => {
 		setAnchorElUser(null);
 	};
 	return (
-		<AppBar position='static' sx={{ backgroundColor: '#e9295d' }}>
+		<AppBar
+			position='static'
+			sx={{ backgroundColor: '#e9295d', userSelect: 'none' }}
+		>
 			<Toolbar>
 				<IconButton
 					size='large'

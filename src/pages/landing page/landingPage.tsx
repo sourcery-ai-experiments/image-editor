@@ -82,7 +82,11 @@ function LandingPage({ setScrappedData, updateStep }: Props) {
 
 	return (
 		<>
-			<Box>
+			<Box
+				sx={{
+					userSelect: 'none',
+				}}
+			>
 				{isAuthenticated ? (
 					<StyledContainer>
 						<Typography variant='h4' gutterBottom color='black'>

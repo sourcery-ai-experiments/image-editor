@@ -16,6 +16,7 @@ const StyledContainer = styled('div')({
 	height: '100%',
 	backgroundColor: '#151433',
 	color: 'white',
+	userSelect: 'none',
 	width: '100%',
 });
 type TemplateJSON = any;
