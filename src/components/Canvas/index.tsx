@@ -354,8 +354,21 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 		const handleButtonClick = (buttonType: string) =>
 			setActiveButton(buttonType);
 
+		// const loadCanvas = useCallback(async () => {
+		// 	if (!canvas) return;
+		// 	const templateFound = paginationState?.find(
+		// 		(item) => item?.page === selectedPage
+		// 	);
+
+		// 	await new Promise((resolve) => {
+		// 		canvas?.loadFromJSON(templateFound?.templateJSON, () => {
+		// 			resolve(null);
+		// 		});
+		// 	});
+		// }, [canvas, template, paginationState, selectedPage]);
 		const loadCanvas = useCallback(async () => {
 			if (!canvas) return;
+
 			const templateFound = paginationState?.find(
 				(item) => item?.page === selectedPage
 			);
@@ -365,7 +378,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 					resolve(null);
 				});
 			});
-		}, [canvas, template, paginationState, selectedPage]);
+		}, [canvas, paginationState, selectedPage]);
 
 		useEffect(() => {
 			loadCanvas();
@@ -576,14 +589,21 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				});
 				return;
 			}
+			// deselectObj();
 			const activeBubble = canvas.getActiveObject();
 			var c_id = activeBubble?.customId;
-			if (!activeBubble && isChecked) {
+			if (
+				(!activeBubble && isChecked) ||
+				(isChecked && activeBubble.customType === 'bubbleStroke')
+			) {
 				requestAnimationFrame(() => {
+					deselectObj();
 					createBubbleElement(canvas!, imgUrl!);
 					canvas.renderAll();
 				});
 			}
+
+			// update slection bubble
 			if (activeBubble && activeBubble.customType === 'bubble' && imgUrl) {
 				const obj = {
 					left: Math.floor(activeBubble?.clipPath?.left),
@@ -1106,7 +1126,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
 		const addTemplate = async () => {
 			const currentTemplateJSON = await saveJSON(canvas, true);
-			deselectObj();
+			// deselectObj();
 
 			await update(selectedPage, { templateJSON: currentTemplateJSON });
 
