@@ -356,6 +356,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
 		// const loadCanvas = useCallback(async () => {
 		// 	if (!canvas) return;
+
 		// 	const templateFound = paginationState?.find(
 		// 		(item) => item?.page === selectedPage
 		// 	);
@@ -365,10 +366,9 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 		// 			resolve(null);
 		// 		});
 		// 	});
-		// }, [canvas, template, paginationState, selectedPage]);
+		// }, [canvas, paginationState, selectedPage]);
 		const loadCanvas = useCallback(async () => {
 			if (!canvas) return;
-
 			const templateFound = paginationState?.find(
 				(item) => item?.page === selectedPage
 			);
@@ -378,11 +378,9 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 					resolve(null);
 				});
 			});
-		}, [canvas, paginationState, selectedPage]);
-
+		}, [canvas, template, paginationState, selectedPage]);
 		useEffect(() => {
 			loadCanvas();
-
 			const handleCanvasUpdate = () => {
 				const activeObject = canvas?.getActiveObject();
 				const isSelectionCleared = canvas?._activeObject === null;
@@ -392,7 +390,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 					activeObject,
 				}));
 			};
-
 			const handleMouseDown = (options: IEvent<Event>) => {
 				if (options.target) {
 					const thisTarget = options.target as fabric.Object;
@@ -412,7 +409,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 									yStart: newPoint.y - (object.height * object.scaleY) / 2,
 									yEnd: newPoint.y + (object.height * object.scaleY) / 2,
 								};
-
+								F;
 								if (
 									mousePos.x >= objectPos.xStart &&
 									mousePos.x <= objectPos.xEnd &&
@@ -551,6 +548,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				return;
 			}
 			const activeObject = canvas.getActiveObject();
+
 			if (activeObject?.customType === 'bubbleStroke') {
 				if (filter && !imgUrl && existingBubbleStroke) {
 					const newOptions: fabric.ICircleOptions = {
@@ -584,6 +582,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 						template?.diptych === 'horizontal' && { left: 150, radius: 80 }),
 				};
 				requestAnimationFrame(() => {
+					// createBubbleElement(canvas!, imgUrl!);
 					createBubbleElement1(canvas!, imgUrl!);
 					canvas.renderAll();
 				});
@@ -1126,7 +1125,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
 		const addTemplate = async () => {
 			const currentTemplateJSON = await saveJSON(canvas, true);
-			// deselectObj();
 
 			await update(selectedPage, { templateJSON: currentTemplateJSON });
 
@@ -1154,9 +1152,10 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
 			addPage(obj);
 			setSelectedPage(highestPageNumber);
-			// setTimeout(() => {
-			// 	loadCanvas(highestPageNumber);
-			// }, 2000);
+			// console.log('🚀 ~ obj:', obj);
+			setTimeout(() => {
+				loadCanvas(highestPageNumber);
+			}, 2000);
 
 			updateActiveTab('background');
 		};
@@ -3526,13 +3525,16 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 											<FormControlLabel
 												control={
 													<Checkbox
-														checked={summaryContent.hashTags.length > 0}
+														checked={
+															summaryContent?.hashTags &&
+															summaryContent.hashTags.length > 0
+														}
 													/>
 												}
 												onChange={(e) =>
 													setSummaryContent((prev) => ({
 														...prev,
-														hashTags: e.target.checked ? [hashTagValue] : [],
+														hashTags: e?.target?.checked ? [hashTagValue] : [],
 													}))
 												}
 												label='Hashtag'
@@ -3567,7 +3569,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 														canvas?._activeObject as fabric.Textbox;
 
 												if (!existingTextObject) return;
-												existingTextObject.set({
+												existingTextObject?.set({
 													fill: color,
 												});
 												canvas.renderAll();
@@ -3616,10 +3618,10 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 							<div>
 								<h2>Write post</h2>
 
-								{summaryContent && summaryContent.content ? (
+								{summaryContent && summaryContent?.content ? (
 									<h5
 										onClick={() => {
-											const text = summaryContent.content;
+											const text = summaryContent?.content;
 											createTextBox(canvas, {
 												text,
 												customType: 'title',
