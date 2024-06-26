@@ -27,15 +27,14 @@ const SummaryForm: FC<Props> = ({
 		vibe: 'positive',
 		format: 'text',
 		emojis: false,
-		hashtags: summaryContent.hashTags,
+		hashtags: summaryContent?.hashTags,
 		social_media: 'twitter',
 		char_count: 280,
 	});
-	console.log('formData', formData);
 	useEffect(() => {
 		setFormData((prevFormData) => ({
 			...prevFormData,
-			hashtags: summaryContent.hashTags,
+			hashtags: summaryContent?.hashTags,
 		}));
 	}, [summaryContent.hashTags]);
 
@@ -75,7 +74,7 @@ const SummaryForm: FC<Props> = ({
 	) => {
 		if (!newValue) return;
 
-		const updatedHashtags = newValue.map((option) => option.value);
+		const updatedHashtags = newValue?.map((option) => option?.value);
 
 		setFormData((prev) => ({
 			...prev,
@@ -89,14 +88,14 @@ const SummaryForm: FC<Props> = ({
 			value: string;
 		}>
 	) => {
-		setFormData((prev) => ({ ...prev, social_media: newValue!.value }));
+		setFormData((prev) => ({ ...prev, social_media: newValue!?.value }));
 	};
 
 	const generateSummaryHandler = async () => {
 		try {
 			setIsLoading(true);
 			const data = await getSummary(formData);
-			console.log(data.data.data.response.content);
+			// console.log(data?.data?.data?.response?.content);
 			setSummaryContent(data?.data?.data?.response);
 			setIsLoading(false);
 		} catch (error) {
@@ -120,8 +119,8 @@ const SummaryForm: FC<Props> = ({
 		}),
 		option: (provided, state) => ({
 			...provided,
-			backgroundColor: state.isSelected ? '#3B0E39' : 'white', // background color of the options
-			color: state.isSelected ? 'white' : 'black', // color of the option text
+			backgroundColor: state?.isSelected ? '#3B0E39' : 'white', // background color of the options
+			color: state?.isSelected ? 'white' : 'black', // color of the option text
 			'&:hover': {
 				backgroundColor: 'lightgray', // background color on hover
 				color: 'black', // color of the option text on hover
@@ -138,11 +137,11 @@ const SummaryForm: FC<Props> = ({
 			<FormGroup>
 				<FormControlLabel
 					control={<Checkbox defaultChecked />}
-					checked={formData.emojis}
+					checked={formData?.emojis}
 					onChange={(e) =>
 						setFormData((prev) => ({
 							...prev,
-							emojis: e.target.checked,
+							emojis: e?.target?.checked,
 						}))
 					}
 					label='Emojis'
@@ -166,10 +165,13 @@ const SummaryForm: FC<Props> = ({
 					onChange={handleHashtagSelectChange}
 					name='hashtags'
 					placeholder='Hashtags'
-					options={formData.hashtags?.map((h) => ({ value: h, label: h }))}
+					options={formData?.hashtags?.map((h) => ({ value: h, label: h }))}
 					className='basic-multi-select'
 					classNamePrefix='select'
-					defaultValue={formData.hashtags?.map((h) => ({ value: h, label: h }))}
+					defaultValue={formData?.hashtags?.map((h) => ({
+						value: h,
+						label: h,
+					}))}
 					isClearable
 					isMulti
 					styles={customStyles}

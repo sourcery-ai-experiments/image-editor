@@ -7,8 +7,8 @@ import { fabric } from 'fabric';
  * (or maybe use existing fabric.util.fire/observe (if it won't be too slow))
  */
 export function initCenteringGuidelines(canvas: fabric.Canvas) {
-	var canvasWidth = canvas.getWidth(),
-		canvasHeight = canvas.getHeight(),
+	var canvasWidth = canvas?.getWidth(),
+		canvasHeight = canvas?.getHeight(),
 		canvasWidthCenter = canvasWidth / 2,
 		canvasHeightCenter = canvasHeight / 2,
 		canvasWidthCenterMap = {},
@@ -16,7 +16,7 @@ export function initCenteringGuidelines(canvas: fabric.Canvas) {
 		centerLineMargin = 4,
 		centerLineColor = 'rgba(255,0,241,0.5)',
 		centerLineWidth = 1,
-		ctx = canvas.getSelectionContext(),
+		ctx = canvas?.getSelectionContext(),
 		viewportTransform: number[] | undefined;
 
 	for (
@@ -33,7 +33,7 @@ export function initCenteringGuidelines(canvas: fabric.Canvas) {
 		i <= len;
 		i++
 	) {
-		canvasHeightCenterMap[Math.round(i)] = true;
+		canvasHeightCenterMap[Math?.round(i)] = true;
 	}
 
 	function showVerticalCenterLine() {
@@ -70,13 +70,13 @@ export function initCenteringGuidelines(canvas: fabric.Canvas) {
 		isInHorizontalCenter: boolean | null;
 
 	canvas.on('mouse:down', function () {
-		viewportTransform = canvas.viewportTransform;
+		viewportTransform = canvas?.viewportTransform;
 	});
 
 	canvas.on('object:moving', function (e) {
-		var object = e.target,
+		var object = e?.target,
 			objectCenter = object?.getCenterPoint(),
-			transform = canvas._currentTransform;
+			transform = canvas?._currentTransform;
 
 		if (!transform) return;
 
