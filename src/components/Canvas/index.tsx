@@ -1295,7 +1295,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 		//--------------------------write post-------------------
 		const [summaryContent, setSummaryContent] = useState<{ content: string }>({
 			content: '',
-			hashTags: [],
+			// hashTags: [],
 		});
 
 		const handleSelectionChanged = () => {
@@ -1760,7 +1760,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 													// min={-1}
 													min={-0.5}
 													value={filtersRange.contrast}
-													max={1}
+													max={0.5}
 													step={0.01}
 													valueLabelDisplay='auto'
 													//eslint-disable-next-line
@@ -1813,7 +1813,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 													color='secondary'
 													defaultValue={0}
 													min={-0.5}
-													max={1}
+													max={0.5}
 													step={0.01}
 													value={filtersRange.brightness}
 													valueLabelDisplay='auto'
@@ -3521,7 +3521,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 											{' '}
 											{hashTagValue}
 										</div>
-										<div>
+										{/* <div>
 											<FormControlLabel
 												control={
 													<Checkbox
@@ -3551,7 +3551,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 													},
 												}}
 											/>
-										</div>
+										</div> */}
 
 										<CustomColorPicker
 											value={userMetaData?.company?.color || '#909AE9'}
@@ -3651,7 +3651,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 								) : (
 									<SummaryForm
 										setSummaryContent={setSummaryContent}
-										summaryContent={summaryContent}
+										// summaryContent={summaryContent}
 									/>
 								)}
 							</div>
