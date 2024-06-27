@@ -1060,12 +1060,9 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 							hasControls: true,
 							hasBorders: true,
 						});
-						// Optionally, trigger canvas render after updating properties
 						snappyImg.canvas.renderAll();
 					});
-
 					canvas.add(snappyImg);
-
 					requestAnimationFrame(() => {
 						canvas.renderAll();
 					});
@@ -1150,14 +1147,29 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				...templateFound,
 			};
 
-			addPage(obj);
+			// addPage(obj);
 			setSelectedPage(highestPageNumber);
-			// console.log('🚀 ~ obj:', obj);
-			setTimeout(() => {
-				loadCanvas(highestPageNumber);
-			}, 2000);
 
+			setTimeout(() => {
+				addPage(obj);
+				loadCanvas(highestPageNumber);
+			}, 3000);
 			updateActiveTab('background');
+		};
+		//pagination click--------handler-----------
+
+		const handleClickPagination = async (item) => {
+			const currentTemplateJSON = await saveJSON(canvas, true);
+			deselectObj();
+			await update(selectedPage, {
+				templateJSON: currentTemplateJSON,
+			});
+			await setSelectedPage(item?.page);
+			await new Promise((resolve) => {
+				canvas?.loadFromJSON(item?.templateJSON, () => {
+					resolve(null);
+				});
+			});
 		};
 
 		const exportMultiCanvases = async () => {
@@ -2751,25 +2763,34 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 						{paginationState?.map((item) => {
 							return (
 								<div
-									onClick={async () => {
-										const currentTemplateJSON = await saveJSON(canvas, true);
-										deselectObj();
-										await update(selectedPage, {
-											templateJSON: currentTemplateJSON,
-										});
-										await setSelectedPage(item?.page);
-										await new Promise((resolve) => {
-											canvas?.loadFromJSON(item?.templateJSON, () => {
-												// bindEvents();
-												resolve(null);
-											});
-										});
-									}}
+									onClick={() => handleClickPagination(item)}
 									key={item?.page}
 									className={classes?.paginationStyle}
 								>
 									{item?.page}
 								</div>
+								// <div
+								// 	onClick={async () => {
+								// 		const currentTemplateJSON = await saveJSON(canvas, true);
+								// 		deselectObj();
+								// 		await update(selectedPage, {
+								// 			templateJSON: currentTemplateJSON,
+								// 		});
+								// 		await setSelectedPage(item?.page);
+								// 		await new Promise((resolve) => {
+								// 			canvas?.loadFromJSON(item?.templateJSON, () => {
+								// 				// bindEvents();
+								// 				resolve(null);
+								// 			});
+								// 		});
+
+								// 	}}
+								// 	key={item?.page}
+								// 	className={classes?.paginationStyle}
+								// >
+								// 	{item?.page}
+
+								// </div>
 							);
 						})}
 
