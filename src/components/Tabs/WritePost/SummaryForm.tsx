@@ -18,8 +18,8 @@ interface Props {
 }
 const SummaryForm: FC<Props> = ({
 	setSummaryContent,
-	summaryContent,
-}: Props) => {
+}: // summaryContent,
+Props) => {
 	const { scrapURL } = useCanvasContext();
 	const [isLoading, setIsLoading] = useState(false);
 	const [formData, setFormData] = useState({
@@ -27,16 +27,34 @@ const SummaryForm: FC<Props> = ({
 		vibe: 'positive',
 		format: 'text',
 		emojis: false,
-		hashtags: summaryContent?.hashTags,
+		hashtags: [],
 		social_media: 'twitter',
 		char_count: 280,
 	});
-	useEffect(() => {
+	// console.log('formData', formData);
+	// hashtags: summaryContent?.hashTags,
+
+	// useEffect(() => {
+	// 	setFormData((prevFormData) => ({
+	// ...prevFormData,
+	// hashtags: summaryContent?.hashTags,
+	// 	}));
+	// }, [summaryContent.hashTags]);
+
+	//--------------
+	const [isHashtagsEnabled, setIsHashtagsEnabled] = useState(false);
+
+	const handleCheckboxChange = (e) => {
+		const isChecked = e.target.checked;
+		setIsHashtagsEnabled(isChecked);
+
 		setFormData((prevFormData) => ({
 			...prevFormData,
-			hashtags: summaryContent?.hashTags,
+			hashtags: isChecked ? prevFormData.hashtags : [],
 		}));
-	}, [summaryContent.hashTags]);
+	};
+
+	//--------------
 
 	const socialMedias = [
 		{
@@ -158,24 +176,50 @@ const SummaryForm: FC<Props> = ({
 						},
 					}}
 				/>
-				<br />
 
-				<Typography>Hashtags</Typography>
-				<Creatable
-					onChange={handleHashtagSelectChange}
-					name='hashtags'
-					placeholder='Hashtags'
-					options={formData?.hashtags?.map((h) => ({ value: h, label: h }))}
-					className='basic-multi-select'
-					classNamePrefix='select'
-					defaultValue={formData?.hashtags?.map((h) => ({
-						value: h,
-						label: h,
-					}))}
-					isClearable
-					isMulti
-					styles={customStyles}
+				<FormControlLabel
+					control={
+						<Checkbox
+							checked={isHashtagsEnabled}
+							onChange={handleCheckboxChange}
+						/>
+					}
+					label='Hashtag'
+					sx={{
+						'& .MuiIconButton-root': {
+							color: '#fff',
+							border: '1px solid #fff',
+						},
+						'&.Mui-checked': {
+							color: '#fff',
+						},
+						'& .MuiSvgIcon-root': {
+							fill: '#fff',
+						},
+					}}
 				/>
+
+				<br />
+				{isHashtagsEnabled && (
+					<>
+						<Typography>Hashtags</Typography>
+						<Creatable
+							onChange={handleHashtagSelectChange}
+							name='hashtags'
+							placeholder='Hashtags'
+							options={formData?.hashtags?.map((h) => ({ value: h, label: h }))}
+							className='basic-multi-select'
+							classNamePrefix='select'
+							defaultValue={formData?.hashtags?.map((h) => ({
+								value: h,
+								label: h,
+							}))}
+							isClearable
+							isMulti
+							styles={customStyles}
+						/>
+					</>
+				)}
 				<br />
 				<Typography>Social Platforms</Typography>
 				<Select
