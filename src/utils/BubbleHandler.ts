@@ -151,10 +151,12 @@ export const createBubbleElement1 = (
 	) as fabric.Circle;
 
 	const id: number = Math.floor(Math.random() * 100);
+	const left = canvas.getWidth() / 2; //centerX
+	const top = canvas.getHeight() / 2; //centerY
 	var strokeCircle = new fabric.Circle({
 		radius: 100,
-		left: 350,
-		top: 330,
+		left: left,
+		top: top,
 		originX: 'center',
 		originY: 'center',
 		fill: 'transparent',
