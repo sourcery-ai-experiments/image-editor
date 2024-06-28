@@ -2647,8 +2647,9 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 									display: 'flex',
 									alignItems: 'center',
 									justifyContent: 'center',
-									borderRadius: 0,
-									width: '537px',
+									borderRadius: '0px 0px 5px 5px ',
+									width: '539px',
+									// border: '2px solid red',
 								}}
 								onClick={() => {
 									dropDown ? setDropDown(false) : setDropDown(true);
@@ -2855,11 +2856,11 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 												sx={{
 													display: 'flex',
 													justifyContent: 'space-around',
-													py: 1,
+													py: 0.1,
 												}}
 											>
 												<div>Top Images</div>
-												<div>Bottom Images</div>
+												<div>Bottom Images </div>
 											</Box>
 										) : template?.diptych === 'horizontal' ? (
 											<>
@@ -2867,7 +2868,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 													sx={{
 														display: 'flex',
 														justifyContent: 'space-around',
-														py: 1,
+														py: 0.1,
 													}}
 												>
 													<div>Left Images</div>
@@ -2897,80 +2898,87 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 									</Box>
 								</div>
 								{/* bg prompt */}
-								<h4 style={{ margin: '0px', padding: '0px' }}>AI Images</h4>
-								<input
-									onChange={(e) => setPrompt(e.target.value)}
-									onKeyPress={handleKeyPress}
-									type='text'
-									value={prompt}
-									placeholder='Prompt here'
-									style={{
-										paddingLeft: '5px',
-										width: '100%',
-										height: '30px',
-										marginTop: '20px',
-										border: 'none',
-										borderRadius: '4px',
-									}}
-								/>
-								<Button
-									onClick={generateTextToImageHanlder}
-									style={{
-										marginTop: '10px',
-										marginBottom: '10px',
-										width: '100%',
-										height: '42px',
-										borderRadius: '25px',
-										textTransform: 'capitalize',
-										border: 'none',
-										backgroundColor: '#3b0e39',
-										color: 'white',
-									}}
-									disabled={loadingState === 'textToImage'}
-									endIcon={
-										loadingState === 'textToImage' ? (
-											<CircularProgress sx={{ color: '#ffffff' }} size={20} />
-										) : null
-									}
-								>
-									Generate
-								</Button>
-								{generatedImages?.length > 0 && (
-									<ImageViewer
-										clickHandler={(img: string) => updateBackgroundImage(img)}
-										images={generatedImages}
-										onDragStart={(e, imageUrl) => {
-											const background = true;
-											handleDragStart(e, imageUrl, background);
+								<Box>
+									<h4 style={{ margin: '0px', padding: '0px' }}>AI Images </h4>
+									<input
+										onChange={(e) => setPrompt(e.target.value)}
+										onKeyPress={handleKeyPress}
+										type='text'
+										value={prompt}
+										placeholder='Prompt here'
+										style={{
+											paddingLeft: '5px',
+											width: '100%',
+											height: '30px',
+											marginTop: '8px',
+											border: 'none',
+											borderRadius: '4px',
 										}}
+									/>
+									<Button
+										onClick={generateTextToImageHanlder}
+										style={{
+											marginTop: '10px',
+											marginBottom: '10px',
+											width: '100%',
+											height: '42px',
+											borderRadius: '25px',
+											textTransform: 'capitalize',
+											border: 'none',
+											backgroundColor: '#3b0e39',
+											color: 'white',
+										}}
+										disabled={loadingState === 'textToImage'}
+										endIcon={
+											loadingState === 'textToImage' ? (
+												<CircularProgress sx={{ color: '#ffffff' }} size={20} />
+											) : null
+										}
 									>
-										{template?.diptych === 'vertical' ? (
-											<Box
-												sx={{
-													display: 'flex',
-													justifyContent: 'space-around',
-													py: 1,
+										Generate
+									</Button>
+									<Box>
+										{generatedImages?.length > 0 && (
+											<ImageViewer
+												clickHandler={(img: string) =>
+													updateBackgroundImage(img)
+												}
+												images={generatedImages}
+												onDragStart={(e, imageUrl) => {
+													const background = true;
+													handleDragStart(e, imageUrl, background);
 												}}
 											>
-												<div>Top Images</div>
-												<div>Bottom Images</div>
-											</Box>
-										) : template?.diptych === 'horizontal' ? (
-											<>
-												<Box
-													sx={{
-														display: 'flex',
-														justifyContent: 'space-around',
-														py: 1,
-													}}
-												>
-													<div>Left Images</div>
-													<div>Right Images</div>
-												</Box>
-											</>
-										) : null}
-									</ImageViewer>
-								)}
+												{/* {template?.diptych === 'vertical' ? (
+													<Box
+														sx={{
+															display: 'flex',
+															justifyContent: 'space-around',
+															py: 0.1,
+														}}
+													>
+														<div>Top Images </div>
+														<div>Bottom Images</div>
+													</Box>
+												) : template?.diptych === 'horizontal' ? (
+													<>
+														<Box
+															sx={{
+																display: 'flex',
+																justifyContent: 'space-around',
+																py: 0.1,
+															}}
+														>
+															<div>Left Images</div>
+															<div>Right Images</div>
+														</Box>
+													</>
+												) : null} */}
+											</ImageViewer>
+										)}
+									</Box>
+								</Box>
+								<br />
 							</>
 						)}
 
@@ -3092,8 +3100,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 										style={{
 											margin: '0px',
 											padding: '0px',
-
-											bottom: '10px',
 										}}
 									>
 										AI Images
@@ -3108,7 +3114,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 											paddingLeft: '5px',
 											width: '100%',
 											height: '30px',
-											marginTop: '20px',
+											marginTop: '8px',
 											border: 'none',
 											borderRadius: '4px',
 										}}
@@ -3155,7 +3161,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 												handleDragStart(e, imageUrl, background, true);
 											}}
 										>
-											{template?.diptych === 'vertical' ? (
+											{/* {template?.diptych === 'vertical' ? (
 												<Box
 													sx={{
 														display: 'flex',
@@ -3163,7 +3169,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 														py: 1,
 													}}
 												>
-													<div>Top Images</div>
+													<div>Top Images 2</div>
 													<div>Bottom Images</div>
 												</Box>
 											) : template?.diptych === 'horizontal' ? (
@@ -3179,7 +3185,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 														<div>Right Images</div>
 													</Box>
 												</>
-											) : null}
+											) : null} */}
 										</ImageViewer>
 									)}
 								</>
@@ -3690,10 +3696,11 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 							</div>
 						)}
 					</div>
-
+					<br />
+					<br />
 					<div
 						style={{
-							marginTop: '65%',
+							marginTop: '160px',
 							position: 'relative',
 						}}
 					>
