@@ -22,12 +22,13 @@ const SummaryForm: FC<Props> = ({
 Props) => {
 	const { scrapURL } = useCanvasContext();
 	const [isLoading, setIsLoading] = useState(false);
+	const [isHashtagsEnabled, setIsHashtagsEnabled] = useState(false);
 	const [formData, setFormData] = useState({
 		url: scrapURL,
 		vibe: 'positive',
 		format: 'text',
 		emojis: false,
-		hashtags: [],
+		hashtags: isHashtagsEnabled,
 		social_media: 'twitter',
 		char_count: 280,
 	});
@@ -42,17 +43,26 @@ Props) => {
 	// }, [summaryContent.hashTags]);
 
 	//--------------
-	const [isHashtagsEnabled, setIsHashtagsEnabled] = useState(false);
 
 	const handleCheckboxChange = (e) => {
-		const isChecked = e.target.checked;
-		setIsHashtagsEnabled(isChecked);
+		const checked = e.target.checked;
+		setIsHashtagsEnabled(checked);
 
 		setFormData((prevFormData) => ({
 			...prevFormData,
-			hashtags: isChecked ? prevFormData.hashtags : [],
+			hashtags: checked,
 		}));
 	};
+
+	// const handleCheckboxChange = (e) => {
+	// 	const isChecked = e.target.checked;
+	// 	setIsHashtagsEnabled(isChecked);
+
+	// 	setFormData((prevFormData) => ({
+	// 		...prevFormData,
+	// 		hashtags: isChecked ? isHashtagsEnabled : false,
+	// 	}));
+	// };
 
 	//--------------
 
@@ -200,7 +210,7 @@ Props) => {
 				/>
 
 				<br />
-				{isHashtagsEnabled && (
+				{/* {isHashtagsEnabled && (
 					<>
 						<Typography>Hashtags</Typography>
 						<Creatable
@@ -219,8 +229,8 @@ Props) => {
 							styles={customStyles}
 						/>
 					</>
-				)}
-				<br />
+				)} */}
+				{/* <br /> */}
 				<Typography>Social Platforms</Typography>
 				<Select
 					defaultValue={{ label: 'Social Media', value: '' }}

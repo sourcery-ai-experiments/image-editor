@@ -24,6 +24,7 @@ export async function getSummary(formData: {
 	try {
 		const response = await fetch(`${BaseURL}/api/get-summary`, requestOptions);
 		const result = await response.json();
+		// console.log('🚀 ~ result:', result);
 
 		return result;
 	} catch (error) {
