@@ -1120,6 +1120,9 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			return highestPageNumber + 1;
 		};
 
+		//loading page state
+		const [pageLoading, setPageLoading] = useState<boolean>(false);
+
 		const addTemplate = async () => {
 			const currentTemplateJSON = await saveJSON(canvas, true);
 
@@ -1130,7 +1133,9 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			const templateFound = templateData.templates?.find(
 				(item) => item.filePath === paginationState[0].filePath
 			);
+
 			let templateJSON;
+
 			try {
 				templateJSON = await import(
 					`../../constants/templates/${template.filePath}.json`
@@ -1150,11 +1155,14 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			// addPage(obj);
 			setSelectedPage(highestPageNumber);
 
+			setPageLoading(true);
+
 			setTimeout(() => {
 				addPage(obj);
 				loadCanvas(highestPageNumber);
+				setPageLoading(false);
+				updateActiveTab('background');
 			}, 3000);
-			updateActiveTab('background');
 		};
 		//pagination click--------handler-----------
 
@@ -2798,20 +2806,24 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 							className={classes.paginationStyle}
 							onClick={() => addTemplate()}
 						>
-							<svg
-								xmlns='http://www.w3.org/2000/svg'
-								width='24'
-								height='24'
-								viewBox='0 0 24 24'
-								fill='none'
-								stroke='currentColor'
-								strokeWidth='2'
-								strokeLinecap='round'
-								strokeLinejoin='round'
-							>
-								<line x1='12' y1='5' x2='12' y2='19'></line>
-								<line x1='5' y1='12' x2='19' y2='12'></line>
-							</svg>
+							{!pageLoading ? (
+								<svg
+									xmlns='http://www.w3.org/2000/svg'
+									width='24'
+									height='24'
+									viewBox='0 0 24 24'
+									fill='none'
+									stroke='currentColor'
+									strokeWidth='2'
+									strokeLinecap='round'
+									strokeLinejoin='round'
+								>
+									<line x1='12' y1='5' x2='12' y2='19'></line>
+									<line x1='5' y1='12' x2='19' y2='12'></line>
+								</svg>
+							) : (
+								<CircularProgress sx={{ color: '#ffffff' }} size={20} />
+							)}
 						</div>
 					</div>
 				</div>
@@ -2991,7 +3003,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 															fill: '#fff',
 															width: 303,
 															height: 39,
-															top: 400,
+															top: 550,
 															left: 34,
 															scaleX: 1.53,
 															scaleY: 1.53,
@@ -2999,7 +3011,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 														});
 
 													updateTextBox(canvas, { text });
-
 													setOverlayTextFiltersState((prev) => ({
 														...prev,
 														text,
@@ -3089,6 +3100,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 									</h4>
 									<input
 										onChange={(e) => setPrompt(e.target.value)}
+										onKeyPress={handleKeyPress}
 										type='text'
 										placeholder='Prompt here'
 										value={prompt}
