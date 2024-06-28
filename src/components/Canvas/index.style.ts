@@ -147,7 +147,7 @@ export const styles = {
 	uploadBox: {
 		display: 'flex',
 		justifyContent: 'center',
-		marginTop: '16px',
+		marginTop: '2px',
 	},
 	uploadLabel: {
 		display: 'flex',
