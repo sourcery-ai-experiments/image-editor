@@ -3641,7 +3641,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 												scaleX: 1.53,
 												scaleY: 1.53,
 												fontSize: 16,
-												customType: 'customTypeText',
 											});
 											updateTextBox(canvas, { text });
 										}}
