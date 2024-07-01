@@ -130,6 +130,10 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			brightness: 0,
 			contrast: 0,
 		});
+
+		const handleButtonClick = (buttonType: string) =>
+			setActiveButton(buttonType);
+
 		var events = {
 			object: ['added', 'moving', 'moved', 'scaled', 'selected', 'over'],
 			mouse: ['down', 'up', 'moving', 'over', 'out'],
@@ -203,7 +207,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				overlay: 0.6,
 				text: updatedSeedData.texts[0],
 				fontSize: 16,
-				elementFontSize: 16,
+				elementFontSize: 24,
 				writePostfontSize: 16,
 				color: '#fff',
 				fontFamily: 'Fira Sans',
@@ -211,6 +215,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				charSpacing: 1,
 				lineHeight: 1,
 			});
+		// console.log('overlayTextFiltersState', overlayTextFiltersState);
 
 		const [filterValues, setFilterValues] = useState({
 			overlayText: {
@@ -235,6 +240,15 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				stroke: '#ffffff',
 			},
 		});
+
+		// useEffect(() => {
+		// 	const activeObject = canvas?.getActiveObject();
+		// 	console.log('activeObject?.fontSize', activeObject);
+		// 	setOverlayTextFiltersState((prev) => ({
+		// 		...prev,
+		// 		fontSize: activeObject?.fontSize,
+		// 	}));
+		// }, [canvas?._activeObject]);
 
 		const availableFilters: { name: string; filter: fabric.IBaseFilter }[] = [
 			{
@@ -352,9 +366,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				setColor(color);
 			}
 		};
-
-		const handleButtonClick = (buttonType: string) =>
-			setActiveButton(buttonType);
 
 		// const loadCanvas = useCallback(async () => {
 		// 	if (!canvas) return;
@@ -1804,31 +1815,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 										)}
 										{activeButton === 'Brightness' && (
 											<div className={classes.sliderContainer}>
-												{/* <Slider
-													className={classes.slider}
-													aria-label='Overlay, Brightness, Contrast'
-													color='secondary'
-													defaultValue={0}
-													min={-1}
-													max={1}
-													step={0.01}
-													value={filtersRange.brightness}
-													valueLabelDisplay='auto'
-													onChange={(e: any) => {
-														let value = +e.target.value;
-														setFiltersRange({
-															...filtersRange,
-															brightness: value,
-														});
-														var filter = new fabric.Image.filters.Brightness({
-															brightness: value,
-														});
-
-														updateBackgroundFilters(filter, 'brightness');
-													}}
-												/> */}
-
-												{/* // Scale the value to decrease the strength by 50% */}
 												<Slider
 													className={classes.slider}
 													aria-label='Overlay, Brightness, Contrast'
@@ -1945,7 +1931,92 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 													width: '100%',
 												}}
 											>
-												<Typography
+												<Button
+													className={`${classes.button} ${
+														activeButton === 'font' && classes.buttonActive
+													}`}
+													variant='text'
+													color='primary'
+													onClick={() => {
+														handleButtonClick('font');
+														setShow('font');
+													}}
+												>
+													FONT
+												</Button>
+												<Button
+													className={`${classes.button} ${
+														activeButton === 'fontWeight' &&
+														classes.buttonActive
+													}`}
+													variant='text'
+													color='primary'
+													onClick={() => {
+														handleButtonClick('fontWeight');
+														setShow('fontWeight');
+													}}
+												>
+													FONTWEIGHT
+												</Button>
+												<Button
+													className={`${classes.button} ${
+														activeButton === 'charSpacing' &&
+														classes.buttonActive
+													}`}
+													variant='text'
+													color='primary'
+													onClick={() => {
+														handleButtonClick('charSpacing');
+														setShow('charSpacing');
+													}}
+												>
+													SPACING
+												</Button>
+												<Button
+													className={`${classes.button} ${
+														activeButton === 'colors' && classes.buttonActive
+													}`}
+													variant='text'
+													color='primary'
+													onClick={() => {
+														handleButtonClick('colors');
+														setShow('colors');
+													}}
+												>
+													colors
+												</Button>
+
+												{activeTab === 'title' && (
+													<Button
+														className={`${classes.button} ${
+															activeButton === 'size' && classes.buttonActive
+														}`}
+														variant='text'
+														color='primary'
+														onClick={() => {
+															handleButtonClick('size');
+															setShow('size');
+														}}
+													>
+														SIZE
+													</Button>
+												)}
+												{activeTab === 'writePost' && (
+													<Button
+														className={`${classes.button} ${
+															activeButton === 'size' && classes.buttonActive
+														}`}
+														variant='text'
+														color='primary'
+														onClick={() => {
+															handleButtonClick('size');
+															setShow('size');
+														}}
+													>
+														SIZE
+													</Button>
+												)}
+												{/* <Typography
 													className={classes.heading}
 													onClick={() => setShow('font')}
 													sx={{
@@ -1978,25 +2049,38 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 													onClick={() => setShow('size')}
 												>
 													SIZE
-												</Typography>
-												{/* {activeTab === 'writePost' && (
-													<Typography
-														className={classes.heading}
-														onClick={() => setShow('writePost-size')}
-													>
-														SIZE
-													</Typography>
-												)}
-												{activeTab === 'title' && (
-													<Typography
-														className={classes.heading}
-														onClick={() => setShow('title-size')}
-													>
-														SIZE
-													</Typography>
-												)} */}
+												</Typography> */}
+
 												{activeTab === 'element' && (
 													<>
+														<Button
+															className={`${classes.button} ${
+																activeButton === 'element-size' &&
+																classes.buttonActive
+															}`}
+															variant='text'
+															color='primary'
+															onClick={() => {
+																handleButtonClick('element-size');
+																setShow('element-size');
+															}}
+														>
+															SIZE
+														</Button>
+														<Button
+															className={`${classes.button} ${
+																activeButton === 'element-shadow' &&
+																classes.buttonActive
+															}`}
+															variant='text'
+															color='primary'
+															onClick={() => {
+																handleButtonClick('element-shadow');
+																setShow('element-shadow');
+															}}
+														>
+															SHADOW
+														</Button>
 														{/* <Typography
 													className={classes.heading}
 													onClick={() => setShow('opacity')}
@@ -2005,21 +2089,15 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 												</Typography> */}
 														{/* <Typography
 															className={classes.heading}
-															onClick={() => setShow('element-size')}
-														>
-															SIZE
-														</Typography> */}
-														<Typography
-															className={classes.heading}
 															onClick={() => setShow('element-shadow')}
 														>
 															SHADOW
-														</Typography>
+														</Typography> */}
 													</>
 												)}
 											</Box>
 
-											{show === 'colors' && (
+											{activeButton && show === 'colors' && (
 												<Box
 													className={classes.optionsContainer}
 													sx={{
@@ -2143,7 +2221,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 												</div>
 											)}
 
-											{show === 'element-shadow' && (
+											{activeButton && show === 'element-shadow' && (
 												<div>
 													{/* setHexConversionForElement */}
 
@@ -2278,7 +2356,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 												</div>
 											)}
 
-											{show === 'fontWeight' && (
+											{activeButton && show === 'fontWeight' && (
 												<Box my={2} className={classes.sliderContainer}>
 													<Slider
 														className={classes.slider}
@@ -2302,7 +2380,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 												</Box>
 											)}
 
-											{show === 'size' && (
+											{activeButton && show === 'size' && (
 												<Box my={2} className={classes.sliderContainer}>
 													<Slider
 														className={classes.slider}
@@ -2324,7 +2402,8 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 													/>
 												</Box>
 											)}
-											{/* {show === 'element-size' && (
+
+											{activeButton && show === 'element-size' && (
 												<Box my={2} className={classes.sliderContainer}>
 													<Slider
 														className={classes.slider}
@@ -2334,7 +2413,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 															overlayTextFiltersState.elementFontSize
 														}
 														min={10}
-														max={48}
+														max={72}
 														onChange={(e: any) => {
 															const value = +e.target.value;
 															updateTextBox(canvas, { elementFontSize: value });
@@ -2347,35 +2426,8 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 														valueLabelDisplay='auto'
 													/>
 												</Box>
-											)} */}
-											{/* {show === 'writePost-size' && (
-												<Box my={2} className={classes.sliderContainer}>
-													<Slider
-														className={classes.slider}
-														aria-label='size'
-														color='secondary'
-														defaultValue={
-															overlayTextFiltersState.writePostfontSize
-														}
-														min={10}
-														max={48}
-														onChange={(e: any) => {
-															const value = +e.target.value;
-															updateTextBox(canvas, {
-																writePostfontSize: value,
-															});
-															setOverlayTextFiltersState((prev) => ({
-																...prev,
-																writePostfontSize: value,
-															}));
-														}}
-														step={1}
-														valueLabelDisplay='auto'
-													/>
-												</Box>
-											)} */}
-
-											{show === 'charSpacing' && (
+											)}
+											{activeButton && show === 'charSpacing' && (
 												<Box
 													my={2}
 													// className={classes.sliderContainer}
@@ -2445,12 +2497,13 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 													</Box>
 												</Box>
 											)}
-											{show === 'font' && (
+											{activeButton && show === 'font' && (
 												<FontsTab value={value} handleChange={handleChange} />
 											)}
 										</Paper>
 									</div>
 								)}
+
 							{activeTab == 'bubble' && dropDown && (
 								<div
 									style={{
@@ -2466,7 +2519,73 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 												pb: 1.5,
 											}}
 										>
-											<Typography
+											<Button
+												className={`${classes.button} ${
+													activeButton === 'colors' && classes.buttonActive
+												}`}
+												variant='text'
+												color='primary'
+												onClick={() => {
+													handleButtonClick('colors');
+													setShow('colors');
+												}}
+											>
+												COLORS
+											</Button>
+											<Button
+												className={`${classes.button} ${
+													activeButton === 'size' && classes.buttonActive
+												}`}
+												variant='text'
+												color='primary'
+												onClick={() => {
+													handleButtonClick('size');
+													setShow('size');
+												}}
+											>
+												SIZE
+											</Button>
+											<Button
+												className={`${classes.button} ${
+													activeButton === 'shadow' && classes.buttonActive
+												}`}
+												variant='text'
+												color='primary'
+												onClick={() => {
+													handleButtonClick('shadow');
+													setShow('shadow');
+												}}
+											>
+												SHADOW
+											</Button>
+											<Button
+												className={`${classes.button} ${
+													activeButton === 'contrast' && classes.buttonActive
+												}`}
+												variant='text'
+												color='primary'
+												onClick={() => {
+													handleButtonClick('contrast');
+													setShow('contrast');
+												}}
+											>
+												CONTRAST
+											</Button>
+											<Button
+												className={`${classes.button} ${
+													activeButton === 'brightness' && classes.buttonActive
+												}`}
+												variant='text'
+												color='primary'
+												onClick={() => {
+													handleButtonClick('brightness');
+													setShow('brightness');
+												}}
+											>
+												BRIGHTNESS
+											</Button>
+
+											{/* <Typography
 												className={classes.heading}
 												onClick={() => setShow('colors')}
 											>
@@ -2496,10 +2615,10 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 												onClick={() => setShow('brightness')}
 											>
 												BRIGHTNESS
-											</Typography>
+											</Typography> */}
 										</Box>
 
-										{show === 'colors' && (
+										{activeButton && show === 'colors' && (
 											<Box
 												className={classes.optionsContainer}
 												sx={{
@@ -2523,7 +2642,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 											</Box>
 										)}
 
-										{show === 'size' && (
+										{activeButton && show === 'size' && (
 											<div className={classes.sliderContainer}>
 												<Slider
 													className={classes.slider}
@@ -2551,7 +2670,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 											</div>
 										)}
 
-										{show === 'shadow' && (
+										{activeButton && show === 'shadow' && (
 											<div>
 												<div className={classes.colorPicker}>
 													<Box className={classes.optionsContainer}>
@@ -2669,7 +2788,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 											</div>
 										)}
 
-										{show === 'contrast' && (
+										{activeButton && show === 'contrast' && (
 											<div className={classes.sliderContainer}>
 												<Slider
 													className={classes.slider}
@@ -2692,7 +2811,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 											</div>
 										)}
 
-										{show === 'brightness' && (
+										{activeButton && show === 'brightness' && (
 											<div className={classes.sliderContainer}>
 												<Slider
 													className={classes.slider}
@@ -2749,6 +2868,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 									onClick={() => {
 										updateActiveTab('background');
 										deselectObj();
+										handleButtonClick('Overlay');
 									}}
 								>
 									<img
@@ -2767,6 +2887,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 									style={{ backgroundColor: 'transparent', border: 'none' }}
 									onClick={() => {
 										updateActiveTab('title');
+										handleButtonClick('font');
 										deselectObj();
 									}}
 								>
@@ -2785,6 +2906,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 								<button
 									onClick={() => {
 										updateActiveTab('bubble');
+										handleButtonClick('colors');
 										deselectObj();
 									}}
 									style={{ backgroundColor: 'transparent', border: 'none' }}
@@ -2804,6 +2926,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 								<button
 									onClick={() => {
 										updateActiveTab('element');
+										handleButtonClick('font');
 										deselectObj();
 									}}
 									style={{ backgroundColor: 'transparent', border: 'none' }}
@@ -2823,6 +2946,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 								<button
 									onClick={() => {
 										updateActiveTab('writePost');
+										handleButtonClick('font');
 										deselectObj();
 									}}
 									style={{ backgroundColor: 'transparent', border: 'none' }}
@@ -3676,7 +3800,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 														left: 150,
 														width: 250,
 														textAlign: 'ceter',
-														fontSize: 30,
+														fontSize: overlayTextFiltersState.elementFontSize,
 													});
 													canvas.renderAll();
 												} else {
@@ -3688,7 +3812,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 														left: 150,
 														width: 250,
 														textAlign: 'ceter',
-														fontSize: 30,
+														fontSize: overlayTextFiltersState.elementFontSize,
 													});
 												}
 											}}
