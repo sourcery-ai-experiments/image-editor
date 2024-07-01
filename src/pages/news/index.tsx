@@ -286,8 +286,13 @@ import {
 } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCanvasContext } from '../../context/CanvasContext';
-
 function MultiActionAreaCard({ feed, updateScrapURL }: any) {
+	const [feedImage, setFeedImage] = useState<string | undefined>(undefined);
+	useEffect(() => {
+		if (feed?.feed?.image !== undefined) {
+			setFeedImage(feed.feed.image);
+		}
+	}, [feed]);
 	const navigate = useNavigate();
 
 	return (
@@ -306,6 +311,7 @@ function MultiActionAreaCard({ feed, updateScrapURL }: any) {
 					</Typography>
 				</Box>
 			)}
+
 			{feed?.items?.map((item: any, i: number) => (
 				<Card key={i} sx={{ my: 1 }}>
 					<CardActionArea style={{ display: 'flex', alignItems: 'center' }}>
@@ -313,15 +319,24 @@ function MultiActionAreaCard({ feed, updateScrapURL }: any) {
 							<div style={{ display: 'flex', alignItems: 'center' }}>
 								<div style={{ height: '20px', marginRight: '10px' }}>
 									<Link to={item?.link} style={{ textDecoration: 'none' }}>
-										{feed?.feed?.image && (
+										{feedImage && (
 											<CardMedia
 												component='img'
-												style={{
+												sx={{
 													height: '100%',
 													width: 'auto',
 													borderRadius: '1rem',
+													// filter: 'brightness(0)',
+													// filter:
+													// 	'brightness(0) sepia(1) saturate(10) hue-rotate(190deg)',
+
+													backgroundColor: '#212121',
+													opacity: 0.3,
+													px: 2.1,
+													py: 1,
+													ml: 1.7,
 												}}
-												image={feed?.feed?.image}
+												image={feedImage}
 												alt='Image'
 											/>
 										)}
