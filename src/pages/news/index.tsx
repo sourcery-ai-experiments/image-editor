@@ -313,16 +313,18 @@ function MultiActionAreaCard({ feed, updateScrapURL }: any) {
 							<div style={{ display: 'flex', alignItems: 'center' }}>
 								<div style={{ height: '20px', marginRight: '10px' }}>
 									<Link to={item?.link} style={{ textDecoration: 'none' }}>
-										<CardMedia
-											component='img'
-											style={{
-												height: '100%',
-												width: 'auto',
-												borderRadius: '1rem',
-											}}
-											image={feed?.feed?.image}
-											alt='s'
-										/>
+										{feed?.feed?.image && (
+											<CardMedia
+												component='img'
+												style={{
+													height: '100%',
+													width: 'auto',
+													borderRadius: '1rem',
+												}}
+												image={feed?.feed?.image}
+												alt='Image'
+											/>
+										)}
 									</Link>
 								</div>
 							</div>

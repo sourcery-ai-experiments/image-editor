@@ -185,7 +185,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
 		const { paginationState, selectedPage, setSelectedPage, addPage, update } =
 			usePaginationContext();
-
+	
 		const { userMetaData } = useCanvasContext();
 
 		const [canvasToolbox, setCanvasToolbox] = useState({
