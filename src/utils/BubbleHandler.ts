@@ -135,6 +135,24 @@ export const createBubbleElement = (
 					radius: strokeCircle.radius!,
 				})
 				.setCoords();
+
+			// Update the image scale and position
+			const newScaleFactor = Math.max(
+				strokeCircle.getScaledWidth() / fabricImage.width!,
+				strokeCircle.getScaledHeight() / fabricImage.height!
+			);
+
+			fabricImage
+				.set({
+					scaleX: newScaleFactor,
+					scaleY: newScaleFactor,
+					left: fabricImage.left,
+					top: fabricImage.top,
+				})
+				.setCoords();
+
+			prevLeft = strokeCircle.left!;
+			prevTop = strokeCircle.top!;
 		});
 
 		canvas.renderAll();
@@ -272,8 +290,25 @@ export const createBubbleElement1 = (
 					radius: strokeCircle.radius!,
 				})
 				.setCoords();
-		});
 
+			// Update the image scale and position
+			const newScaleFactor = Math.max(
+				strokeCircle.getScaledWidth() / fabricImage.width!,
+				strokeCircle.getScaledHeight() / fabricImage.height!
+			);
+
+			fabricImage
+				.set({
+					scaleX: newScaleFactor,
+					scaleY: newScaleFactor,
+					left: fabricImage.left,
+					top: fabricImage.top,
+				})
+				.setCoords();
+
+			prevLeft = strokeCircle.left!;
+			prevTop = strokeCircle.top!;
+		});
 		canvas.renderAll();
 	};
 };

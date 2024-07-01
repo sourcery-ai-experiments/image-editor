@@ -1316,7 +1316,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			: '@COMPANYSOCIAL';
 		//--------------------------write post-------------------
 		const [summaryContent, setSummaryContent] = useState<{ content: string }>({
-			content: '',
+			content: ``,
 			// hashTags: [],
 		});
 
@@ -3702,38 +3702,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 											{hashTagValue}
 										</div>
 
-										{/* <div>
-											<FormControlLabel
-												control={
-													<Checkbox
-														checked={
-															summaryContent?.hashTags &&
-															summaryContent.hashTags.length > 0
-														}
-													/>
-												}
-												onChange={(e) =>
-													setSummaryContent((prev) => ({
-														...prev,
-														hashTags: e?.target?.checked ? [hashTagValue] : [],
-													}))
-												}
-												label='Hashtag'
-												sx={{
-													'& .MuiIconButton-root': {
-														color: '#fff',
-														border: '1px solid #fff',
-													},
-													'&.Mui-checked': {
-														color: '#fff',
-													},
-													'& .MuiSvgIcon-root ': {
-														fill: '#fff',
-													},
-												}}
-											/>
-										</div> */}
-
 										<CustomColorPicker
 											value={userMetaData?.company?.color || '#909AE9'}
 											changeHandler={(color: string) => {
@@ -3813,11 +3781,12 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 												left: 34,
 												scaleX: 1.53,
 												scaleY: 1.53,
-												fontSize: overlayTextFiltersState?.writePostfontSize,
+												fontSize: 16,
 											});
 											updateTextBox(canvas, { text });
 										}}
 										style={{
+											userSelect: 'text',
 											margin: '0px',
 											marginBottom: '18px',
 											cursor: 'pointer',

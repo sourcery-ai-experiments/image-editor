@@ -32,17 +32,6 @@ Props) => {
 		social_media: 'twitter',
 		char_count: 280,
 	});
-	// console.log('formData', formData);
-	// hashtags: summaryContent?.hashTags,
-
-	// useEffect(() => {
-	// 	setFormData((prevFormData) => ({
-	// ...prevFormData,
-	// hashtags: summaryContent?.hashTags,
-	// 	}));
-	// }, [summaryContent.hashTags]);
-
-	//--------------
 
 	const handleCheckboxChange = (e) => {
 		const checked = e.target.checked;
@@ -53,18 +42,6 @@ Props) => {
 			hashtags: checked,
 		}));
 	};
-
-	// const handleCheckboxChange = (e) => {
-	// 	const isChecked = e.target.checked;
-	// 	setIsHashtagsEnabled(isChecked);
-
-	// 	setFormData((prevFormData) => ({
-	// 		...prevFormData,
-	// 		hashtags: isChecked ? isHashtagsEnabled : false,
-	// 	}));
-	// };
-
-	//--------------
 
 	const socialMedias = [
 		{
@@ -210,27 +187,7 @@ Props) => {
 				/>
 
 				<br />
-				{/* {isHashtagsEnabled && (
-					<>
-						<Typography>Hashtags</Typography>
-						<Creatable
-							onChange={handleHashtagSelectChange}
-							name='hashtags'
-							placeholder='Hashtags'
-							options={formData?.hashtags?.map((h) => ({ value: h, label: h }))}
-							className='basic-multi-select'
-							classNamePrefix='select'
-							defaultValue={formData?.hashtags?.map((h) => ({
-								value: h,
-								label: h,
-							}))}
-							isClearable
-							isMulti
-							styles={customStyles}
-						/>
-					</>
-				)} */}
-				{/* <br /> */}
+
 				<Typography>Social Platforms</Typography>
 				<Select
 					defaultValue={{ label: 'Social Media', value: '' }}
@@ -248,8 +205,8 @@ Props) => {
 					variant='contained'
 					sx={{
 						textTransform: 'capitalize',
+						mt: 2,
 					}}
-					sx={{ mt: 2 }}
 					endIcon={isLoading ? <CircularProgress size={20} /> : null}
 				>
 					Generate
