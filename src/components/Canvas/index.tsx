@@ -185,7 +185,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
 		const { paginationState, selectedPage, setSelectedPage, addPage, update } =
 			usePaginationContext();
-	
+
 		const { userMetaData } = useCanvasContext();
 
 		const [canvasToolbox, setCanvasToolbox] = useState({
@@ -202,7 +202,9 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			useState<FilterState>({
 				overlay: 0.6,
 				text: updatedSeedData.texts[0],
-				fontSize: 50,
+				fontSize: 16,
+				elementFontSize: 16,
+				writePostfontSize: 16,
 				color: '#fff',
 				fontFamily: 'Fira Sans',
 				fontWeight: 500,
@@ -1189,9 +1191,9 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 					});
 				});
 				// Extract image data from canvas
-				const imageData = canvas?.toDataURL({ format: 'png' });
+				const imageData = canvas?.toDataURL({ format: 'jpeg' });
 				// Add image data to zip file
-				zip.file(`page_${page?.page}.png`, imageData.split('base64,')[1], {
+				zip.file(`page_${page?.page}.jpeg`, imageData.split('base64,')[1], {
 					base64: true,
 				});
 			}
@@ -1970,12 +1972,29 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 												>
 													COLORS
 												</Typography>
+
 												<Typography
 													className={classes.heading}
 													onClick={() => setShow('size')}
 												>
 													SIZE
 												</Typography>
+												{/* {activeTab === 'writePost' && (
+													<Typography
+														className={classes.heading}
+														onClick={() => setShow('writePost-size')}
+													>
+														SIZE
+													</Typography>
+												)}
+												{activeTab === 'title' && (
+													<Typography
+														className={classes.heading}
+														onClick={() => setShow('title-size')}
+													>
+														SIZE
+													</Typography>
+												)} */}
 												{activeTab === 'element' && (
 													<>
 														{/* <Typography
@@ -1984,6 +2003,12 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 												>
 													OPACITY
 												</Typography> */}
+														{/* <Typography
+															className={classes.heading}
+															onClick={() => setShow('element-size')}
+														>
+															SIZE
+														</Typography> */}
 														<Typography
 															className={classes.heading}
 															onClick={() => setShow('element-shadow')}
@@ -2299,6 +2324,56 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 													/>
 												</Box>
 											)}
+											{/* {show === 'element-size' && (
+												<Box my={2} className={classes.sliderContainer}>
+													<Slider
+														className={classes.slider}
+														aria-label='size'
+														color='secondary'
+														defaultValue={
+															overlayTextFiltersState.elementFontSize
+														}
+														min={10}
+														max={48}
+														onChange={(e: any) => {
+															const value = +e.target.value;
+															updateTextBox(canvas, { elementFontSize: value });
+															setOverlayTextFiltersState((prev) => ({
+																...prev,
+																elementFontSize: value,
+															}));
+														}}
+														step={1}
+														valueLabelDisplay='auto'
+													/>
+												</Box>
+											)} */}
+											{/* {show === 'writePost-size' && (
+												<Box my={2} className={classes.sliderContainer}>
+													<Slider
+														className={classes.slider}
+														aria-label='size'
+														color='secondary'
+														defaultValue={
+															overlayTextFiltersState.writePostfontSize
+														}
+														min={10}
+														max={48}
+														onChange={(e: any) => {
+															const value = +e.target.value;
+															updateTextBox(canvas, {
+																writePostfontSize: value,
+															});
+															setOverlayTextFiltersState((prev) => ({
+																...prev,
+																writePostfontSize: value,
+															}));
+														}}
+														step={1}
+														valueLabelDisplay='auto'
+													/>
+												</Box>
+											)} */}
 
 											{show === 'charSpacing' && (
 												<Box
@@ -3004,19 +3079,42 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 														| fabric.Textbox
 														| undefined;
 
-													if (!existingObject)
+													// 												if (!existingObject)
+													// 													const centerX = canvas.getWidth() / 2; //centerX
+													// const centerY = canvas.getHeight() / 2;
+													// 													return createTextBox(canvas, {
+													// 														text,
+													// 														customType: 'title',
+													// 														fill: '#fff',
+													// 														width: 303,
+													// 														height: 39,
+													// 														top: 550,
+													// 														left: 34,
+													// 														scaleX: 1.53,
+													// 														scaleY: 1.53,
+													// 														fontSize: overlayTextFiltersState.fontSize,
+													// 														textAlign:'center'
+													// 													});
+													if (!existingObject) {
+														const centerX = canvas.getWidth() / 2; //centerX
+														const centerY = canvas.getHeight() / 2;
+
 														return createTextBox(canvas, {
 															text,
 															customType: 'title',
 															fill: '#fff',
 															width: 303,
 															height: 39,
-															top: 550,
-															left: 34,
+															top: centerY,
+															left: centerX,
 															scaleX: 1.53,
 															scaleY: 1.53,
 															fontSize: 16,
+															textAlign: 'center',
+															originX: 'center',
+															originY: 'center',
 														});
+													}
 
 													updateTextBox(canvas, { text });
 													setOverlayTextFiltersState((prev) => ({
@@ -3529,7 +3627,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 											mt: 1,
 										}}
 									>
-										<div
+										{/* <div
 											onClick={() => {
 												const existingTextObject = getExistingObject(
 													'hashtag'
@@ -3542,6 +3640,9 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 													existingTextObject.set({
 														fill: userMetaData?.company?.color,
 														visible: true,
+														top:350,
+														left:50,
+														width:"200px"
 													});
 													canvas.renderAll();
 												} else
@@ -3555,11 +3656,52 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 												cursor: 'pointer',
 												paddingBottom: '0.5rem',
 												display: 'inline-block',
+											
+												
 											}}
 										>
-											{' '}
+											{hashTagValue}
+										</div> */}
+										<div
+											onClick={() => {
+												const existingTextObject = getExistingObject(
+													'hashtag'
+												) as fabric.Textbox | undefined;
+
+												if (existingTextObject && !existingTextObject.visible) {
+													existingTextObject.set({
+														fill: userMetaData?.company?.color,
+														visible: true,
+														top: 100,
+														left: 150,
+														width: 250,
+														textAlign: 'ceter',
+														fontSize: 30,
+													});
+													canvas.renderAll();
+												} else {
+													createTextBox(canvas, {
+														fill: userMetaData?.company?.color,
+														customType: 'hashtag',
+														name: `@${userMetaData?.company?.name}`,
+														top: 100,
+														left: 150,
+														width: 250,
+														textAlign: 'ceter',
+														fontSize: 30,
+													});
+												}
+											}}
+											style={{
+												cursor: 'pointer',
+												paddingBottom: '0.5rem',
+												display: 'inline-block',
+												// Add other styles as needed
+											}}
+										>
 											{hashTagValue}
 										</div>
+
 										{/* <div>
 											<FormControlLabel
 												control={
@@ -3671,8 +3813,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 												left: 34,
 												scaleX: 1.53,
 												scaleY: 1.53,
-												fontSize: 16,
-												customType: 'customTypeText',
+												fontSize: overlayTextFiltersState?.writePostfontSize,
 											});
 											updateTextBox(canvas, { text });
 										}}
