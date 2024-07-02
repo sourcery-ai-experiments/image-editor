@@ -123,7 +123,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 		const [activeButton, setActiveButton] = useState('Overlay');
 		const [loadingState, setLoadingState] = useState(null);
 		const [show, setShow] = useState('font');
-		console.log('🚀 ~ show:', show);
 		const canvasEl = useRef<HTMLCanvasElement>(null);
 		const [selectedFilter] = useState<string>('');
 		const [dropDown, setDropDown] = useState(true);
@@ -3782,7 +3781,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 														'hashtag'
 													) as fabric.Textbox | undefined;
 													const centerX = canvas.getWidth() / 2;
-													const centerY = canvas.getHeight() / 2;
+													// const centerY = canvas.getHeight() / 2;
 													const text = `@${userMetaData?.company?.name}`;
 
 													if (!existingObject) {
@@ -3792,7 +3791,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 															fill: '#fff',
 															width: 303,
 															height: 39,
-															top: centerY,
+															top: 100,
 															left: centerX,
 															scaleX: 1.53,
 															scaleY: 1.53,
@@ -3918,6 +3917,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 											}));
 										}}
 										style={{
+											userSelect: 'text',
 											margin: '0px',
 											marginBottom: '15px',
 											cursor: 'pointer',
