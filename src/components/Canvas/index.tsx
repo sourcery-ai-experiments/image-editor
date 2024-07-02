@@ -123,6 +123,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 		const [activeButton, setActiveButton] = useState('Overlay');
 		const [loadingState, setLoadingState] = useState(null);
 		const [show, setShow] = useState('font');
+		console.log('🚀 ~ show:', show);
 		const canvasEl = useRef<HTMLCanvasElement>(null);
 		const [selectedFilter] = useState<string>('');
 		const [dropDown, setDropDown] = useState(true);
@@ -215,7 +216,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				charSpacing: 1,
 				lineHeight: 1,
 			});
-		// console.log('overlayTextFiltersState', overlayTextFiltersState);
 
 		const [filterValues, setFilterValues] = useState({
 			overlayText: {
@@ -891,16 +891,13 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 					function (img) {
 						img.scaleToWidth(canvas.width || 0);
 						img.scaleToHeight(canvas.height || 0);
-
 						img.set({
 							opacity: +opacity || 1,
 							selectable: false,
 							perPixelTargetFind: false,
 							evented: false,
 						});
-
 						img.customType = 'overlay';
-
 						canvas.insertAt(img, 3, false);
 						requestAnimationFrame(() => {
 							canvas.renderAll();
@@ -1912,6 +1909,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 									</Paper>
 								</div>
 							)}
+
 							{(activeTab == 'writePost' ||
 								activeTab === 'element' ||
 								activeTab === 'title') &&
@@ -2004,16 +2002,17 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 												{activeTab === 'writePost' && (
 													<Button
 														className={`${classes.button} ${
-															activeButton === 'size' && classes.buttonActive
+															activeButton === 'writePost-size' &&
+															classes.buttonActive
 														}`}
 														variant='text'
 														color='primary'
 														onClick={() => {
-															handleButtonClick('size');
-															setShow('size');
+															handleButtonClick('writePost-size');
+															setShow('writePost-size');
 														}}
 													>
-														SIZE
+														SIZE WR
 													</Button>
 												)}
 												{/* <Typography
@@ -2386,7 +2385,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 														className={classes.slider}
 														aria-label='size'
 														color='secondary'
-														defaultValue={overlayTextFiltersState.fontSize}
+														value={overlayTextFiltersState.fontSize}
 														min={10}
 														max={48}
 														onChange={(e: any) => {
@@ -2409,17 +2408,38 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 														className={classes.slider}
 														aria-label='size'
 														color='secondary'
-														defaultValue={
-															overlayTextFiltersState.elementFontSize
-														}
+														value={overlayTextFiltersState.elementFontSize}
 														min={10}
 														max={72}
 														onChange={(e: any) => {
 															const value = +e.target.value;
-															updateTextBox(canvas, { elementFontSize: value });
+															updateTextBox(canvas, { fontSize: value });
 															setOverlayTextFiltersState((prev) => ({
 																...prev,
 																elementFontSize: value,
+															}));
+														}}
+														step={1}
+														valueLabelDisplay='auto'
+													/>
+												</Box>
+											)}
+
+											{activeButton && show === 'writePost-size' && (
+												<Box my={2} className={classes.sliderContainer}>
+													<Slider
+														className={classes.slider}
+														aria-label='size'
+														color='secondary'
+														value={overlayTextFiltersState.writePostfontSize}
+														min={10}
+														max={72}
+														onChange={(e: any) => {
+															const value = +e.target.value;
+															updateTextBox(canvas, { fontSize: value });
+															setOverlayTextFiltersState((prev) => ({
+																...prev,
+																writePostfontSize: value,
 															}));
 														}}
 														step={1}
@@ -2867,8 +2887,8 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 									}}
 									onClick={() => {
 										updateActiveTab('background');
-										deselectObj();
 										handleButtonClick('Overlay');
+										deselectObj();
 									}}
 								>
 									<img
@@ -2888,6 +2908,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 									onClick={() => {
 										updateActiveTab('title');
 										handleButtonClick('font');
+										setShow('font');
 										deselectObj();
 									}}
 								>
@@ -2907,6 +2928,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 									onClick={() => {
 										updateActiveTab('bubble');
 										handleButtonClick('colors');
+										setShow('colors');
 										deselectObj();
 									}}
 									style={{ backgroundColor: 'transparent', border: 'none' }}
@@ -2927,6 +2949,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 									onClick={() => {
 										updateActiveTab('element');
 										handleButtonClick('font');
+										setShow('font');
 										deselectObj();
 									}}
 									style={{ backgroundColor: 'transparent', border: 'none' }}
@@ -2947,6 +2970,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 									onClick={() => {
 										updateActiveTab('writePost');
 										handleButtonClick('font');
+										setShow('font');
 										deselectObj();
 									}}
 									style={{ backgroundColor: 'transparent', border: 'none' }}
@@ -3233,7 +3257,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 															left: centerX,
 															scaleX: 1.53,
 															scaleY: 1.53,
-															fontSize: 16,
+															fontSize: overlayTextFiltersState.fontSize,
 															textAlign: 'center',
 															originX: 'center',
 															originY: 'center',
@@ -3751,79 +3775,48 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 											mt: 1,
 										}}
 									>
-										{/* <div
-											onClick={() => {
-												const existingTextObject = getExistingObject(
-													'hashtag'
-												) as fabric.Textbox | undefined;
+										<div>
+											<h5
+												onClick={() => {
+													const existingObject = getExistingObject(
+														'hashtag'
+													) as fabric.Textbox | undefined;
+													const centerX = canvas.getWidth() / 2;
+													const centerY = canvas.getHeight() / 2;
+													const text = `@${userMetaData?.company?.name}`;
 
-												if (
-													existingTextObject &&
-													!existingTextObject?.visible
-												) {
-													existingTextObject.set({
-														fill: userMetaData?.company?.color,
-														visible: true,
-														top:350,
-														left:50,
-														width:"200px"
-													});
-													canvas.renderAll();
-												} else
-													createTextBox(canvas, {
-														fill: userMetaData?.company?.color,
-														customType: 'hashtag',
-														name: `@${userMetaData?.company?.name}`,
-													});
-											}}
-											style={{
-												cursor: 'pointer',
-												paddingBottom: '0.5rem',
-												display: 'inline-block',
-											
-												
-											}}
-										>
-											{hashTagValue}
-										</div> */}
-										<div
-											onClick={() => {
-												const existingTextObject = getExistingObject(
-													'hashtag'
-												) as fabric.Textbox | undefined;
-
-												if (existingTextObject && !existingTextObject.visible) {
-													existingTextObject.set({
-														fill: userMetaData?.company?.color,
-														visible: true,
-														top: 100,
-														left: 150,
-														width: 250,
-														textAlign: 'ceter',
-														fontSize: overlayTextFiltersState.elementFontSize,
-													});
-													canvas.renderAll();
-												} else {
-													createTextBox(canvas, {
-														fill: userMetaData?.company?.color,
-														customType: 'hashtag',
-														name: `@${userMetaData?.company?.name}`,
-														top: 100,
-														left: 150,
-														width: 250,
-														textAlign: 'ceter',
-														fontSize: overlayTextFiltersState.elementFontSize,
-													});
-												}
-											}}
-											style={{
-												cursor: 'pointer',
-												paddingBottom: '0.5rem',
-												display: 'inline-block',
-												// Add other styles as needed
-											}}
-										>
-											{hashTagValue}
+													if (!existingObject) {
+														return createTextBox(canvas, {
+															text,
+															customType: 'hashtag',
+															fill: '#fff',
+															width: 303,
+															height: 39,
+															top: centerY,
+															left: centerX,
+															scaleX: 1.53,
+															scaleY: 1.53,
+															fontSize: overlayTextFiltersState.elementFontSize,
+															textAlign: 'center',
+															originX: 'center',
+															originY: 'center',
+														});
+													}
+													updateTextBox(canvas, { text });
+													setOverlayTextFiltersState((prev) => ({
+														...prev,
+														text,
+													}));
+												}}
+												style={{
+													margin: '0px',
+													marginBottom: '15px',
+													cursor: 'pointer',
+													color: '#a19d9d',
+												}}
+											>
+												{`@${userMetaData?.company?.name}`}
+											</h5>
 										</div>
 
 										<CustomColorPicker
@@ -3894,29 +3887,41 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 								{summaryContent && summaryContent?.content ? (
 									<h5
 										onClick={() => {
+											const existingObject = getExistingObject('writePost') as
+												| fabric.Textbox
+												| undefined;
+											const centerX = canvas.getWidth() / 2;
+											const centerY = canvas.getHeight() / 2;
 											const text = summaryContent?.content;
-											createTextBox(canvas, {
-												text,
-												customType: 'title',
-												fill: '#fff',
-												width: 303,
-												height: 39,
-												top: 350,
-												left: 34,
-												scaleX: 1.53,
-												scaleY: 1.53,
-												fontSize: 16,
-											});
+
+											if (!existingObject) {
+												return createTextBox(canvas, {
+													text,
+													customType: 'writePost',
+													fill: '#fff',
+													width: 303,
+													height: 39,
+													top: centerY,
+													left: centerX,
+													scaleX: 1.53,
+													scaleY: 1.53,
+													fontSize: overlayTextFiltersState.writePostfontSize,
+													textAlign: 'center',
+													originX: 'center',
+													originY: 'center',
+												});
+											}
 											updateTextBox(canvas, { text });
+											setOverlayTextFiltersState((prev) => ({
+												...prev,
+												text,
+											}));
 										}}
 										style={{
-											userSelect: 'text',
 											margin: '0px',
-											marginBottom: '18px',
+											marginBottom: '15px',
 											cursor: 'pointer',
 											color: '#a19d9d',
-											textAlign: 'justify',
-											lineHeight: 1.5,
 										}}
 									>
 										{summaryContent?.content}
