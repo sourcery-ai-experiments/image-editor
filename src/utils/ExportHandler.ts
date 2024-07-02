@@ -10,14 +10,14 @@ export function saveImage(canvas: fabric.Canvas | null): void {
 	}
 	// if (!canvas) return;
 	const dataUrl = canvas.toDataURL({
-		format: 'png',
+		format: 'jpeg',
 		multiplier: 2,
 		quality: 1.0,
 	});
 
 	const link = document?.createElement('a');
 	link.href = dataUrl;
-	link.download = 'canvas-export.png';
+	link.download = 'canvas-export.jpeg';
 	link.click();
 	console.log('Canvas is .', canvas);
 }
