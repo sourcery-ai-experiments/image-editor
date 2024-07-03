@@ -12,6 +12,7 @@ export function createTextBox(
 	options: FabricTextBox
 ): fabric.Textbox | undefined {
 	if (!canvas) return;
+	console.log('options', options);
 
 	const defaultOptions: ITextboxOptions = {
 		left: 50,
@@ -194,8 +195,8 @@ export function updateTextBox(
 ): void {
 	if (!canvas) return;
 	let textbox: Object | undefined = getExistingObject(
-		canvas,
-		defaultType || 'title'
+		canvas
+		// defaultType || 'title'
 	);
 	const activeObject = canvas?.getActiveObject();
 	if (activeObject && activeObject.isType('textbox')) textbox = activeObject;
